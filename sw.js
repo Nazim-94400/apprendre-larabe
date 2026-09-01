@@ -12,7 +12,7 @@
  * apparente.
  */
 
-const VERSION = 'v2';
+const VERSION = 'v4';
 const SHELL = `app-shell-${VERSION}`;
 const DATA  = `data-${VERSION}`;
 const AUDIO = 'audio';                 // volontairement non versionné : jamais purgé
@@ -30,6 +30,7 @@ const SHELL_ASSETS = [
   './src/ui/styles/tokens.css',
   './src/ui/styles/base.css',
   './src/ui/styles/rtl.css',
+  './src/ui/styles/components.css',
   './src/ui/styles/tajweed.css',
   './src/modules/registry.js',
   './src/modules/dashboard/index.js',

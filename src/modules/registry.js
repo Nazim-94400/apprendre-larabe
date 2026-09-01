@@ -8,12 +8,12 @@
  */
 
 export const MODULES = [
-  { id: '01-fondations',  n: 1, phase: 1, state: 'todo',
+  { id: '01-fondations',  n: 1, phase: 1, state: 'done',
     title: 'Fondations',
     subtitle: 'Alphabet, formes, tracé, tashkîl',
     icon: '\u0623' },
 
-  { id: '02-makharij',    n: 2, phase: 1, state: 'todo',
+  { id: '02-makharij',    n: 2, phase: 1, state: 'done',
     title: 'Makhârij al-Hurûf',
     subtitle: 'Points d\u2019articulation et discrimination auditive',
     icon: '\u0639' },

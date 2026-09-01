@@ -1,0 +1,148 @@
+{
+  "_meta": {
+    "source": "Rédigé pour le projet",
+    "license": "Contenu propre au projet",
+    "note": "Les 17 points d'articulation répartis en 5 zones, selon la classification d'Ibn al-Jazarî, la plus répandue. À faire relire par une personne qualifiée.",
+    "generated": "2026-09-02"
+  },
+
+  "zones": [
+    { "id": "jawf", "name_ar": "الجَوْف", "name_fr": "La cavité", "svg": "zone-jawf",
+      "desc": "L'espace vide de la bouche et de la gorge. Le son n'y rencontre aucun obstacle : il ne fait que se prolonger." },
+    { "id": "halq", "name_ar": "الحَلْق", "name_fr": "La gorge", "svg": "zone-halq",
+      "desc": "Trois points étagés, du plus profond au plus proche de la bouche." },
+    { "id": "lisan", "name_ar": "اللِّسَان", "name_fr": "La langue", "svg": "zone-lisan",
+      "desc": "Dix points, du fond de la langue jusqu'à sa pointe. C'est la zone la plus riche." },
+    { "id": "shafatan", "name_ar": "الشَّفَتَان", "name_fr": "Les lèvres", "svg": "zone-shafatan",
+      "desc": "Deux points, selon que l'on emploie une lèvre ou les deux." },
+    { "id": "khayshum", "name_ar": "الخَيْشُوم", "name_fr": "Les fosses nasales", "svg": "zone-khayshum",
+      "desc": "Un seul point, source de la ghunna : la résonance nasale du م et du ن." }
+  ],
+
+  "points": [
+    { "id": "jawf", "zone": "jawf", "order": 1,
+      "name_ar": "الجَوْف", "name_fr": "La cavité buccale et pharyngale",
+      "letters": ["alif", "waw", "ya"],
+      "desc": "Les trois lettres de prolongation, quand elles ne portent pas de voyelle et suivent leur voyelle homogène : ا après une fatha, و après une damma, ي après une kasra.",
+      "cue": "Ne cherche aucun contact : laisse simplement le son filer." },
+
+    { "id": "halq_aqsa", "zone": "halq", "order": 2,
+      "name_ar": "أَقْصَى الحَلْق", "name_fr": "Fond de la gorge",
+      "letters": ["hamza", "ha"],
+      "desc": "Le point le plus profond, au niveau des cordes vocales.",
+      "cue": "La hamza coupe le son net ; le ه le laisse s'échapper en souffle." },
+
+    { "id": "halq_wasat", "zone": "halq", "order": 3,
+      "name_ar": "وَسَط الحَلْق", "name_fr": "Milieu de la gorge",
+      "letters": ["ayn", "ha_hutti"],
+      "desc": "Même point pour les deux : le ع est sonore, le ح est sourd.",
+      "cue": "Prononce ع puis ح sans bouger la gorge : seule la voix change." },
+
+    { "id": "halq_adna", "zone": "halq", "order": 4,
+      "name_ar": "أَدْنَى الحَلْق", "name_fr": "Haut de la gorge",
+      "letters": ["ghayn", "kha"],
+      "desc": "Le plus proche de la bouche. Le غ est sonore, le خ est sourd.",
+      "cue": "Les deux sont épaisses : le fond de la langue se soulève." },
+
+    { "id": "lisan_aqsa_qaf", "zone": "lisan", "order": 5,
+      "name_ar": "أَقْصَى اللِّسَان", "name_fr": "Fond de la langue et palais mou",
+      "letters": ["qaf"],
+      "desc": "L'arrière de la langue se soulève contre la partie molle du palais.",
+      "cue": "Le point le plus profond de la langue, et le son est épais." },
+
+    { "id": "lisan_aqsa_kaf", "zone": "lisan", "order": 6,
+      "name_ar": "أَقْصَى اللِّسَان مَعَ الحَنَك", "name_fr": "Fond de la langue et palais dur",
+      "letters": ["kaf"],
+      "desc": "Juste devant le point du ق, contre la partie dure du palais.",
+      "cue": "Enchaîne ق puis ك : tu sens la langue avancer d'un cran, et le son s'affiner." },
+
+    { "id": "lisan_wasat", "zone": "lisan", "order": 7,
+      "name_ar": "وَسَط اللِّسَان", "name_fr": "Milieu de la langue",
+      "letters": ["jim", "shin", "ya"],
+      "desc": "Le milieu de la langue s'appuie contre le milieu du palais. Le ي visé ici est le ي consonne, pas la prolongation.",
+      "cue": "Le ج bloque le son, le ش le diffuse, le ي le laisse glisser." },
+
+    { "id": "lisan_hafa", "zone": "lisan", "order": 8,
+      "name_ar": "حَافَة اللِّسَان", "name_fr": "Bord de la langue et molaires",
+      "letters": ["dad"],
+      "desc": "Le bord de la langue presse les molaires supérieures, d'un côté ou des deux.",
+      "cue": "Le point le plus difficile de l'arabe. Le son s'étire le long du bord — ce n'est ni un د ni un ظ." },
+
+    { "id": "lisan_lam", "zone": "lisan", "order": 9,
+      "name_ar": "أَدْنَى حَافَة اللِّسَان", "name_fr": "Bord antérieur et gencive",
+      "letters": ["lam"],
+      "desc": "Le bord avant de la langue touche la gencive des incisives et canines supérieures.",
+      "cue": "Large contact latéral : l'air s'échappe des deux côtés." },
+
+    { "id": "lisan_nun", "zone": "lisan", "order": 10,
+      "name_ar": "طَرَف اللِّسَان", "name_fr": "Pointe de la langue et gencive",
+      "letters": ["nun"],
+      "desc": "La pointe de la langue touche la gencive, un peu en dessous du point du ل.",
+      "cue": "Une part du son passe par le nez : c'est la ghunna." },
+
+    { "id": "lisan_ra", "zone": "lisan", "order": 11,
+      "name_ar": "طَرَف اللِّسَان مَعَ ظَهْرِه", "name_fr": "Pointe et dos de la langue",
+      "letters": ["ra"],
+      "desc": "Même zone que le ن, mais la pointe se recourbe légèrement vers le palais.",
+      "cue": "La pointe vibre. Un seul battement, pas un roulement prolongé." },
+
+    { "id": "lisan_nita", "zone": "lisan", "order": 12,
+      "name_ar": "طَرَف اللِّسَان مَعَ أُصُولِ الثَّنَايَا", "name_fr": "Pointe et base des incisives",
+      "letters": ["ta_mutbaqa", "dal", "ta"],
+      "desc": "La pointe de la langue touche la base des deux incisives supérieures.",
+      "cue": "Trois lettres au même point : ط emphatique et sonore, د sonore et fine, ت sourde et fine." },
+
+    { "id": "lisan_safir", "zone": "lisan", "order": 13,
+      "name_ar": "طَرَف اللِّسَان مَعَ الثَّنَايَا السُّفْلَى", "name_fr": "Pointe et incisives inférieures",
+      "letters": ["sad", "sin", "zay"],
+      "desc": "La pointe de la langue se place derrière les incisives inférieures : l'air siffle en passant.",
+      "cue": "ص emphatique, س fine et sourde, ز fine et sonore." },
+
+    { "id": "lisan_lithawi", "zone": "lisan", "order": 14,
+      "name_ar": "طَرَف اللِّسَان مَعَ أَطْرَافِ الثَّنَايَا", "name_fr": "Pointe et bout des incisives supérieures",
+      "letters": ["dha", "dhal", "tha"],
+      "desc": "La pointe de la langue dépasse légèrement et touche le bout des incisives supérieures.",
+      "cue": "ظ emphatique, ذ fine et sonore, ث fine et sourde." },
+
+    { "id": "shafatan_fa", "zone": "shafatan", "order": 15,
+      "name_ar": "بَطْنُ الشَّفَةِ السُّفْلَى", "name_fr": "Lèvre inférieure et incisives",
+      "letters": ["fa"],
+      "desc": "L'intérieur de la lèvre inférieure touche le bout des incisives supérieures.",
+      "cue": "Le seul point qui associe une lèvre et des dents." },
+
+    { "id": "shafatan_both", "zone": "shafatan", "order": 16,
+      "name_ar": "الشَّفَتَان", "name_fr": "Les deux lèvres",
+      "letters": ["ba", "mim", "waw"],
+      "desc": "Les lèvres se ferment pour le ب et le م, s'arrondissent sans se fermer pour le و consonne.",
+      "cue": "ب éclate, م résonne dans le nez, و s'arrondit." },
+
+    { "id": "khayshum", "zone": "khayshum", "order": 17,
+      "name_ar": "الخَيْشُوم", "name_fr": "Les fosses nasales",
+      "letters": ["nun", "mim"],
+      "desc": "Point de la ghunna seule. Elle accompagne le ن et le م, surtout doublés ou à soukoun.",
+      "cue": "Pince-toi le nez en prononçant مّ : si le son s'étouffe, la ghunna est bien là." }
+  ],
+
+  "exercices_discrimination": [
+    { "id": "ha-ha", "pair": ["ha_hutti", "ha"], "level": 1,
+      "hint": "ح vient du milieu de la gorge et gratte ; ه vient du fond et ne fait que souffler." },
+    { "id": "sad-sin", "pair": ["sad", "sin"], "level": 1,
+      "hint": "Même point, même sifflement. Le ص est épais, le س est fin." },
+    { "id": "qaf-kaf", "pair": ["qaf", "kaf"], "level": 1,
+      "hint": "Le ق est plus profond et épais, le ك plus avancé et fin." },
+    { "id": "ta-ta", "pair": ["ta_mutbaqa", "ta"], "level": 1,
+      "hint": "Même point. Le ط colle la langue au palais, le ت non." },
+    { "id": "dhal-zay-dha", "trio": ["dhal", "zay", "dha"], "level": 2,
+      "hint": "ذ au bout des dents, ز derrière les dents du bas et sifflant, ظ comme le ذ mais épais." },
+    { "id": "ayn-hamza", "pair": ["ayn", "hamza"], "level": 2,
+      "hint": "La hamza coupe net au fond de la gorge ; le ع est un frottement tenu au milieu." },
+    { "id": "kha-ghayn", "pair": ["kha", "ghayn"], "level": 2,
+      "hint": "Même point en haut de la gorge : خ sourd, غ sonore." },
+    { "id": "dad-dal", "pair": ["dad", "dal"], "level": 3,
+      "hint": "Le د est bref et net sur la pointe ; le ض s'étire sur le bord de la langue." },
+    { "id": "tha-sin", "pair": ["tha", "sin"], "level": 3,
+      "hint": "Le ث met la langue entre les dents ; le س la garde derrière." },
+    { "id": "sad-tha", "pair": ["sad", "tha"], "level": 3,
+      "hint": "Le ص siffle et s'épaissit ; le ث chuinte entre les dents." }
+  ]
+}

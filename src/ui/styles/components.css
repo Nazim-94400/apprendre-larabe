@@ -1,0 +1,181 @@
+/* Composants partagés par les modules pédagogiques. */
+
+/* ── Grille de lettres ─────────────────────────────────────────────────────── */
+
+.letter-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(84px, 1fr));
+  gap: var(--sp-2);
+}
+
+.letter-tile {
+  display: flex; flex-direction: column; align-items: center; gap: var(--sp-1);
+  padding: var(--sp-3) var(--sp-2);
+  background: var(--c-surface);
+  border: 1px solid var(--c-border);
+  border-radius: var(--radius);
+  text-decoration: none; color: inherit;
+  transition: border-color .15s, transform .15s;
+}
+.letter-tile:hover { border-color: var(--c-accent); transform: translateY(-1px); }
+
+/* La glyphe doit dominer : c'est elle qu'on apprend, pas son étiquette. */
+.letter-glyph { font-size: calc(2.4rem * var(--text-scale)); line-height: 1.2; }
+.letter-name  { font-size: var(--fs-xs); color: var(--c-text-soft); text-align: center; }
+
+/* ── Fiche de lettre ───────────────────────────────────────────────────────── */
+
+.letter-hero { display: flex; align-items: center; gap: var(--sp-5); flex-wrap: wrap; }
+.letter-big {
+  font-size: calc(4.5rem * var(--text-scale)); line-height: 1;
+  min-width: 1.6em; text-align: center;
+}
+
+.forms-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(72px, 1fr));
+  gap: var(--sp-2);
+}
+
+.form-cell {
+  display: flex; flex-direction: column; align-items: center; gap: var(--sp-1);
+  padding: var(--sp-3) var(--sp-2);
+  background: var(--c-surface-2);
+  border: 1px solid transparent; border-radius: var(--radius-sm);
+  font: inherit; color: inherit; text-decoration: none; cursor: pointer;
+}
+.form-cell:hover { border-color: var(--c-accent); }
+.form-cell .ar { font-size: calc(2rem * var(--text-scale)); line-height: 1.4; }
+
+.tashkil-glyph {
+  border: 0; background: var(--c-surface-2); border-radius: var(--radius-sm);
+  padding: var(--sp-2) var(--sp-4); cursor: pointer; color: inherit;
+}
+.tashkil-glyph .ar { font-size: calc(2.4rem * var(--text-scale)); line-height: 1.5; }
+
+/* Astuce d'articulation : un conseil pratique, pas une définition. */
+.cue {
+  margin: var(--sp-3) 0 0;
+  padding: var(--sp-2) var(--sp-3);
+  border-inline-start: 3px solid var(--c-accent);
+  background: var(--c-surface-2);
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+  color: var(--c-text-soft);
+}
+
+.pager { display: flex; gap: var(--sp-2); justify-content: space-between; align-items: center; }
+.pager .btn { flex: 0 1 auto; padding: 0 var(--sp-3); font-weight: 500; }
+
+.no-voice {
+  margin: 0 0 var(--sp-3);
+  padding: var(--sp-2) var(--sp-3);
+  border: 1px solid var(--c-border); border-radius: var(--radius-sm);
+  background: var(--c-surface-2); color: var(--c-text-soft);
+}
+
+/* ── Quiz ──────────────────────────────────────────────────────────────────── */
+
+.quiz-head { display: flex; align-items: center; gap: var(--sp-3); margin-bottom: var(--sp-4); }
+.quiz-prompt { margin-bottom: var(--sp-3); }
+.quiz-q { margin-bottom: var(--sp-2); }
+.quiz-aside { margin-top: calc(var(--sp-2) * -1); }
+
+.quiz-choices {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: var(--sp-2); margin-bottom: var(--sp-3);
+}
+
+.choice {
+  min-height: 56px; padding: var(--sp-2) var(--sp-3);
+  border: 1px solid var(--c-border); border-radius: var(--radius-sm);
+  background: var(--c-surface); color: var(--c-text);
+  font: inherit; cursor: pointer;
+  transition: border-color .15s, background .15s;
+}
+.choice:hover:not(:disabled) { border-color: var(--c-accent); }
+.choice:disabled { cursor: default; }
+.choice .ar { font-size: calc(1.8rem * var(--text-scale)); line-height: 1.3; }
+
+/* Le vert et le rouge sont doublés d'une bordure épaisse et d'un symbole textuel
+   dans le retour : la couleur seule ne doit jamais porter l'information. */
+.choice-right { border-color: var(--c-success); border-width: 2px; background: var(--c-accent-soft); }
+.choice-wrong { border-color: var(--c-danger); border-width: 2px; opacity: .8; }
+
+.quiz-feedback {
+  padding: var(--sp-3);
+  border-radius: var(--radius-sm);
+  margin-bottom: var(--sp-3);
+  background: var(--c-surface-2);
+  border-inline-start: 3px solid var(--c-border);
+}
+.quiz-feedback.ok { border-inline-start-color: var(--c-success); }
+.quiz-feedback.ko { border-inline-start-color: var(--c-danger); }
+.quiz-answer { font-weight: 600; }
+.quiz-answer .ar { font-size: 1.4em; }
+
+.quiz-score { font-size: var(--fs-xl); font-weight: 700; margin-bottom: var(--sp-2); }
+.quiz-score.ok { color: var(--c-success); }
+.quiz-score.ko { color: var(--c-warning); }
+
+/* ── Schéma des makhârij ───────────────────────────────────────────────────── */
+
+.makhraj-svg { display: block; width: 100%; max-width: 420px; margin: var(--sp-3) auto 0; }
+
+/* Contours plutot qu'aplats : en aplats superposes, le schema devient une masse
+   noire en theme sombre. */
+.mk-face {
+  fill: none; stroke: var(--c-border); stroke-width: 1.5;
+  stroke-linecap: round; stroke-dasharray: 4 6; opacity: .6;
+}
+.mk-palate { fill: none; stroke: var(--c-text-faint); stroke-width: 2.5; stroke-linecap: round; }
+.mk-teeth  { fill: var(--c-text-faint); }
+
+.mk-shape {
+  fill: var(--c-surface-2); stroke: var(--c-text-faint); stroke-width: 1.5;
+  transition: fill .18s, stroke .18s;
+}
+.mk-zone { cursor: pointer; }
+.mk-zone:hover .mk-shape { fill: color-mix(in srgb, var(--c-accent) 35%, var(--c-border)); }
+.mk-zone.is-active .mk-shape { fill: var(--c-accent); stroke: var(--c-accent); }
+
+.mk-label {
+  fill: var(--c-text-soft); font-size: 12px; font-family: var(--f-ui);
+  paint-order: stroke; stroke: var(--c-bg); stroke-width: 3px; stroke-linejoin: round;
+}
+
+/* Le marqueur pulse pour attirer l'œil sur un point précis parmi dix-sept. */
+.mk-marker-halo { fill: var(--c-accent); opacity: .25; }
+.mk-marker-dot  { fill: var(--c-accent); stroke: var(--c-bg); stroke-width: 2; }
+@media (prefers-reduced-motion: no-preference) {
+  .mk-marker-halo { animation: mk-pulse 1.8s ease-in-out infinite; transform-origin: center; }
+}
+@keyframes mk-pulse {
+  0%, 100% { opacity: .18; r: 12; }
+  50%      { opacity: .38; r: 16; }
+}
+
+.zone-card { cursor: pointer; }
+.zone-card:focus-visible { outline: 2px solid var(--c-accent); outline-offset: 2px; }
+
+.point-no {
+  display: grid; place-items: center; flex: none;
+  width: 30px; height: 30px; border-radius: 50%;
+  background: var(--c-surface-2); color: var(--c-text-soft);
+  font-size: var(--fs-sm); font-weight: 700;
+}
+
+/* ── Paires de discrimination ──────────────────────────────────────────────── */
+
+.pair-row { display: flex; align-items: center; gap: var(--sp-2); flex-wrap: wrap; }
+
+.pair-cell {
+  flex: 1 1 110px;
+  display: flex; flex-direction: column; align-items: center; gap: 2px;
+  padding: var(--sp-3);
+  border: 1px solid var(--c-border); border-radius: var(--radius-sm);
+  background: var(--c-surface-2); color: inherit; font: inherit; cursor: pointer;
+}
+.pair-cell:hover { border-color: var(--c-accent); }
+.pair-cell .ar { font-size: calc(2.2rem * var(--text-scale)); line-height: 1.3; }
+.pair-mk { color: var(--c-text-faint); text-align: center; }
+.pair-vs { flex: none; font-size: var(--fs-xs); color: var(--c-text-faint); }
