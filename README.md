@@ -1,5 +1,7 @@
 # Apprendre l'arabe — du tracé des lettres à la récitation
 
+**En ligne : https://nazim-94400.github.io/apprendre-larabe/**
+
 PWA hors ligne, en HTML/CSS/JS sans étape de build, destinée à GitHub Pages.
 Parcours progressif : alphabet et tashkîl → makhârij al-hurûf → règles de tajweed →
 lecture guidée → récitation et auto-évaluation → mémorisation → vocabulaire coranique.
