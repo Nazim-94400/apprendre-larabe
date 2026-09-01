@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Apprendre l'arabe">
+  <rect width="512" height="512" rx="112" fill="#12241f"/>
+  <g fill="none" stroke="#4db89b" stroke-width="18" stroke-linecap="round">
+    <path d="M150 150h212"/>
+    <path d="M150 256h212"/>
+    <path d="M150 362h140"/>
+  </g>
+  <circle cx="344" cy="362" r="20" fill="#e0c46a"/>
+</svg>

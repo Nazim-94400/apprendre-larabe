@@ -1,0 +1,97 @@
+/* Jetons de design — source unique des couleurs, espacements et échelles.
+   Thème clair par défaut ; le thème sombre redéfinit uniquement les couleurs. */
+
+:root {
+  /* Échelle de texte pilotée par l'utilisateur (Réglages -> Aa) */
+  --text-scale: 1;
+
+  /* Neutres chauds (sable) */
+  --c-bg:        #faf7f2;
+  --c-surface:   #ffffff;
+  --c-surface-2: #f2ede4;
+  --c-border:    #e2dad0;
+  --c-text:      #1c1a17;
+  --c-text-soft: #5f5950;
+  --c-text-faint:#8b8378;
+
+  /* Accent vert profond */
+  --c-accent:      #0f5c4a;
+  --c-accent-soft: #d9ece6;
+  --c-accent-text: #ffffff;
+
+  /* Etats */
+  --c-success: #2c6e49;
+  --c-warning: #9a6212;
+  --c-danger:  #a63232;
+
+  /* Typographie */
+  --f-ui: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  /* Trois familles arabes, trois usages — voir src/ui/styles/fonts.css */
+  --f-ar:     "Amiri", "Traditional Arabic", serif;          /* arabe courant */
+  --f-quran:  "Amiri Quran", "Amiri", serif;                 /* texte coranique vocalise */
+  --f-letter: "Scheherazade New", "Amiri", serif;            /* lettre seule, gros corps */
+
+  --fs-xs:  calc(0.75rem * var(--text-scale));
+  --fs-sm:  calc(0.875rem * var(--text-scale));
+  --fs-md:  calc(1rem * var(--text-scale));
+  --fs-lg:  calc(1.25rem * var(--text-scale));
+  --fs-xl:  calc(1.5rem * var(--text-scale));
+
+  /* L'arabe demande plus de corps que le latin a lisibilite egale, et le tashkil
+     exige une interligne genereuse pour ne pas se chevaucher. */
+  --fs-ar:      calc(1.75rem * var(--text-scale));
+  --fs-ar-lg:   calc(2.5rem * var(--text-scale));
+  --fs-ar-huge: calc(5rem * var(--text-scale));
+  --lh-ar: 2.1;
+
+  /* Espacements */
+  --sp-1: 4px;  --sp-2: 8px;  --sp-3: 12px; --sp-4: 16px;
+  --sp-5: 24px; --sp-6: 32px; --sp-7: 48px;
+
+  --radius:    12px;
+  --radius-sm: 8px;
+  --shadow: 0 1px 2px rgb(28 26 23 / 6%), 0 4px 12px rgb(28 26 23 / 5%);
+
+  --header-h: 56px;
+  --nav-h: 60px;
+  --content-max: 720px;
+}
+
+:root[data-theme="dark"] {
+  --c-bg:        #12100e;
+  --c-surface:   #1c1917;
+  --c-surface-2: #262220;
+  --c-border:    #3a3430;
+  --c-text:      #f0ebe4;
+  --c-text-soft: #b3aaa0;
+  --c-text-faint:#7d746b;
+
+  --c-accent:      #4db89b;
+  --c-accent-soft: #1a3a32;
+  --c-accent-text: #08201a;
+
+  --c-success: #5cb98a;
+  --c-warning: #d9a441;
+  --c-danger:  #e07a7a;
+
+  --shadow: 0 1px 2px rgb(0 0 0 / 40%), 0 4px 12px rgb(0 0 0 / 30%);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root[data-theme="auto"] {
+    --c-bg:        #12100e;
+    --c-surface:   #1c1917;
+    --c-surface-2: #262220;
+    --c-border:    #3a3430;
+    --c-text:      #f0ebe4;
+    --c-text-soft: #b3aaa0;
+    --c-text-faint:#7d746b;
+    --c-accent:      #4db89b;
+    --c-accent-soft: #1a3a32;
+    --c-accent-text: #08201a;
+    --c-success: #5cb98a;
+    --c-warning: #d9a441;
+    --c-danger:  #e07a7a;
+    --shadow: 0 1px 2px rgb(0 0 0 / 40%), 0 4px 12px rgb(0 0 0 / 30%);
+  }
+}

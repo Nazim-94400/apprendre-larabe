@@ -1,0 +1,13 @@
+# Normalisation : LF dans le depot, fin de ligne native dans la copie de travail.
+* text=auto eol=lf
+
+# Binaires : ne jamais toucher.
+*.woff2 binary
+*.woff  binary
+*.png   binary
+*.jpg   binary
+*.mp3   binary
+*.pdf   binary
+
+# Le texte coranique est genere : le diff ligne a ligne n'a aucun interet.
+data/quran/**/*.json -diff linguist-generated

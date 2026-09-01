@@ -1,0 +1,77 @@
+/* Polices arabes, embarquées localement — aucune requête vers un CDN, donc
+   fonctionnement hors ligne dès le premier chargement.
+
+   Trois familles, trois usages distincts :
+
+   - Scheherazade New : très ouverte, contreformes larges. C'est celle qui rend les
+     lettres lisibles en très grand corps et qui sépare visuellement les points
+     diacritiques. Réservée aux Modules 1 et 2, où l'on regarde une lettre seule.
+   - Amiri Quran : dessinée pour le texte coranique entièrement vocalisé. Le tashkîl
+     y est positionné pour ne pas se heurter aux hampes. Réservée au texte du Coran.
+   - Amiri : version courante, pour l'arabe hors contexte coranique.
+
+   Sources : fontsource (paquets npm officiels), licence SIL OFL 1.1 — voir les
+   fichiers LICENSE-*.txt du même dossier. */
+
+/* Plage Unicode du sous-ensemble arabe fourni par fontsource : le navigateur ne
+   télécharge la police que si la page contient réellement ces caractères. */
+
+@font-face {
+  font-family: 'Amiri';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('../../../assets/fonts/amiri-arabic-400-normal.woff2') format('woff2');
+  unicode-range: U+0600-06FF, U+0750-077F, U+0870-088E, U+0890-0891, U+08A0-08FF,
+                 U+200C-200E, U+2010-2011, U+204F, U+2E41, U+FB50-FDFF, U+FE70-FEFF;
+}
+
+@font-face {
+  font-family: 'Amiri';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url('../../../assets/fonts/amiri-arabic-700-normal.woff2') format('woff2');
+  unicode-range: U+0600-06FF, U+0750-077F, U+0870-088E, U+0890-0891, U+08A0-08FF,
+                 U+200C-200E, U+2010-2011, U+204F, U+2E41, U+FB50-FDFF, U+FE70-FEFF;
+}
+
+@font-face {
+  font-family: 'Amiri';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('../../../assets/fonts/amiri-latin-400-normal.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+2018-201A,
+                 U+2032, U+2033, U+2039-203A, U+2044, U+20AC;
+}
+
+@font-face {
+  font-family: 'Amiri Quran';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('../../../assets/fonts/amiri-quran-arabic-400-normal.woff2') format('woff2');
+  unicode-range: U+0600-06FF, U+0750-077F, U+0870-088E, U+0890-0891, U+08A0-08FF,
+                 U+200C-200E, U+2010-2011, U+204F, U+2E41, U+FB50-FDFF, U+FE70-FEFF;
+}
+
+@font-face {
+  font-family: 'Scheherazade New';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('../../../assets/fonts/scheherazade-new-arabic-400-normal.woff2') format('woff2');
+  unicode-range: U+0600-06FF, U+0750-077F, U+0870-088E, U+0890-0891, U+08A0-08FF,
+                 U+200C-200E, U+2010-2011, U+204F, U+2E41, U+FB50-FDFF, U+FE70-FEFF;
+}
+
+@font-face {
+  font-family: 'Scheherazade New';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url('../../../assets/fonts/scheherazade-new-arabic-700-normal.woff2') format('woff2');
+  unicode-range: U+0600-06FF, U+0750-077F, U+0870-088E, U+0890-0891, U+08A0-08FF,
+                 U+200C-200E, U+2010-2011, U+204F, U+2E41, U+FB50-FDFF, U+FE70-FEFF;
+}

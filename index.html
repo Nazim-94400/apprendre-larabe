@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="fr" dir="ltr" data-theme="auto">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Apprendre l'arabe — du tracé des lettres à la récitation</title>
+<meta name="description" content="Parcours progressif hors ligne : alphabet, makhârij, tajweed, lecture guidée, récitation et mémorisation.">
+<meta name="theme-color" content="#12241f">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="assets/icons/icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="assets/icons/icon-192.png">
+<script>
+  /* Applique le thème avant le premier rendu : évite le flash de thème clair. */
+  try {
+    var t = localStorage.getItem('theme') || 'auto';
+    document.documentElement.dataset.theme = t;
+    var s = localStorage.getItem('textScale');
+    if (s) document.documentElement.style.setProperty('--text-scale', s);
+  } catch (e) {}
+</script>
+<link rel="stylesheet" href="src/ui/styles/fonts.css">
+<link rel="stylesheet" href="src/ui/styles/tokens.css">
+<link rel="stylesheet" href="src/ui/styles/base.css">
+<link rel="stylesheet" href="src/ui/styles/rtl.css">
+<link rel="stylesheet" href="src/ui/styles/tajweed.css">
+</head>
+<body>
+<a class="skip-link" href="#vue">Aller au contenu</a>
+
+<header class="app-header">
+  <button class="icon-btn" id="btn-back" hidden aria-label="Retour">←</button>
+  <h1 class="app-title" id="app-title">Apprendre l'arabe</h1>
+  <div class="header-actions">
+    <button class="icon-btn" id="btn-text-size" aria-label="Taille du texte">Aa</button>
+    <button class="icon-btn" id="btn-theme" aria-label="Changer de thème">◐</button>
+  </div>
+</header>
+
+<main id="vue" class="vue" tabindex="-1" aria-live="polite">
+  <div class="loading">Chargement…</div>
+</main>
+
+<nav class="app-nav" aria-label="Navigation principale">
+  <a href="#/" data-nav="/"><span aria-hidden="true">◈</span><span>Accueil</span></a>
+  <a href="#/modules" data-nav="/modules"><span aria-hidden="true">▤</span><span>Modules</span></a>
+  <a href="#/reviser" data-nav="/reviser"><span aria-hidden="true">↻</span><span>Réviser</span></a>
+  <a href="#/reglages" data-nav="/reglages"><span aria-hidden="true">⚙</span><span>Réglages</span></a>
+</nav>
+
+<script type="module" src="src/main.js"></script>
+</body>
+</html>

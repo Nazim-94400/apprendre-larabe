@@ -1,0 +1,9 @@
+<!DOCTYPE html>
+<html lang="fr"><head><meta charset="utf-8">
+<title>Redirection…</title>
+<script>
+  /* GitHub Pages sert cette page pour toute URL inconnue.
+     Le routage se faisant par hash, il suffit de revenir à la racine. */
+  location.replace(location.pathname.replace(/\/[^\/]*$/, '/') + '#' + (location.hash.slice(1) || '/'));
+</script>
+</head><body>Redirection…</body></html>

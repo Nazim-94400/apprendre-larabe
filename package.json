@@ -1,0 +1,17 @@
+{
+  "name": "apprendre-larabe",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "PWA hors ligne : de l'alphabet arabe à la récitation du Coran.",
+  "license": "SEE LICENSE IN docs/03-sources-et-licences.md",
+  "engines": { "node": ">=20" },
+  "scripts": {
+    "fetch": "node tools/fetch-sources.mjs",
+    "fetch:force": "node tools/fetch-sources.mjs --force",
+    "build:quran": "node tools/build-quran.mjs",
+    "build:tajweed": "node tools/build-tajweed.mjs",
+    "build:data": "npm run fetch && npm run build:quran && npm run build:tajweed",
+    "serve": "powershell -ExecutionPolicy Bypass -File tools/serve.ps1"
+  }
+}

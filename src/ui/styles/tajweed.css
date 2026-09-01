@@ -1,0 +1,105 @@
+/* Une couleur par règle de tajweed. Les identifiants sont ceux produits par
+   tools/build-tajweed.mjs (18 règles), repris tels quels en classes CSS.
+
+   Le regroupement suit les familles enseignées, pas l'esthétique : toutes les
+   variantes d'idghâm partagent une teinte verte, tous les madd une teinte bleue dont
+   la profondeur suit la durée (2, 4-5, puis 6 temps). L'apprenant lit ainsi la
+   famille avant la nuance.
+
+   Contrainte d'accessibilité : ces couleurs doivent rester lisibles sur fond clair
+   ET sombre, et rester distinguables pour un daltonisme deutéranope — d'où l'écart
+   volontaire de luminosité entre familles, et non un simple écart de teinte. */
+
+:root {
+  --tj-ghunnah:              #7a3fa8;
+  --tj-idghaam_ghunnah:      #1f7a4d;
+  --tj-idghaam_no_ghunnah:   #3f8f68;
+  --tj-idghaam_shafawi:      #2c8a5c;
+  --tj-idghaam_mutajanisayn: #4f9a76;
+  --tj-idghaam_mutaqaribayn: #4f9a76;
+  --tj-ikhfa:                #b5651d;
+  --tj-ikhfa_shafawi:        #c47f3d;
+  --tj-iqlab:                #0a6f8f;
+  --tj-qalqalah:             #b02a37;
+  --tj-madd_2:               #4f79d8;
+  --tj-madd_246:             #3a5fc0;
+  --tj-madd_munfasil:        #2f4fae;
+  --tj-madd_muttasil:        #2a46a0;
+  --tj-madd_6:               #1a3494;
+  --tj-lam_shamsiyyah:       #8a7a1f;
+  --tj-hamzat_wasl:          #8d8d8d;
+  --tj-silent:               #a8a8a8;
+}
+
+:root[data-theme="dark"] {
+  --tj-ghunnah:              #c79ce8;
+  --tj-idghaam_ghunnah:      #6fd6a0;
+  --tj-idghaam_no_ghunnah:   #8ce0b6;
+  --tj-idghaam_shafawi:      #7bdaab;
+  --tj-idghaam_mutajanisayn: #9ae5c4;
+  --tj-idghaam_mutaqaribayn: #9ae5c4;
+  --tj-ikhfa:                #eda866;
+  --tj-ikhfa_shafawi:        #f0bc8c;
+  --tj-iqlab:                #6ec6e0;
+  --tj-qalqalah:             #f08a94;
+  --tj-madd_2:               #9db8f5;
+  --tj-madd_246:             #8aa6f0;
+  --tj-madd_munfasil:        #7793ea;
+  --tj-madd_muttasil:        #6a86e4;
+  --tj-madd_6:               #5d79de;
+  --tj-lam_shamsiyyah:       #d9c86a;
+  --tj-hamzat_wasl:          #7d7d7d;
+  --tj-silent:               #6a6a6a;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root[data-theme="auto"] {
+    --tj-ghunnah:              #c79ce8;
+    --tj-idghaam_ghunnah:      #6fd6a0;
+    --tj-idghaam_no_ghunnah:   #8ce0b6;
+    --tj-idghaam_shafawi:      #7bdaab;
+    --tj-idghaam_mutajanisayn: #9ae5c4;
+    --tj-idghaam_mutaqaribayn: #9ae5c4;
+    --tj-ikhfa:                #eda866;
+    --tj-ikhfa_shafawi:        #f0bc8c;
+    --tj-iqlab:                #6ec6e0;
+    --tj-qalqalah:             #f08a94;
+    --tj-madd_2:               #9db8f5;
+    --tj-madd_246:             #8aa6f0;
+    --tj-madd_munfasil:        #7793ea;
+    --tj-madd_muttasil:        #6a86e4;
+    --tj-madd_6:               #5d79de;
+    --tj-lam_shamsiyyah:       #d9c86a;
+    --tj-hamzat_wasl:          #7d7d7d;
+    --tj-silent:               #6a6a6a;
+  }
+}
+
+/* Coloration désactivable globalement (Réglages) — la structure du texte reste
+   identique, seule la couleur retombe sur celle du texte courant. */
+[data-tajweed="on"] .tj { color: var(--tj-color, inherit); }
+[data-tajweed="off"] .tj { color: inherit; }
+
+/* Hamzat al-wasl et lettres muettes sont atténuées plutôt que colorées : ce sont des
+   caractères qu'on ne prononce pas, les effacer visuellement dit exactement cela. */
+[data-tajweed="on"] .tj-hamzat_wasl,
+[data-tajweed="on"] .tj-silent { opacity: .5; }
+
+/* Surlignage du mot courant en lecture guidée : se superpose à la couleur de
+   tajweed au lieu de la remplacer. */
+.w-active {
+  background: var(--c-accent-soft);
+  border-radius: 4px;
+  box-shadow: 0 0 0 3px var(--c-accent-soft);
+}
+
+/* Légende des règles */
+.tj-legend { display: flex; flex-wrap: wrap; gap: var(--sp-2); list-style: none; margin: 0; padding: 0; }
+.tj-legend li {
+  display: flex; align-items: center; gap: var(--sp-1);
+  font-size: var(--fs-xs); color: var(--c-text-soft);
+}
+.tj-legend i {
+  width: 10px; height: 10px; border-radius: 2px;
+  background: var(--tj-color); flex: none;
+}

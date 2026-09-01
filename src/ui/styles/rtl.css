@@ -1,0 +1,33 @@
+/* Texte arabe : l'interface reste en LTR, seuls les blocs arabes passent en RTL.
+   Basculer le document entier casserait la mise en page francaise sans rien
+   apporter a la lecture du texte coranique. */
+
+.ar {
+  direction: rtl;
+  unicode-bidi: isolate;
+  text-align: right;
+  font-family: var(--f-ar);
+  font-size: var(--fs-ar);
+  line-height: var(--lh-ar);
+  /* Evite que des ligatures fusionnent des lettres qu'on etudie isolement */
+  font-variant-ligatures: none;
+}
+
+.ar-lg     { font-size: var(--fs-ar-lg); }
+.ar-huge   { font-size: var(--fs-ar-huge); line-height: 1.4; text-align: center;
+             font-family: var(--f-letter); }
+
+/* Texte coranique : police dediee au tashkil dense */
+.ar-quran  { font-family: var(--f-quran); }
+/* Lettre isolee etudiee pour elle-meme (Modules 1 et 2) */
+.ar-letter { font-family: var(--f-letter); }
+.ar-center { text-align: center; }
+
+/* Un mot ou une lettre insere dans une phrase francaise */
+.ar-inline {
+  direction: rtl; unicode-bidi: isolate;
+  font-family: var(--f-ar); font-size: 1.15em;
+}
+
+/* Masque le tashkil sans toucher au texte source (Module 6, mode nu) */
+.ar[data-tashkil="off"] { font-feature-settings: "mark" 0; }

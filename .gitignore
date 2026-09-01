@@ -1,0 +1,10 @@
+# Espace de travail local : documents source, jamais déployés
+_drive/
+# Données volumineuses générées localement avant publication
+tools/.cache/
+node_modules/
+.DS_Store
+Thumbs.db
+
+# Sources telechargees, regenerables par `npm run build:data`
+tools/.cache/
