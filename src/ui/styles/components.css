@@ -307,3 +307,45 @@
 .pb-rate input { flex: 1; min-width: 60px; accent-color: var(--c-accent); }
 .pb-rate #rate-val { font-variant-numeric: tabular-nums; min-width: 3.4em; }
 .pb-pos { flex: none; font-variant-numeric: tabular-nums; }
+
+/* ── Récitation ────────────────────────────────────────────────────────────── */
+
+.rec-row { display: flex; align-items: center; gap: var(--sp-3); }
+
+.rec-btn { flex: none; }
+/* Le bouton change de couleur ET de libellé pendant l'enregistrement : on doit
+   savoir que le micro est ouvert sans avoir à interpréter une nuance de rouge. */
+.rec-btn.is-rec { background: var(--c-danger); }
+
+.level {
+  flex: 1; height: 8px; border-radius: 999px;
+  background: var(--c-surface-2); overflow: hidden;
+}
+.level > i {
+  display: block; height: 100%; width: 0;
+  background: var(--c-accent); transition: width .08s linear;
+}
+
+.waves { display: grid; gap: var(--sp-3); margin-top: var(--sp-3); }
+.wave { width: 100%; height: 44px; display: block; }
+.wave rect { fill: var(--c-text-faint); }
+.wave-ref rect { fill: var(--c-accent); }
+.wave-user rect { fill: var(--c-warning); }
+
+.timing-list { list-style: none; margin: 0; padding: 0; }
+.timing-list li {
+  display: flex; align-items: center; gap: var(--sp-3); flex-wrap: wrap;
+  padding: var(--sp-2) 0; border-bottom: 1px solid var(--c-border);
+}
+.timing-list li:last-child { border-bottom: 0; }
+.timing-list .ar { font-size: calc(1.5rem * var(--text-scale)); }
+.too-short { color: var(--c-warning); font-weight: 600; }
+.too-long  { color: var(--c-iqlab, var(--c-accent)); font-weight: 600; }
+
+.rec-list { list-style: none; margin: var(--sp-2) 0 0; padding: 0; }
+.rec-list li {
+  display: flex; align-items: center; gap: var(--sp-2); flex-wrap: wrap;
+  padding: var(--sp-2) 0; border-bottom: 1px solid var(--c-border);
+}
+.rec-list li:last-child { border-bottom: 0; }
+.small-btn { min-height: 34px; padding: 0 var(--sp-3); }

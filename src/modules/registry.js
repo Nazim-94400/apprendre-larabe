@@ -28,7 +28,7 @@ export const MODULES = [
     subtitle: 'Des syllabes aux sourates, en lecture guidée',
     icon: '\u0642' },
 
-  { id: '05-recitation',  n: 5, phase: 3, state: 'todo',
+  { id: '05-recitation',  n: 5, phase: 3, state: 'done',
     title: 'Récitation',
     subtitle: 'Enregistrement, comparaison, validation verset par verset',
     icon: '\u062A' },
