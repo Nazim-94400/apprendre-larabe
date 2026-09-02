@@ -11,6 +11,7 @@ import * as progress from '../../core/progress.js';
 import * as speech from '../../core/speech.js';
 import { quiz } from '../../ui/components/quiz.js';
 import { strokeView } from '../../ui/components/stroke.js';
+import { wireListen, stopListening } from '../../ui/components/listen.js';
 
 const STEPS = [
   { id: 'm1:lettres',      route: 'lettres',      title: 'Les 28 lettres',
@@ -122,7 +123,7 @@ async function screenLettre(el, id) {
           <h2 style="margin-bottom:var(--sp-1)">${esc(l.name_fr)}
             <span class="ar-inline">${l.name_ar}</span></h2>
           <p class="small muted" style="margin:0">Translittération : <code>${esc(l.translit)}</code></p>
-          <button class="btn btn-ghost speak" data-text="${l.name_ar}"
+          <button class="btn btn-ghost listen" data-letter="${l.id}" data-mark="" data-text="${l.name_ar}"
                   style="margin-top:var(--sp-3)">Écouter</button>
         </div>
       </section>
@@ -153,7 +154,7 @@ async function screenLettre(el, id) {
         <h3>Avec les voyelles</h3>
         <div class="forms-row">
           ${vowels.map((v) => `
-            <button class="form-cell speak" type="button" data-text="${l.forms.isolated}${v.mark}">
+            <button class="form-cell listen" type="button" data-letter="${l.id}" data-mark="${v.mark}" data-text="${l.forms.isolated}${v.mark}">
               <span class="ar ar-letter">${l.forms.isolated}${v.mark}</span>
               <span class="small muted">${l.translit.split(' ')[0]}${v.tr === '(soukoun)' ? '' : v.tr}</span>
             </button>`).join('')}
@@ -275,7 +276,7 @@ async function screenTashkil(el) {
         ${tashkil.map((t) => `
           <section class="card">
             <div style="display:flex;gap:var(--sp-4);align-items:center">
-              <button class="tashkil-glyph speak" type="button" data-text="${t.example}">
+              <button class="tashkil-glyph listen" type="button" data-letter="ba" data-mark="${t.mark}" data-text="${t.example}">
                 <span class="ar ar-letter">${t.example}</span>
               </button>
               <div style="flex:1">
@@ -363,8 +364,8 @@ async function screenQuiz(el, kind) {
         id: l.id + ':' + t.id,
         prompt: `<p class="quiz-q">Comment se lit cette syllabe ?</p>
                  <p class="ar ar-huge">${l.forms.isolated}${t.mark}</p>
-                 <p style="text-align:center"><button class="btn btn-ghost speak" type="button"
-                    data-text="${l.forms.isolated}${t.mark}">Écouter</button></p>`,
+                 <p style="text-align:center"><button class="btn btn-ghost listen" type="button" data-letter="${l.id}"
+                    data-mark="${t.mark}" data-text="${l.forms.isolated}${t.mark}">Écouter</button></p>`,
         choices: [good, ...others, base + 'ê'].slice(0, 4)
           .map((s) => ({ id: s, label: `<code>${esc(s)}</code>` })),
         answer: good,
@@ -386,30 +387,11 @@ async function screenQuiz(el, kind) {
 
 /* ─────────────────────────── utilitaires ─────────────────────────── */
 
-function wireSpeak(el) {
-  const warn = !speech.available();
-  el.addEventListener('click', async (e) => {
-    const btn = e.target.closest('.speak');
-    if (!btn) return;
-    const ok = await speech.speak(btn.dataset.text);
-    if (!ok) notifyNoVoice(el);
-  });
-  el.addEventListener('quiz-speak', async (e) => {
-    const ok = await speech.speak(e.detail.text);
-    if (!ok) notifyNoVoice(el);
-  });
-  if (warn) notifyNoVoice(el, true);
-}
-
-function notifyNoVoice(el, quiet = false) {
-  if (el.querySelector('.no-voice')) return;
-  const p = document.createElement('p');
-  p.className = 'no-voice small';
-  p.textContent = quiet
-    ? 'Aucune voix arabe n’est installée sur cet appareil : les boutons d’écoute resteront muets.'
-    : 'Impossible de prononcer : aucune voix arabe disponible sur cet appareil.';
-  el.prepend(p);
-}
+/**
+ * Les boutons d'écoute passent par la chaîne enregistrement → Coran → synthèse,
+ * et se désactivent d'eux-mêmes quand aucune des trois n'est disponible.
+ */
+const wireSpeak = (el) => wireListen(el);
 
 /* ─────────────────────────── module ─────────────────────────── */
 
@@ -432,7 +414,7 @@ export default {
   },
 
   unmount() {
-    speech.stop();
+    stopListening();
     stroke?.stop();
     stroke = null;
     unsub?.();

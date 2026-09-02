@@ -8,9 +8,9 @@
 
 import * as lessons from '../../data-access/lessons.js';
 import * as progress from '../../core/progress.js';
-import * as speech from '../../core/speech.js';
 import { quiz } from '../../ui/components/quiz.js';
 import { diagram } from './diagram.js';
+import { wireListen, stopListening } from '../../ui/components/listen.js';
 
 const M = '02-makharij';
 const link = (r) => `#/m/${M}${r ? '/' + r : ''}`;
@@ -206,7 +206,6 @@ async function screenPoint(el, id) {
 async function screenDiscrimination(el) {
   const mk = await lessons.makharij();
   const idx = await lessons.letterIndex();
-  const voice = speech.available();
 
   const card = (ex) => {
     const ids = ex.pair ?? ex.trio;
@@ -215,7 +214,7 @@ async function screenDiscrimination(el) {
       <section class="card">
         <div class="pair-row">
           ${ls.map((l) => `
-            <button class="pair-cell speak" type="button" data-text="${l.forms.isolated}َ">
+            <button class="pair-cell listen" type="button" data-letter="${l.id}" data-mark="" data-text="${l.name_ar}">
               <span class="ar ar-letter">${l.forms.isolated}</span>
               <span class="small muted">${esc(l.name_fr)}</span>
               <span class="small pair-mk">${esc(mk.points.find((p) => p.letters.includes(l.id))?.name_fr ?? '')}</span>
@@ -232,9 +231,9 @@ async function screenDiscrimination(el) {
         <p class="small muted">Prononce les deux lettres l’une après l’autre en gardant
           la même voyelle. Si ta bouche ne bouge pas entre les deux, c’est que tu les
           prononces identiques — et c’est précisément ce qu’il faut corriger.</p>
-        ${voice ? '' : `<p class="no-voice small">Aucune voix arabe sur cet appareil :
-          les boutons d’écoute resteront muets. Les indications d’articulation, elles,
-          suffisent à travailler devant un miroir.</p>`}
+        <p class="small muted">Les boutons d’écoute se désactivent d’eux-mêmes
+          quand aucun enregistrement n’existe pour la lettre. Les indications
+          d’articulation, elles, suffisent à travailler devant un miroir.</p>
       </section>
 
       ${[1, 2, 3].map((lvl) => {
@@ -293,12 +292,9 @@ async function screenQuiz(el) {
 
 /* ─────────────────────────── utilitaires ─────────────────────────── */
 
-function wireSpeak(el) {
-  el.addEventListener('click', (e) => {
-    const btn = e.target.closest('.speak');
-    if (btn) speech.speak(btn.dataset.text);
-  });
-}
+// Les boutons passent par la chaîne enregistrement → Coran → synthèse et se
+// désactivent quand aucune source n'existe pour la lettre.
+const wireSpeak = (el) => wireListen(el);
 
 export default {
   title: 'Makhârij al-Hurûf',
@@ -316,5 +312,5 @@ export default {
       <a class="btn btn-ghost" href="${link('')}">Retour au module</a></div>`;
   },
 
-  unmount() { speech.stop(); }
+  unmount() { stopListening(); }
 };

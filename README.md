@@ -62,7 +62,7 @@ s'alignent pas sur le texte — voir `docs/03-sources-et-licences.md`, section 9
 | Module 7 — 500 mots fréquents, quiz sur versets réels | fait |
 | Horodatages mot à mot — 3 récitateurs, 6 236 versets | générés |
 | Gestion du stockage — audio hors ligne, enregistrements | fait |
-| Audio des lettres isolées | absent — aucune source libre |
+| Audio des lettres isolées | 3 lettres sur 29, tirées du Coran |
 | Traduction française des versets | licence non résolue |
 
 Les quatre phases de la feuille de route sont couvertes. Ce qui reste tient aux
@@ -83,3 +83,26 @@ licence d'une traduction française complète n'est pas réglée.
 Aucun fichier n'entre dans `data/` sans une entrée correspondante dans
 `docs/03-sources-et-licences.md` et un bloc `_meta` en tête de fichier
 (source, URL, licence, date de génération).
+
+## Ajouter des enregistrements de lettres
+
+Le son des lettres isolées est le seul manque qui ne tienne pas au code : il
+n'existe aucune banque libre couvrant les 28 lettres avec une voix constante, et
+un assemblage de locuteurs différents rendrait inutilisables les exercices de
+discrimination du Module 2.
+
+Trois lettres font exception : ص, ق et ن sont récitées isolément dans le Coran
+même — elles forment à elles seules le premier verset des sourates 38, 50 et 68.
+L'application y renvoie la récitation d'Al-Husary.
+
+Pour les autres, déposer les fichiers dans `assets/audio/letters/` en suivant la
+convention décrite dans le fichier `A-LIRE.md` du même dossier, puis :
+
+```bash
+npm run build:letter-audio
+```
+
+Aucun code à modifier. Les boutons d'écoute basculent d'eux-mêmes sur
+l'enregistrement, et affichent la source réellement utilisée — enregistrement,
+récitation coranique ou voix de synthèse. Faute des trois, ils se désactivent en
+indiquant pourquoi.

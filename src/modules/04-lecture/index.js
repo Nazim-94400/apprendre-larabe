@@ -14,10 +14,10 @@
 import * as quran from '../../data-access/quran.js';
 import * as lessons from '../../data-access/lessons.js';
 import * as progress from '../../core/progress.js';
-import * as speech from '../../core/speech.js';
 import { render } from '../../data-access/tajweed.js';
 import { createPlayer, reciters, downloadSurah } from '../../core/audio-player.js';
 import { store } from '../../core/store.js';
+import { wireListen, stopListening } from '../../ui/components/listen.js';
 
 const M = '04-lecture';
 const link = (r) => `#/m/${M}${r ? '/' + r : ''}`;
@@ -102,7 +102,7 @@ async function screenSyllabes(el, id) {
             ${rows.map((l) => `
               <tr>
                 ${vowels.map(([mark, tr]) => `
-                  <td><button class="syll speak" type="button" data-text="${l.forms.isolated}${mark}">
+                  <td><button class="syll listen" type="button" data-letter="${l.id}" data-mark="${mark}" data-text="${l.forms.isolated}${mark}">
                     <span class="ar ar-letter">${l.forms.isolated}${mark}</span>
                     <span class="small muted">${esc(l.translit.split(' ')[0])}${tr === '(soukoun)' ? '' : esc(tr)}</span>
                   </button></td>`).join('')}
@@ -115,10 +115,7 @@ async function screenSyllabes(el, id) {
       <button class="btn" type="button" id="mark">J’ai lu ce tableau à voix haute</button>
     </div>`;
 
-  el.addEventListener('click', (e) => {
-    const b = e.target.closest('.speak');
-    if (b) speech.speak(b.dataset.text);
-  });
+  wireListen(el);
   el.querySelector('#mark').addEventListener('click', async (e) => {
     await progress.record(`m4:${step.id}`, { done: true });
     e.target.textContent = 'Étape validée';
@@ -288,6 +285,6 @@ export default {
   unmount() {
     player?.destroy();
     player = null;
-    speech.stop();
+    stopListening();
   }
 };

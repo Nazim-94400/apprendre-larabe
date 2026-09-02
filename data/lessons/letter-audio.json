@@ -1,0 +1,11 @@
+{
+  "_meta": {
+    "source": "assets/audio/letters/ — enregistrements fournis pour le projet",
+    "note": "Généré par tools/build-letter-audio.mjs. Déposer les fichiers et relancer.",
+    "letters_covered": 0,
+    "clips": 0,
+    "generated": "2026-09-02"
+  },
+  "base": "assets/audio/letters/",
+  "clips": {}
+}

@@ -512,3 +512,26 @@
   justify-content: center; margin-bottom: var(--sp-3);
 }
 .stroke-note { margin: var(--sp-3) 0 0; text-align: start; }
+
+/* ── Boutons d'écoute ──────────────────────────────────────────────────────── */
+
+/* Un bouton sans source disponible reste visible mais inerte, et le dit :
+   le masquer laisserait croire que la fonction n'existe pas. */
+.listen:disabled { opacity: .45; cursor: not-allowed; }
+.listen:disabled::after {
+  content: '—'; display: block;
+  font-size: var(--fs-xs); color: var(--c-text-faint);
+}
+
+.listen-note {
+  margin: var(--sp-3) 0 0;
+  padding: var(--sp-2) var(--sp-3);
+  border-inline-start: 3px solid var(--c-border);
+  background: var(--c-surface-2);
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+  font-size: var(--fs-sm); color: var(--c-text-soft);
+}
+.listen-note--recording { border-inline-start-color: var(--c-success); }
+.listen-note--quran     { border-inline-start-color: var(--c-accent); }
+.listen-note--speech    { border-inline-start-color: var(--c-warning); }
+.listen-note--none      { border-inline-start-color: var(--c-danger); }
