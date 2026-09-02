@@ -28,52 +28,17 @@ let player = null;
 
 /* ─────────────────────────── parcours ─────────────────────────── */
 
-/**
- * Étapes de lecture. L'ordre suit la difficulté de tracé et d'articulation :
- * on commence par des lettres au trait simple et au son familier, on ajoute les
- * emphatiques et les gutturales ensuite. C'est la logique des méthodes progressives
- * francophones, et elle diffère volontairement de l'ordre alphabétique.
- */
-const PARCOURS = [
-  { id: 'syll-1', kind: 'syllabes', title: 'Premières syllabes',
-    letters: ['ba', 'ta', 'tha', 'nun', 'ya'], vowels: 'short',
-    desc: 'Cinq lettres de même squelette, qui ne diffèrent que par les points.' },
-  { id: 'syll-2', kind: 'syllabes', title: 'Lettres à boucle',
-    letters: ['jim', 'ha_hutti', 'kha', 'mim', 'ha'], vowels: 'short',
-    desc: 'Le geste change : on ferme une boucle.' },
-  { id: 'syll-3', kind: 'syllabes', title: 'Lettres qui ne se lient pas',
-    letters: ['dal', 'dhal', 'ra', 'zay', 'waw'], vowels: 'short',
-    desc: 'Après elles, le trait s’interrompt.' },
-  { id: 'syll-4', kind: 'syllabes', title: 'Sifflantes et emphatiques',
-    letters: ['sin', 'shin', 'sad', 'dad', 'ta_mutbaqa', 'dha'], vowels: 'short',
-    desc: 'Les paires à distinguer absolument : س/ص, ت/ط, ذ/ظ.' },
-  { id: 'syll-5', kind: 'syllabes', title: 'Gorge et palais',
-    letters: ['ayn', 'ghayn', 'fa', 'qaf', 'kaf', 'lam', 'alif', 'hamza'], vowels: 'short',
-    desc: 'Les sons qui n’existent pas en français.' },
-  { id: 'madd-1', kind: 'syllabes', title: 'Les prolongations',
-    letters: ['ba', 'sin', 'mim', 'nun', 'ra', 'lam'], vowels: 'long',
-    desc: 'La même syllabe, tenue deux temps.' },
-  { id: 'sukun-1', kind: 'syllabes', title: 'Le soukoun',
-    letters: ['ba', 'ta', 'dal', 'jim', 'qaf'], vowels: 'sukun',
-    desc: 'Lettres sans voyelle — et les cinq de la qalqala.' },
+// Le parcours et les jeux de voyelles viennent de data/lessons/curriculum.json :
+// réordonner les étapes ou en ajouter une ne demande aucune modification de code.
+let PARCOURS = [];
+let VOWELS = {};
 
-  { id: 'sourate-114', kind: 'sourate', surah: 114, title: 'An-Nâs', desc: '6 versets' },
-  { id: 'sourate-113', kind: 'sourate', surah: 113, title: 'Al-Falaq', desc: '5 versets' },
-  { id: 'sourate-112', kind: 'sourate', surah: 112, title: 'Al-Ikhlâs', desc: '4 versets' },
-  { id: 'sourate-111', kind: 'sourate', surah: 111, title: 'Al-Masad', desc: '5 versets' },
-  { id: 'sourate-110', kind: 'sourate', surah: 110, title: 'An-Nasr', desc: '3 versets' },
-  { id: 'sourate-108', kind: 'sourate', surah: 108, title: 'Al-Kawthar', desc: '3 versets' },
-  { id: 'sourate-107', kind: 'sourate', surah: 107, title: 'Al-Mâ‘ûn', desc: '7 versets' },
-  { id: 'sourate-106', kind: 'sourate', surah: 106, title: 'Quraych', desc: '4 versets' },
-  { id: 'sourate-105', kind: 'sourate', surah: 105, title: 'Al-Fîl', desc: '5 versets' },
-  { id: 'sourate-1',   kind: 'sourate', surah: 1,   title: 'Al-Fâtiha', desc: '7 versets' }
-];
-
-const VOWELS = {
-  short: [['َ', 'a'], ['ِ', 'i'], ['ُ', 'u']],
-  long:  [['َا', 'â'], ['ِي', 'î'], ['ُو', 'û']],
-  sukun: [['َ', 'a'], ['ْ', '(soukoun)']]
-};
+async function loadCurriculum() {
+  if (PARCOURS.length) return;
+  const c = await lessons.curriculum();
+  PARCOURS = c.steps;
+  VOWELS = c.vowel_sets;
+}
 
 async function screenIndex(el) {
   const states = await Promise.all(PARCOURS.map((s) => progress.get(`m4:${s.id}`)));
@@ -310,6 +275,7 @@ export default {
   title: 'Lecture progressive',
 
   async mount(el, { path = '' } = {}) {
+    await loadCurriculum();
     const [head, arg] = path.split('/');
     if (!head) return screenIndex(el);
     if (head === 'syllabes') return screenSyllabes(el, arg);

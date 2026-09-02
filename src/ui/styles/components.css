@@ -467,3 +467,48 @@
   overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .mod-bar { flex: 0 1 90px; }
 .mod-val { flex: none; font-variant-numeric: tabular-nums; min-width: 3em; text-align: end; }
+
+/* ── Sens d'écriture ───────────────────────────────────────────────────────── */
+
+.stroke { text-align: center; }
+
+/* La scène superpose la glyphe fantôme et la glyphe encrée : même police, même
+   corps, donc superposition parfaite sans calage manuel. */
+.stroke-stage {
+  position: relative; display: inline-block;
+  margin-bottom: var(--sp-2);
+}
+.stroke-stage .ar {
+  font-size: calc(5rem * var(--text-scale));
+  line-height: 1.35;
+  display: block;
+}
+.stroke-ghost { color: var(--c-border); }
+.stroke-ink {
+  position: absolute; inset: 0;
+  color: var(--c-text);
+  clip-path: inset(-20% 0 -20% 100%);
+}
+
+/* Le repère de plume suit la frontière du dévoilement. */
+.stroke-pen {
+  position: absolute; top: 50%; inset-inline-start: 100%;
+  width: 10px; height: 10px; margin-top: -5px; margin-inline-start: -5px;
+  border-radius: 50%;
+  background: var(--c-accent);
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--c-accent) 28%, transparent);
+  opacity: 0; pointer-events: none;
+}
+
+.stroke-dir {
+  display: flex; align-items: center; justify-content: center; gap: var(--sp-2);
+  margin: 0 0 var(--sp-3);
+  font-size: var(--fs-xs); color: var(--c-text-faint);
+}
+.stroke-arrow { font-size: var(--fs-lg); color: var(--c-accent); }
+
+.stroke-forms {
+  display: flex; gap: var(--sp-1); flex-wrap: wrap;
+  justify-content: center; margin-bottom: var(--sp-3);
+}
+.stroke-note { margin: var(--sp-3) 0 0; text-align: start; }

@@ -1,6 +1,7 @@
 import { store } from '../../core/store.js';
 import { db } from '../../core/db.js';
 import { applyTheme, applyTextScale } from '../../ui/theme.js';
+import * as recorder from '../../core/recorder.js';
 
 const fmtUsage = (o) => o == null
   ? 'Indisponible sur ce navigateur'
@@ -42,6 +43,14 @@ export default {
           <p class="small muted">${fmtUsage(usage)}</p>
           <p class="small muted">L\u2019audio de récitation n\u2019est jamais téléchargé
             automatiquement : il se télécharge sourate par sourate, à ta demande.</p>
+
+          <div class="row"><span>Audio hors ligne
+              <span class="small muted" id="audio-info">…</span></span>
+            <button class="btn btn-ghost small-btn" type="button" id="clear-audio">Libérer</button></div>
+
+          <div class="row"><span>Tes enregistrements
+              <span class="small muted" id="rec-info">…</span></span>
+            <button class="btn btn-ghost small-btn" type="button" id="clear-rec">Supprimer</button></div>
         </section>
 
         <section class="card">
@@ -64,6 +73,59 @@ export default {
     el.querySelector('#f-tajweed').onchange = (e) => store.set({ tajweedColors: e.target.checked });
     el.querySelector('#f-tashkil').onchange = (e) => store.set({ showTashkil: e.target.checked });
     el.querySelector('#f-translit').onchange = (e) => store.set({ showTranslit: e.target.checked });
+
+    /* ---- stockage ---- */
+
+    const fmtSize = (b) => (b > 1048576
+      ? `${(b / 1048576).toFixed(1)} Mo`
+      : `${Math.max(1, Math.round(b / 1024))} Ko`);
+
+    // Le cache audio n'expose pas sa taille : on additionne les Content-Length des
+    // réponses stockées. C'est un aller-retour par fichier, mais tout est déjà en
+    // cache — donc local et rapide.
+    async function audioStats() {
+      if (!('caches' in window)) return null;
+      const c = await caches.open('audio').catch(() => null);
+      if (!c) return null;
+      const keys = await c.keys();
+      let bytes = 0;
+      for (const k of keys) {
+        const r = await c.match(k);
+        const len = Number(r?.headers.get('content-length') ?? 0);
+        bytes += len || (await r.clone().blob()).size;
+      }
+      return { count: keys.length, bytes };
+    }
+
+    async function refreshStorage() {
+      const [audio, rec] = await Promise.all([audioStats(), recorder.usage()]);
+      const a = el.querySelector('#audio-info');
+      const r = el.querySelector('#rec-info');
+      if (a) {
+        a.textContent = audio
+          ? (audio.count ? `— ${audio.count} versets, ${fmtSize(audio.bytes)}` : '— aucun')
+          : '— indisponible';
+        el.querySelector('#clear-audio').disabled = !audio?.count;
+      }
+      if (r) {
+        r.textContent = rec.count ? `— ${rec.count} prises, ${fmtSize(rec.bytes)}` : '— aucune';
+        el.querySelector('#clear-rec').disabled = !rec.count;
+      }
+    }
+
+    el.querySelector('#clear-audio').onclick = async () => {
+      if (!confirm('Supprimer tout l’audio téléchargé ? Il faudra le retélécharger pour écouter hors ligne.')) return;
+      await caches.delete('audio');
+      await refreshStorage();
+    };
+
+    el.querySelector('#clear-rec').onclick = async () => {
+      if (!confirm('Supprimer tous tes enregistrements ? Ils ne sont nulle part ailleurs.')) return;
+      await db.clear('recordings');
+      await refreshStorage();
+    };
+
+    refreshStorage();
 
     el.querySelector('#f-reset').onclick = async () => {
       if (!confirm('Effacer toute la progression, les révisions et les enregistrements ?')) return;

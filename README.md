@@ -1,4 +1,5 @@
-# Apprendre l'arabe — du tracé des lettres à la récitation
+| Gestion du stockage — audio hors ligne, enregistrements | fait |
+| Audio des lettres isolées | absent — aucune source libre || Module 1 — alphabet, tracé animé, formes, tashkîl, trois quiz | fait |# Apprendre l'arabe — du tracé des lettres à la récitation
 
 **En ligne : https://nazim-94400.github.io/apprendre-larabe/**
 

@@ -65,9 +65,11 @@ alphabétique mais la **difficulté de tracé**, chaque fiche étant ancrée sur
 | 46–49 | WASLA et la liaison (1 à 4) | — |
 | 50 | Lecture de mots | — |
 
-C'est exactement le squelette de `data/lessons/curriculum.json`, et il couvre déjà les
-prérequis de règles du Module 3 : la fiche 45 pose lâm shamsiyya/qamariyya, la fiche 46
-pose hamzat al-wasl.
+Cet ordre a inspiré le parcours du Module 4, sans être transcrit tel quel :
+l'extraction du PDF désalignait les colonnes du sommaire, et recopier un ordre mal lu
+aurait été pire que d'en assumer un. Le parcours vit dans `data/lessons/curriculum.json` ;
+si tu veux la progression exacte des 50 fiches, il suffit de la saisir dans ce fichier,
+sans toucher au code.
 
 L'approche phonétique de la fiche 1 est transposable telle quelle : faire compter les
 **sons** avant d'introduire les **lettres**.
@@ -160,8 +162,9 @@ Aucune incompatibilité avec `01-modele-de-donnees.md`. Trois ajustements :
 1. **`vocab/frequency.json` gagne un champ `theme`.** Le document 80% est organisé par
    thème autant que par fréquence, et c'est ce qui fait sa valeur pédagogique.
    Prévoir `{ theme, subtheme, occurrences, cumulative_pct }`.
-2. **`curriculum.json` doit accepter un mot cible par étape.** Les 50 fiches ancrent
-   chaque étape sur un mot concret (fiche 2 → كريم). Ajouter `anchor_word`.
+2. **`curriculum.json` peut accepter un mot cible par étape.** Les 50 fiches ancrent
+   chaque étape sur un mot concret (fiche 2 → كريم). Le champ `anchor_word` n'est pas
+   encore utilisé : il le deviendra si la progression des fiches est saisie.
 3. **Normalisation Unicode obligatoire à l'import.** Les PDF exploitables encodent
    l'arabe en *Presentation Forms* (U+FE70–FEFF). Le script d'import doit appliquer
    NFKC puis vérifier le résultat — faute de quoi le texte s'affichera correctement

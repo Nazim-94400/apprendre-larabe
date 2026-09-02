@@ -10,6 +10,7 @@ import * as lessons from '../../data-access/lessons.js';
 import * as progress from '../../core/progress.js';
 import * as speech from '../../core/speech.js';
 import { quiz } from '../../ui/components/quiz.js';
+import { strokeView } from '../../ui/components/stroke.js';
 
 const STEPS = [
   { id: 'm1:lettres',      route: 'lettres',      title: 'Les 28 lettres',
@@ -32,6 +33,7 @@ const esc = (s) => String(s).replace(/[&<>"]/g, (c) =>
   ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 
 let unsub = null;
+let stroke = null;
 
 /* ─────────────────────────── écrans ─────────────────────────── */
 
@@ -126,6 +128,11 @@ async function screenLettre(el, id) {
       </section>
 
       <section class="card">
+        <h3>Le tracé</h3>
+        <div id="stroke"></div>
+      </section>
+
+      <section class="card">
         <h3>Les quatre formes</h3>
         <div class="forms-row">
           ${[['isolated', 'Isolée'], ['initial', 'Initiale'], ['medial', 'Médiane'], ['final', 'Finale']]
@@ -193,6 +200,7 @@ async function screenLettre(el, id) {
     </div>`;
 
   wireSpeak(el);
+  stroke = strokeView(el.querySelector('#stroke'), l);
 }
 
 async function screenFormes(el) {
@@ -425,6 +433,8 @@ export default {
 
   unmount() {
     speech.stop();
+    stroke?.stop();
+    stroke = null;
     unsub?.();
     unsub = null;
   }

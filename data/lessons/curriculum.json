@@ -1,0 +1,56 @@
+{
+  "_meta": {
+    "source": "Rédigé pour le projet",
+    "license": "Contenu propre au projet",
+    "note": "Parcours de lecture du Module 4. L'ordre suit la difficulté de tracé et d'articulation, pas l'ordre alphabétique : on commence par des lettres au trait simple et au son familier, on ajoute les emphatiques et les gutturales ensuite. Modifier cet ordre ne demande aucune modification de code.",
+    "inspiration": "Approche des méthodes progressives francophones, dont « L'écriture arabe en 50 fiches » repéré dans le Drive. L'ordre exact de ces fiches n'a pas été transcrit : l'extraction du PDF désalignait les colonnes, et recopier un ordre mal lu aurait été pire que d'en assumer un.",
+    "generated": "2026-09-02"
+  },
+
+  "vowel_sets": {
+    "short": [["َ", "a"], ["ِ", "i"], ["ُ", "u"]],
+    "long":  [["َا", "â"], ["ِي", "î"], ["ُو", "û"]],
+    "sukun": [["َ", "a"], ["ْ", "(soukoun)"]]
+  },
+
+  "steps": [
+    { "id": "syll-1", "kind": "syllabes", "title": "Premières syllabes",
+      "letters": ["ba", "ta", "tha", "nun", "ya"], "vowels": "short",
+      "desc": "Cinq lettres de même squelette, qui ne diffèrent que par les points." },
+
+    { "id": "syll-2", "kind": "syllabes", "title": "Lettres à boucle",
+      "letters": ["jim", "ha_hutti", "kha", "mim", "ha"], "vowels": "short",
+      "desc": "Le geste change : on ferme une boucle." },
+
+    { "id": "syll-3", "kind": "syllabes", "title": "Lettres qui ne se lient pas",
+      "letters": ["dal", "dhal", "ra", "zay", "waw"], "vowels": "short",
+      "desc": "Après elles, le trait s’interrompt." },
+
+    { "id": "syll-4", "kind": "syllabes", "title": "Sifflantes et emphatiques",
+      "letters": ["sin", "shin", "sad", "dad", "ta_mutbaqa", "dha"], "vowels": "short",
+      "desc": "Les paires à distinguer absolument : س/ص, ت/ط, ذ/ظ." },
+
+    { "id": "syll-5", "kind": "syllabes", "title": "Gorge et palais",
+      "letters": ["ayn", "ghayn", "fa", "qaf", "kaf", "lam", "alif", "hamza"], "vowels": "short",
+      "desc": "Les sons qui n’existent pas en français." },
+
+    { "id": "madd-1", "kind": "syllabes", "title": "Les prolongations",
+      "letters": ["ba", "sin", "mim", "nun", "ra", "lam"], "vowels": "long",
+      "desc": "La même syllabe, tenue deux temps." },
+
+    { "id": "sukun-1", "kind": "syllabes", "title": "Le soukoun",
+      "letters": ["ba", "ta", "dal", "jim", "qaf"], "vowels": "sukun",
+      "desc": "Lettres sans voyelle — et les cinq de la qalqala." },
+
+    { "id": "sourate-114", "kind": "sourate", "surah": 114, "title": "An-Nâs",     "desc": "6 versets" },
+    { "id": "sourate-113", "kind": "sourate", "surah": 113, "title": "Al-Falaq",   "desc": "5 versets" },
+    { "id": "sourate-112", "kind": "sourate", "surah": 112, "title": "Al-Ikhlâs",  "desc": "4 versets" },
+    { "id": "sourate-111", "kind": "sourate", "surah": 111, "title": "Al-Masad",   "desc": "5 versets" },
+    { "id": "sourate-110", "kind": "sourate", "surah": 110, "title": "An-Nasr",    "desc": "3 versets" },
+    { "id": "sourate-108", "kind": "sourate", "surah": 108, "title": "Al-Kawthar", "desc": "3 versets" },
+    { "id": "sourate-107", "kind": "sourate", "surah": 107, "title": "Al-Mâ‘ûn",   "desc": "7 versets" },
+    { "id": "sourate-106", "kind": "sourate", "surah": 106, "title": "Quraych",    "desc": "4 versets" },
+    { "id": "sourate-105", "kind": "sourate", "surah": 105, "title": "Al-Fîl",     "desc": "5 versets" },
+    { "id": "sourate-1",   "kind": "sourate", "surah": 1,   "title": "Al-Fâtiha",  "desc": "7 versets" }
+  ]
+}
