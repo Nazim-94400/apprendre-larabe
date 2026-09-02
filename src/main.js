@@ -4,6 +4,21 @@ import { initRouter } from './router.js';
 
 function registerServiceWorker() {
   if (!('serviceWorker' in navigator)) return;
+
+  // Une nouvelle version du service worker prend la main : on recharge une fois.
+  //
+  // Sans cela, le cache-first sert les fichiers de l'ancienne version pendant tout
+  // le chargement en cours, et l'utilisateur voit une interface à moitié à jour —
+  // une feuille de style périmée avec un code neuf, par exemple. Le drapeau évite
+  // la boucle : `controllerchange` ne se déclenche qu'une fois par activation, mais
+  // un rechargement pendant l'installation pourrait en produire un second.
+  let reloading = false;
+  navigator.serviceWorker.addEventListener('controllerchange', () => {
+    if (reloading) return;
+    reloading = true;
+    location.reload();
+  });
+
   const go = () => navigator.serviceWorker.register('sw.js').catch((e) => console.warn('SW', e));
   // boot() étant asynchrone, l'événement `load` a souvent déjà été émis quand on
   // arrive ici : s'y abonner sans vérifier readyState n'enregistre jamais rien.

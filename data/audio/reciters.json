@@ -1,0 +1,43 @@
+{
+  "_meta": {
+    "source": "cpfair/quran-align",
+    "url": "https://github.com/cpfair/quran-align",
+    "license": "CC BY 4.0",
+    "audio_source": "EveryAyah.com — CC BY-NC",
+    "generated": "2026-09-01"
+  },
+  "base": "https://everyayah.com/data/",
+  "pattern": "{folder}/{s3}{a3}.mp3",
+  "reciters": [
+    {
+      "id": "husary_muallim",
+      "name": "Mahmoud Khalil Al-Husary",
+      "style": "mu'allim (enseignement)",
+      "folder": "Husary_Muallim_128kbps",
+      "license": "CC BY-NC — usage non commercial, attribution requise",
+      "attribution_url": "https://everyayah.com",
+      "has_segments": true,
+      "verses_with_segments": 6236
+    },
+    {
+      "id": "husary",
+      "name": "Mahmoud Khalil Al-Husary",
+      "style": "murattal",
+      "folder": "Husary_64kbps",
+      "license": "CC BY-NC — usage non commercial, attribution requise",
+      "attribution_url": "https://everyayah.com",
+      "has_segments": true,
+      "verses_with_segments": 6236
+    },
+    {
+      "id": "alafasy",
+      "name": "Mishary Rashid Al-Afasy",
+      "style": "murattal",
+      "folder": "Alafasy_128kbps",
+      "license": "CC BY-NC — usage non commercial, attribution requise",
+      "attribution_url": "https://everyayah.com",
+      "has_segments": true,
+      "verses_with_segments": 6236
+    }
+  ]
+}

@@ -18,12 +18,12 @@ export const MODULES = [
     subtitle: 'Points d\u2019articulation et discrimination auditive',
     icon: '\u0639' },
 
-  { id: '03-tajweed',     n: 3, phase: 2, state: 'todo',
+  { id: '03-tajweed',     n: 3, phase: 2, state: 'done',
     title: 'Règles de Tajweed',
     subtitle: 'Noun sâkina, madd, qalqala, ghunna, râ, lâm',
     icon: '\u062C' },
 
-  { id: '04-lecture',     n: 4, phase: 2, state: 'todo',
+  { id: '04-lecture',     n: 4, phase: 2, state: 'done',
     title: 'Lecture progressive',
     subtitle: 'Des syllabes aux sourates, en lecture guidée',
     icon: '\u0642' },

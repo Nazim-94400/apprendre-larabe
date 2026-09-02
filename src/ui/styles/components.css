@@ -179,3 +179,131 @@
 .pair-cell .ar { font-size: calc(2.2rem * var(--text-scale)); line-height: 1.3; }
 .pair-mk { color: var(--c-text-faint); text-align: center; }
 .pair-vs { flex: none; font-size: var(--fs-xs); color: var(--c-text-faint); }
+
+/* ── Règles de tajwîd ──────────────────────────────────────────────────────── */
+
+.rule-swatch {
+  display: inline-block; flex: none;
+  width: 12px; height: 12px; border-radius: 3px;
+  background: var(--tj-color); vertical-align: baseline;
+}
+
+.example {
+  padding: var(--sp-3) 0;
+  border-bottom: 1px solid var(--c-border);
+}
+.example:last-child { border-bottom: 0; padding-bottom: 0; }
+
+.ref {
+  display: inline-block; margin-inline-start: var(--sp-2);
+  padding: 0 var(--sp-2); border-radius: 999px;
+  background: var(--c-surface-2); color: var(--c-text-faint);
+  font-size: var(--fs-xs); font-variant-numeric: tabular-nums;
+}
+
+/* Exercice d'identification : chaque mot est une cible cliquable. */
+.exo-verse .w {
+  cursor: pointer; border-radius: 4px;
+  padding: 0 2px;
+  transition: background .12s;
+}
+.exo-verse:not(.locked) .w:hover { background: var(--c-surface-2); }
+.exo-verse .w-picked { background: var(--c-accent-soft); }
+.exo-verse.locked .w { cursor: default; }
+
+/* Après correction. Le soulignement se fait par text-decoration et non par une
+   ombre interne : sur un élément en ligne au milieu d'un texte arabe, une ombre
+   ne se voit pas. La couleur est doublée d'un trait plein ou ondulé, pour ne pas
+   être le seul porteur de l'information. */
+.exo-verse .w-target {
+  background: var(--c-accent-soft);
+  text-decoration: underline solid var(--c-success);
+  text-decoration-thickness: 3px;
+  text-underline-offset: 6px;
+}
+.exo-verse .w-miss {
+  text-decoration: underline wavy var(--c-danger);
+  text-decoration-thickness: 2px;
+  text-underline-offset: 6px;
+  opacity: .8;
+}
+
+.glossary { margin: 0; }
+.glossary dt { font-weight: 600; margin-top: var(--sp-3); }
+.glossary dt:first-child { margin-top: 0; }
+.glossary dd { margin: 2px 0 0; }
+
+/* ── Lecture guidée ────────────────────────────────────────────────────────── */
+
+.step-kind {
+  display: grid; place-items: center; flex: none;
+  width: 34px; height: 34px; border-radius: var(--radius-sm);
+  background: var(--c-surface-2); color: var(--c-text-soft);
+  font-family: var(--f-ar); font-size: 1.1rem;
+}
+
+.syll-table { width: 100%; border-collapse: collapse; }
+.syll-table td { padding: 3px; }
+.syll-table th { text-align: start; padding-inline-start: var(--sp-3); font-weight: 500; }
+
+.syll {
+  width: 100%;
+  display: flex; flex-direction: column; align-items: center; gap: 0;
+  padding: var(--sp-2);
+  border: 1px solid var(--c-border); border-radius: var(--radius-sm);
+  background: var(--c-surface-2); color: inherit; font: inherit; cursor: pointer;
+}
+.syll:hover { border-color: var(--c-accent); }
+.syll .ar { font-size: calc(1.9rem * var(--text-scale)); line-height: 1.5; }
+
+/* Le lecteur réserve la place de la barre de lecture, elle-même posée au-dessus
+   de la navigation principale. */
+.reader { padding-bottom: 84px; }
+.reader-selects { display: grid; gap: var(--sp-1); min-width: 0; }
+.reader-selects > * { min-width: 0; }
+
+.verses .verse {
+  padding: var(--sp-2) var(--sp-3);
+  border-radius: var(--radius-sm);
+  border-inline-start: 3px solid transparent;
+  cursor: pointer;
+  transition: background .15s, border-color .15s;
+}
+.verses .verse:hover { background: var(--c-surface-2); }
+.verses .verse.is-current {
+  background: var(--c-surface-2);
+  border-inline-start-color: var(--c-accent);
+}
+
+.playbar {
+  position: fixed; z-index: 9;
+  inset-inline: 0;
+  bottom: calc(var(--nav-h) + env(safe-area-inset-bottom));
+  background: color-mix(in srgb, var(--c-bg) 94%, transparent);
+  backdrop-filter: blur(12px);
+  border-top: 1px solid var(--c-border);
+}
+.playbar-inner {
+  max-width: var(--content-max); margin: 0 auto;
+  display: flex; align-items: center; gap: var(--sp-2);
+  padding: var(--sp-2) var(--sp-3);
+}
+
+.pb-btn {
+  display: grid; place-items: center; flex: none;
+  min-width: 40px; height: 40px;
+  border: 1px solid transparent; border-radius: var(--radius-sm);
+  background: transparent; color: var(--c-text);
+  font-size: 1.1rem; cursor: pointer;
+}
+.pb-btn:hover { background: var(--c-surface-2); }
+.pb-main {
+  background: var(--c-accent); color: var(--c-accent-text);
+  min-width: 48px; height: 44px; font-size: 1.2rem;
+}
+.pb-btn.is-on { background: var(--c-accent-soft); color: var(--c-accent); }
+
+.pb-rate { display: flex; align-items: center; gap: var(--sp-2); flex: 1; min-width: 110px; }
+.pb-rate input { flex: 1; min-width: 60px; accent-color: var(--c-accent); }
+.pb-rate #rate-val { font-variant-numeric: tabular-nums; min-width: 3.4em; }
+.pb-pos { flex: none; font-variant-numeric: tabular-nums; }

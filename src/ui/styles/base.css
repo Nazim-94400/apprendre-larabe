@@ -137,15 +137,22 @@ p  { margin: 0 0 var(--sp-3); }
 a.btn { text-decoration: none; }
 
 /* Lignes de formulaire des reglages */
+/* min-width:0 sur la ligne ET sur le select : un element de grille a un
+   min-width implicite egal a son contenu minimal, et un select adopte la largeur
+   de sa plus longue option. Sans les deux, la page deborde horizontalement. */
 .row {
   display: flex; align-items: center; justify-content: space-between;
-  gap: var(--sp-3); padding: var(--sp-2) 0;
+  gap: var(--sp-3); padding: var(--sp-2) 0; min-width: 0;
   border-bottom: 1px solid var(--c-border);
 }
+.row > span { flex: 0 0 auto; }
 .row:last-of-type { border-bottom: 0; }
 .row input[type="checkbox"] { width: 20px; height: 20px; accent-color: var(--c-accent); }
 .row input[type="range"] { flex: 0 1 180px; accent-color: var(--c-accent); }
+/* min-width:0 est indispensable : sans lui, un select au libellé long force la
+   largeur de son conteneur flex et fait déborder la page horizontalement. */
 .row select {
+  min-width: 0; max-width: 100%;
   min-height: 36px; padding: 0 var(--sp-2);
   border: 1px solid var(--c-border); border-radius: var(--radius-sm);
   background: var(--c-surface); color: var(--c-text); font: inherit;

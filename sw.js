@@ -12,7 +12,7 @@
  * apparente.
  */
 
-const VERSION = 'v4';
+const VERSION = 'v9';
 const SHELL = `app-shell-${VERSION}`;
 const DATA  = `data-${VERSION}`;
 const AUDIO = 'audio';                 // volontairement non versionné : jamais purgé
@@ -46,10 +46,23 @@ const SHELL_ASSETS = [
 self.addEventListener('install', (e) => {
   e.waitUntil((async () => {
     const cache = await caches.open(SHELL);
-    // addAll échoue en bloc si une seule ressource manque ; on tolère les absences
-    // pour qu'un fichier renommé ne rende pas l'application entièrement inutilisable.
-    await Promise.all(SHELL_ASSETS.map((u) =>
-      cache.add(u).catch((err) => console.warn('[sw] ressource ignorée', u, err))));
+    // `cache: 'reload'` contourne le cache HTTP du navigateur. Sans lui, une
+    // nouvelle version du service worker peut précacher les anciens fichiers,
+    // toujours présents dans le cache HTTP : on publie une mise à jour et les
+    // utilisateurs continuent de voir la version précédente.
+    //
+    // Chaque ressource est ajoutée séparément plutôt que par addAll, qui échoue en
+    // bloc dès qu'une seule manque — un fichier renommé rendrait alors toute
+    // l'application inutilisable hors ligne.
+    await Promise.all(SHELL_ASSETS.map(async (u) => {
+      try {
+        const res = await fetch(new Request(u, { cache: 'reload' }));
+        if (res.ok) await cache.put(u, res);
+        else console.warn('[sw] ressource ignorée', u, res.status);
+      } catch (err) {
+        console.warn('[sw] ressource ignorée', u, err);
+      }
+    }));
     self.skipWaiting();
   })());
 });

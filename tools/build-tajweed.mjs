@@ -210,6 +210,41 @@ async function main() {
     );
   }
 
+  // Index règle → versets, pour les leçons et les exercices du Module 3.
+  //
+  // Les exemples ne sont pas choisis à la main : ils sont extraits du texte déjà
+  // vérifié. Un exemple écrit de mémoire peut être faux ; un exemple tiré des
+  // annotations ne peut pas l'être.
+  //
+  // Sélection : versets courts du Juz 'Amma d'abord (sourates 78 à 114, familières
+  // et brèves), complétés au besoin par le reste du Coran. Un seul exemple par
+  // verset, pour ne pas répéter le même passage.
+  const index = {};
+  const score = (surah, len) => (surah >= 78 ? 0 : 100000) + len;
+
+  for (const [surah, obj] of bySurah) {
+    for (const [key, list] of Object.entries(obj)) {
+      const len = curText.get(key).length;
+      if (len > 220) continue;                       // trop long pour un exercice
+      for (const rule of new Set(list.map((a) => a.rule))) {
+        (index[rule] ??= []).push({ key, s: score(surah, len) });
+      }
+    }
+  }
+
+  const EXAMPLES_PER_RULE = 40;
+  for (const rule of Object.keys(index)) {
+    index[rule] = index[rule]
+      .sort((a, b) => a.s - b.s)
+      .slice(0, EXAMPLES_PER_RULE)
+      .map((x) => x.key);
+  }
+
+  await writeFile(
+    join(ROOT, 'data', 'quran', 'tajweed-index.json'),
+    JSON.stringify({ _meta: META, rules: index })
+  );
+
   console.log(`✓ ${annotations} annotations sur ${bySurah.size} sourates`);
   console.log(`  ${identical} versets identiques à la référence, ${realigned} réalignés`);
   console.log(`  ${checked} vérifications sémantiques passées, 0 anomalie`);

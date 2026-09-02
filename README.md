@@ -53,9 +53,12 @@ s'alignent pas sur le texte — voir `docs/03-sources-et-licences.md`, section 9
 | Couche d'accès aux données et moteur de coloration | fait |
 | Inventaire du Drive (8 PDF) | fait — `docs/00-inventaire-drive.md` |
 | Écran Sources et licences | fait |
-| Modules 1 à 3 et 5 à 7 | squelettes |
-| Module 4 | squelette, avec aperçu du texte colorié |
-| Audio de récitation | non intégré |
+| Module 1 — alphabet, formes, tashkîl, trois quiz | fait |
+| Module 2 — makhârij, schéma SVG, discrimination | fait |
+| Module 3 — 18 règles, exemples réels, exercices | fait |
+| Module 4 — lecture guidée, audio, surlignage mot à mot | fait |
+| Horodatages mot à mot — 3 récitateurs, 6 236 versets | générés |
+| Modules 5 à 7 | squelettes |
 | Traduction française des versets | licence non résolue |
 
 ## Documentation

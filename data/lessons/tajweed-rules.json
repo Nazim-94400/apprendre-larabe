@@ -1,0 +1,248 @@
+{
+  "_meta": {
+    "source": "Rédigé pour le projet",
+    "license": "Contenu propre au projet",
+    "note": "Règles de tajwîd selon la riwâyat Hafs 'an 'Âsim, voie de ash-Shâtibiyya. À faire relire par une personne qualifiée avant usage pédagogique large.",
+    "annotation_note": "Le champ `annotation` fait le lien avec les identifiants produits par tools/build-tajweed.mjs. Quand il est renseigné, les exemples et les exercices sont tirés directement du texte annoté, ce qui garantit qu'ils sont justes. Quand il vaut null, aucune annotation automatique n'existe : la règle est enseignée sans surlignage.",
+    "generated": "2026-09-02"
+  },
+
+  "familles": [
+    { "id": "noon_sakinah", "name_fr": "Noun sâkina et tanwîn", "name_ar": "النون الساكنة والتنوين",
+      "intro": "Un noun sans voyelle (نْ) ou un tanwîn (ً ٍ ٌ) se comporte différemment selon la lettre qui le suit. Quatre cas, et un seul se produit à la fois — c'est la lettre suivante qui décide." },
+    { "id": "meem_sakinah", "name_fr": "Mîm sâkina", "name_ar": "الميم الساكنة",
+      "intro": "Un mîm sans voyelle (مْ) connaît trois cas, tous liés aux lèvres — d'où leur nom « chafawi », de الشفة, la lèvre." },
+    { "id": "madd", "name_fr": "Les allongements", "name_ar": "المدود",
+      "intro": "Trois lettres allongent : ا و ي. La durée se compte en temps (haraka) : le temps qu'il faut pour plier ou déplier un doigt. Elle varie de 2 à 6 selon ce qui suit." },
+    { "id": "autres", "name_fr": "Qalqala, ghunna, râ et lâm", "name_ar": "أحكام متفرقة",
+      "intro": "Quatre règles qui ne dépendent pas d'une lettre précédente mais de la lettre elle-même et de sa position." }
+  ],
+
+  "rules": [
+    {
+      "id": "idhar", "family": "noon_sakinah", "order": 1, "annotation": null,
+      "name_ar": "إِظْهَار", "name_fr": "Idhâr", "sub": "Prononciation claire",
+      "short": "Le noun se prononce nettement, sans rien changer.",
+      "explanation": "Quand un noun sâkin ou un tanwîn est suivi d'une des six lettres de la gorge, on prononce le noun clairement, sans nasalisation prolongée et sans le fondre dans la suite. C'est le cas le plus simple : on ne fait rien de particulier.",
+      "letters": ["hamza", "ha", "ayn", "ha_hutti", "ghayn", "kha"],
+      "letters_note": "Les six lettres de la gorge : ء ه ع ح غ خ",
+      "duration": null,
+      "examples": [
+        { "text": "مِنْ عِلْمٍ", "translit": "min 'ilmin", "gloss": "d'une science", "ref": "2:120" },
+        { "text": "يَنْأَوْنَ", "translit": "yan'awna", "gloss": "ils s'éloignent", "ref": "6:26" },
+        { "text": "مَنْ آمَنَ", "translit": "man âmana", "gloss": "celui qui a cru", "ref": "2:62" }
+      ],
+      "cue": "Si la lettre qui suit sort de la gorge, laisse le noun tranquille."
+    },
+    {
+      "id": "idghaam_ghunnah", "family": "noon_sakinah", "order": 2, "annotation": "idghaam_ghunnah",
+      "name_ar": "إِدْغَام بِغُنَّة", "name_fr": "Idghâm avec ghunna", "sub": "Fusion nasalisée",
+      "short": "Le noun disparaît dans la lettre suivante, en laissant une résonance nasale de 2 temps.",
+      "explanation": "Devant ي ن م و, le noun sâkin ne se prononce plus : il se fond dans la lettre suivante, qui est alors redoublée, et une ghunna de deux temps accompagne la fusion. La règle ne s'applique qu'entre deux mots — à l'intérieur d'un même mot, on prononce clairement.",
+      "letters": ["ya", "nun", "mim", "waw"],
+      "letters_note": "Rassemblées dans le mot mnémonique ينمو (yanmû, « il croît »)",
+      "duration": 2,
+      "examples": [],
+      "cue": "Le noun s'efface, la lettre suivante double, et le nez résonne."
+    },
+    {
+      "id": "idghaam_no_ghunnah", "family": "noon_sakinah", "order": 3, "annotation": "idghaam_no_ghunnah",
+      "name_ar": "إِدْغَام بِغَيْر غُنَّة", "name_fr": "Idghâm sans ghunna", "sub": "Fusion sèche",
+      "short": "Le noun disparaît sans laisser de résonance nasale.",
+      "explanation": "Devant ل et ر, le noun sâkin se fond également dans la lettre suivante, mais sans ghunna : aucune résonance nasale ne subsiste. La fusion est immédiate et sèche.",
+      "letters": ["lam", "ra"],
+      "letters_note": "Deux lettres seulement : ل ر",
+      "duration": null,
+      "examples": [],
+      "cue": "Même effacement que l'idghâm précédent, mais le nez ne participe pas."
+    },
+    {
+      "id": "iqlab", "family": "noon_sakinah", "order": 4, "annotation": "iqlab",
+      "name_ar": "إِقْلَاب", "name_fr": "Iqlâb", "sub": "Transformation en mîm",
+      "short": "Le noun devient un mîm caché, avec ghunna de 2 temps.",
+      "explanation": "Devant le seul ب, le noun sâkin ou le tanwîn se change en un mîm que l'on ne ferme pas complètement, accompagné d'une ghunna de deux temps. Les lèvres se rapprochent sans se toucher franchement. Dans le mushaf, un petit mîm est écrit au-dessus du noun pour le signaler.",
+      "letters": ["ba"],
+      "letters_note": "Une seule lettre : ب",
+      "duration": 2,
+      "examples": [],
+      "cue": "Cherche le petit ـۢ au-dessus du noun : c'est le signe de l'iqlâb."
+    },
+    {
+      "id": "ikhfa", "family": "noon_sakinah", "order": 5, "annotation": "ikhfa",
+      "name_ar": "إِخْفَاء", "name_fr": "Ikhfâ", "sub": "Dissimulation",
+      "short": "Le noun n'est ni clair ni fondu : un son intermédiaire, nasalisé, de 2 temps.",
+      "explanation": "Devant les quinze lettres restantes, le noun sâkin se prononce à mi-chemin : la langue se prépare déjà à la lettre suivante sans toucher son point d'articulation, et une ghunna de deux temps accompagne le passage. C'est le cas le plus fréquent, et le plus difficile à doser.",
+      "letters": ["ta", "tha", "jim", "dal", "dhal", "zay", "sin", "shin", "sad", "dad", "ta_mutbaqa", "dha", "fa", "qaf", "kaf"],
+      "letters_note": "Les quinze lettres qui ne relèvent d'aucun des quatre autres cas",
+      "duration": 2,
+      "examples": [],
+      "cue": "Ni un noun franc, ni rien du tout : un bourdonnement nasal de deux temps."
+    },
+
+    {
+      "id": "idhar_shafawi", "family": "meem_sakinah", "order": 1, "annotation": null,
+      "name_ar": "إِظْهَار شَفَوِي", "name_fr": "Idhâr chafawi", "sub": "Mîm clair",
+      "short": "Le mîm se prononce nettement.",
+      "explanation": "Devant toutes les lettres sauf ب et م, le mîm sâkin se prononce clairement, lèvres bien fermées, sans prolonger la nasalisation. Attention particulière devant ف et و : par proximité des lèvres, on a tendance à laisser filer le son.",
+      "letters": [],
+      "letters_note": "Les vingt-six lettres autres que ب et م",
+      "duration": null,
+      "examples": [
+        { "text": "أَلَمْ تَرَ", "translit": "alam tara", "gloss": "n'as-tu pas vu", "ref": "105:1" },
+        { "text": "هُمْ فِيهَا", "translit": "hum fîhâ", "gloss": "ils y sont", "ref": "2:25" }
+      ],
+      "cue": "Ferme franchement les lèvres, puis passe à la suite sans traîner."
+    },
+    {
+      "id": "idghaam_shafawi", "family": "meem_sakinah", "order": 2, "annotation": "idghaam_shafawi",
+      "name_ar": "إِدْغَام شَفَوِي", "name_fr": "Idghâm chafawi", "sub": "Mîm fondu dans mîm",
+      "short": "Deux mîm se fondent en un seul, redoublé, avec ghunna de 2 temps.",
+      "explanation": "Quand un mîm sâkin est suivi d'un autre mîm, les deux n'en font plus qu'un, redoublé, avec une ghunna de deux temps.",
+      "letters": ["mim"],
+      "letters_note": "Une seule lettre : م",
+      "duration": 2,
+      "examples": [],
+      "cue": "Lèvres fermées, et tiens la résonance deux temps avant d'ouvrir."
+    },
+    {
+      "id": "ikhfa_shafawi", "family": "meem_sakinah", "order": 3, "annotation": "ikhfa_shafawi",
+      "name_ar": "إِخْفَاء شَفَوِي", "name_fr": "Ikhfâ chafawi", "sub": "Mîm dissimulé",
+      "short": "Devant un bâ', le mîm se dissimule, lèvres à peine jointes, avec ghunna de 2 temps.",
+      "explanation": "Devant ب, le mîm sâkin ne se ferme pas complètement : les lèvres se rapprochent sans pression, et une ghunna de deux temps accompagne le passage.",
+      "letters": ["ba"],
+      "letters_note": "Une seule lettre : ب",
+      "duration": 2,
+      "examples": [],
+      "cue": "Les lèvres se frôlent au lieu de se presser."
+    },
+
+    {
+      "id": "madd_2", "family": "madd", "order": 1, "annotation": "madd_2",
+      "name_ar": "مَدّ طَبِيعِي", "name_fr": "Madd naturel", "sub": "2 temps",
+      "short": "L'allongement de base : exactement deux temps.",
+      "explanation": "Quand une lettre de prolongation (ا و ي) n'est suivie ni d'une hamza ni d'un soukoun, elle s'allonge de deux temps. Ni plus, ni moins : c'est l'unité de mesure de tous les autres madd. Un allongement trop court avale la voyelle, trop long il déforme le mot.",
+      "letters": ["alif", "waw", "ya"],
+      "letters_note": "ا après fatha, و après damma, ي après kasra",
+      "duration": 2,
+      "examples": [],
+      "cue": "Le temps de plier un doigt. Compte-les au début, cela devient vite automatique."
+    },
+    {
+      "id": "madd_muttasil", "family": "madd", "order": 2, "annotation": "madd_muttasil",
+      "name_ar": "مَدّ مُتَّصِل", "name_fr": "Madd muttasil", "sub": "4 à 5 temps, obligatoire",
+      "short": "Lettre de prolongation suivie d'une hamza dans le même mot : 4 à 5 temps.",
+      "explanation": "Quand la hamza suit immédiatement la lettre de prolongation à l'intérieur du même mot, l'allongement est obligatoire et vaut quatre à cinq temps. On dit « connecté » (muttasil) parce que les deux sont dans le même mot.",
+      "letters": ["alif", "waw", "ya"],
+      "letters_note": "Prolongation + hamza, dans un seul mot",
+      "duration": 4,
+      "examples": [],
+      "cue": "Obligatoire : aucune lecture ne le raccourcit à deux temps."
+    },
+    {
+      "id": "madd_munfasil", "family": "madd", "order": 3, "annotation": "madd_munfasil",
+      "name_ar": "مَدّ مُنْفَصِل", "name_fr": "Madd munfasil", "sub": "4 à 5 temps, facultatif",
+      "short": "Prolongation en fin de mot, hamza au début du suivant : 4 à 5 temps.",
+      "explanation": "La lettre de prolongation termine un mot et la hamza ouvre le suivant. On dit « séparé » (munfasil). Sa durée dépend de la voie de transmission : de deux à cinq temps. Chez Hafs par la voie de ash-Shâtibiyya, on lit couramment quatre ou cinq temps — mais l'essentiel est de rester constant dans toute la récitation.",
+      "letters": ["alif", "waw", "ya"],
+      "letters_note": "Prolongation en fin de mot + hamza au début du mot suivant",
+      "duration": 4,
+      "examples": [],
+      "cue": "Choisis une durée et garde-la du début à la fin de ta lecture."
+    },
+    {
+      "id": "madd_246", "family": "madd", "order": 4, "annotation": "madd_246",
+      "name_ar": "مَدّ عَارِض لِلسُّكُون", "name_fr": "Madd 'ârid", "sub": "2, 4 ou 6 temps",
+      "short": "En fin de verset, quand on s'arrête : 2, 4 ou 6 temps au choix.",
+      "explanation": "Quand on marque une pause sur un mot dont l'avant-dernière lettre est une prolongation, le soukoun de l'arrêt est dit « accidentel » : il n'existe que parce qu'on s'arrête. L'allongement peut alors valoir deux, quatre ou six temps. Le madd de la douceur (lîn), sur وْ ou يْ précédés d'une fatha, suit la même règle.",
+      "letters": ["alif", "waw", "ya"],
+      "letters_note": "Prolongation avant la dernière lettre, à l'arrêt",
+      "duration": 6,
+      "examples": [],
+      "cue": "Trois durées permises. Reste cohérent d'un verset à l'autre."
+    },
+    {
+      "id": "madd_6", "family": "madd", "order": 5, "annotation": "madd_6",
+      "name_ar": "مَدّ لَازِم", "name_fr": "Madd lâzim", "sub": "6 temps, obligatoire",
+      "short": "Prolongation suivie d'un soukoun permanent : toujours six temps.",
+      "explanation": "Quand la lettre de prolongation est suivie d'un soukoun qui reste, que l'on s'arrête ou non, l'allongement vaut obligatoirement six temps. C'est le plus long, et le plus rare — on le rencontre notamment dans les lettres isolées qui ouvrent certaines sourates.",
+      "letters": ["alif", "waw", "ya"],
+      "letters_note": "Prolongation + soukoun permanent, ou lettre doublée",
+      "duration": 6,
+      "examples": [],
+      "cue": "Six temps pleins. C'est long — et c'est voulu."
+    },
+
+    {
+      "id": "qalqalah", "family": "autres", "order": 1, "annotation": "qalqalah",
+      "name_ar": "قَلْقَلَة", "name_fr": "Qalqala", "sub": "Rebond",
+      "short": "Cinq lettres rebondissent quand elles portent un soukoun.",
+      "explanation": "Les lettres ق ط ب ج د produisent, à soukoun, un petit rebond audible : le point d'articulation se relâche brusquement, sans ajouter de voyelle. Le rebond est léger au milieu d'un mot, plus marqué à l'arrêt en fin de mot. Erreur fréquente : ajouter un « e » — on entend « ab-e » au lieu d'un simple rebond.",
+      "letters": ["qaf", "ta_mutbaqa", "ba", "jim", "dal"],
+      "letters_note": "Rassemblées dans le mot mnémonique قطب جد",
+      "duration": null,
+      "examples": [],
+      "cue": "Un rebond, pas une voyelle. Le son ne doit pas se colorer en a, i ou ou."
+    },
+    {
+      "id": "ghunnah", "family": "autres", "order": 2, "annotation": "ghunnah",
+      "name_ar": "غُنَّة", "name_fr": "Ghunna", "sub": "2 temps",
+      "short": "Le mîm et le noun doublés résonnent dans le nez, deux temps.",
+      "explanation": "Quand مّ ou نّ portent une chadda, une résonance nasale de deux temps est obligatoire. C'est la ghunna dans sa forme la plus pure : elle sort des fosses nasales, pas de la bouche.",
+      "letters": ["mim", "nun"],
+      "letters_note": "مّ et نّ avec chadda",
+      "duration": 2,
+      "examples": [],
+      "cue": "Pince-toi le nez : si le son ne change pas, la ghunna n'y est pas."
+    },
+    {
+      "id": "ra_rules", "family": "autres", "order": 3, "annotation": null,
+      "name_ar": "أَحْكَام الرَّاء", "name_fr": "Règles du Râ'", "sub": "Épais ou fin",
+      "short": "Le râ' s'épaissit ou s'affine selon la voyelle qui l'entoure.",
+      "explanation": "Le râ' est épais (tafkhîm) quand il porte une fatha ou une damma, ou quand il est sâkin après une fatha ou une damma. Il est fin (tarqîq) quand il porte une kasra, ou quand il est sâkin après une kasra d'origine. Quelques cas se lisent des deux façons — ils sont rares et signalés dans les manuels.",
+      "letters": ["ra"],
+      "letters_note": "La lettre ر uniquement",
+      "duration": null,
+      "examples": [
+        { "text": "رَبِّ", "translit": "rabbi", "gloss": "Seigneur — épais, fatha", "ref": "1:2" },
+        { "text": "رِزْقًا", "translit": "rizqan", "gloss": "subsistance — fin, kasra", "ref": "2:22" },
+        { "text": "الْمُرْسَلِينَ", "translit": "al-mursalîn", "gloss": "les envoyés — épais, soukoun après damma", "ref": "26:21" }
+      ],
+      "cue": "Regarde la voyelle : fatha ou damma épaississent, kasra affine."
+    },
+    {
+      "id": "lam_rules", "family": "autres", "order": 4, "annotation": "lam_shamsiyyah",
+      "name_ar": "أَحْكَام اللَّام", "name_fr": "Règles du Lâm", "sub": "Solaire, lunaire, et le lâm d'Allah",
+      "short": "Le lâm de l'article se prononce ou disparaît selon la lettre qui suit.",
+      "explanation": "Devant quatorze lettres dites solaires, le lâm de l'article ال ne se prononce pas : il se fond dans la lettre suivante, qui porte alors une chadda. Devant les quatorze autres, dites lunaires, il se prononce clairement. Le mot الشَّمْس (le soleil) et القَمَر (la lune) donnent leur nom aux deux groupes. À part : dans le nom d'Allah, le lâm s'épaissit après une fatha ou une damma, et s'affine après une kasra.",
+      "letters": ["ta", "tha", "dal", "dhal", "ra", "zay", "sin", "shin", "sad", "dad", "ta_mutbaqa", "dha", "lam", "nun"],
+      "letters_note": "Les quatorze lettres solaires",
+      "duration": null,
+      "examples": [
+        { "text": "الشَّمْس", "translit": "ash-shams", "gloss": "le soleil — solaire, le lâm disparaît", "ref": "91:1" },
+        { "text": "القَمَر", "translit": "al-qamar", "gloss": "la lune — lunaire, le lâm se prononce", "ref": "91:2" },
+        { "text": "بِسْمِ اللَّهِ", "translit": "bismi llâhi", "gloss": "au nom d'Allah — lâm fin après kasra", "ref": "1:1" }
+      ],
+      "cue": "Si tu vois une chadda sur la lettre qui suit ال, le lâm est muet."
+    }
+  ],
+
+  "glossaire": [
+    { "term": "Tajwîd", "ar": "تَجْوِيد", "def": "L'art de donner à chaque lettre ce qui lui revient : son point d'articulation, ses caractéristiques et ses règles." },
+    { "term": "Haraka", "ar": "حَرَكَة", "def": "Unité de durée des allongements. Approximativement le temps de plier un doigt." },
+    { "term": "Sâkin", "ar": "سَاكِن", "def": "Lettre sans voyelle, portant un soukoun." },
+    { "term": "Ghunna", "ar": "غُنَّة", "def": "Résonance nasale de deux temps." },
+    { "term": "Tafkhîm", "ar": "تَفْخِيم", "def": "Épaississement du son : le fond de la langue se soulève." },
+    { "term": "Tarqîq", "ar": "تَرْقِيق", "def": "Affinement du son : la langue reste basse." },
+    { "term": "Idghâm", "ar": "إِدْغَام", "def": "Fusion d'une lettre dans la suivante, qui se retrouve doublée." },
+    { "term": "Idhâr", "ar": "إِظْهَار", "def": "Prononciation claire et distincte, sans fusion ni dissimulation." },
+    { "term": "Ikhfâ", "ar": "إِخْفَاء", "def": "État intermédiaire entre la prononciation claire et la fusion." },
+    { "term": "Iqlâb", "ar": "إِقْلَاب", "def": "Transformation du noun sâkin en mîm devant un bâ'." },
+    { "term": "Qalqala", "ar": "قَلْقَلَة", "def": "Rebond audible sur ق ط ب ج د portant un soukoun." },
+    { "term": "Madd", "ar": "مَدّ", "def": "Allongement d'une voyelle par ا و ي." },
+    { "term": "Waqf", "ar": "وَقْف", "def": "Arrêt volontaire en cours de lecture, signalé par des marques dans le mushaf." },
+    { "term": "Tartîl", "ar": "تَرْتِيل", "def": "Lecture posée et mesurée, celle que le Coran prescrit." },
+    { "term": "Hafs 'an 'Âsim", "ar": "حَفْص عَن عَاصِم", "def": "La transmission de lecture la plus répandue dans le monde, celle de ce texte." },
+    { "term": "Lettres solaires", "ar": "حُرُوف شَمْسِيَّة", "def": "Les quatorze lettres devant lesquelles le lâm de l'article ne se prononce pas." },
+    { "term": "Lettres lunaires", "ar": "حُرُوف قَمَرِيَّة", "def": "Les quatorze autres, devant lesquelles le lâm se prononce." }
+  ]
+}

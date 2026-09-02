@@ -44,6 +44,40 @@ const escape = (s) => s.replace(/[&<>"]/g, (c) =>
   ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 
 /**
+ * Un jeton est un mot s'il contient au moins une lettre arabe.
+ *
+ * Le texte Uthmani sépare par des espaces des symboles qui n'en sont pas : marques
+ * de pause (ۖ ۗ ۚ), signe de rub el hizb (۞), sajdah (۩). Les compter comme des mots
+ * décale la numérotation, et le surlignage synchronisé éclaire alors le mot suivant
+ * — silencieusement, puisque les index restent dans les bornes.
+ *
+ * Cette fonction est la définition unique du mot pour tout le projet : le rendu, les
+ * exercices d'identification et la génération des horodatages l'utilisent tous. Deux
+ * définitions séparées finiraient par diverger, et c'est exactement ce qui s'est
+ * produit avant qu'elle n'existe.
+ */
+export const isWord = (token) => /[ء-يٮ-ۓۺ-ۿ]/.test(token);
+
+/** Découpe un verset en jetons {text, isWord, start, end}, positions d'origine incluses. */
+export function tokenize(text) {
+  const out = [];
+  let pos = 0;
+  for (const chunk of text.split(/(\s+)/)) {
+    if (!chunk.length) continue;
+    const start = pos;
+    pos += chunk.length;
+    out.push({
+      text: chunk,
+      space: /^\s+$/.test(chunk),
+      word: !/^\s+$/.test(chunk) && isWord(chunk),
+      start,
+      end: pos
+    });
+  }
+  return out;
+}
+
+/**
  * Découpe [start, end) d'un texte en segments homogènes selon les règles actives.
  * Renvoie [{ from, to, rule }] où `rule` peut être null.
  */
@@ -86,30 +120,23 @@ function segments(rules, from, to) {
 export function render(text, rules = [], opts = {}) {
   const withWords = opts.words !== false;
   const html = [];
-
-  // Découpage par mot en conservant les espaces : les positions doivent rester
-  // celles du texte d'origine, sur lesquelles portent les annotations.
-  let pos = 0;
   let wordIndex = 0;
 
-  for (const chunk of text.split(/(\s+)/)) {
-    if (chunk.length === 0) continue;
-    const start = pos;
-    const end = pos + chunk.length;
-    pos = end;
+  // Découpage en conservant les espaces : les positions doivent rester celles du
+  // texte d'origine, sur lesquelles portent les annotations.
+  for (const t of tokenize(text)) {
+    if (t.space) { html.push(t.text); continue; }
 
-    if (/^\s+$/.test(chunk)) { html.push(chunk); continue; }
-
-    const inner = segments(rules, start, end).map(({ from, to, rule }) => {
+    const inner = segments(rules, t.start, t.end).map(({ from, to, rule }) => {
       const frag = escape(text.slice(from, to));
       return rule
         ? `<span class="tj tj-${rule}" style="--tj-color:var(--tj-${rule})">${frag}</span>`
         : frag;
     }).join('');
 
-    html.push(withWords
-      ? `<span class="w" data-w="${++wordIndex}">${inner}</span>`
-      : inner);
+    // Une marque de pause est rendue, mais ne reçoit pas de numéro de mot.
+    if (!withWords || !t.word) html.push(inner);
+    else html.push(`<span class="w" data-w="${++wordIndex}">${inner}</span>`);
   }
 
   return html.join('');
@@ -121,3 +148,24 @@ export function rulesUsed(rules = []) {
 }
 
 export { PRIORITY };
+
+/**
+ * Indices des mots (1-based, comme `data-w` dans le rendu) touchés par une règle.
+ *
+ * Sert aux exercices d'identification : on demande de désigner le mot où la règle
+ * s'applique, et la correction vient des annotations vérifiées plutôt que d'une
+ * réponse saisie à la main.
+ */
+export function wordsWithRule(text, rules, ruleId) {
+  const targets = rules.filter((r) => r.rule === ruleId);
+  if (!targets.length) return new Set();
+
+  const hits = new Set();
+  let w = 0;
+  for (const t of tokenize(text)) {
+    if (!t.word) continue;
+    w++;
+    if (targets.some((r) => r.start < t.end && r.end > t.start)) hits.add(w);
+  }
+  return hits;
+}
