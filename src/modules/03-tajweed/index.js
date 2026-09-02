@@ -13,6 +13,7 @@
 import * as lessons from '../../data-access/lessons.js';
 import * as quran from '../../data-access/quran.js';
 import * as progress from '../../core/progress.js';
+import * as drill from '../../core/drill.js';
 import { render, wordsWithRule } from '../../data-access/tajweed.js';
 
 const M = '03-tajweed';
@@ -27,6 +28,10 @@ const ruleIndex = () => (indexCache ??= fetch(
 
 const stepOf = (id) => `m3:${id}`;
 const exStepOf = (id) => `m3:${id}:exercice`;
+
+/** Clé de suivi d'un verset pour une règle donnée : « tj:ikhfa:2:255 ». */
+const verseKey = (annotation) => (key) => `tj:${annotation}:${key}`;
+const shuffle = (a) => [...a].sort(() => Math.random() - 0.5);
 
 /* ─────────────────────────── écrans ─────────────────────────── */
 
@@ -46,8 +51,13 @@ async function screenIndex(el) {
           se prononce. Chaque règle se reconnaît à un signe visible dans le mushaf —
           c’est ce que les exercices entraînent.</p>
         <div class="progress" style="margin-top:var(--sp-3)"><i style="width:${ratio * 100}%"></i></div>
-        <p class="small muted" style="margin:var(--sp-2) 0 0">
-          <a href="${link('glossaire')}">Glossaire des termes</a></p>
+        <div style="display:flex;gap:var(--sp-2);flex-wrap:wrap;margin-top:var(--sp-3)">
+          <a class="btn" href="${link('exercice')}">Révision mêlée</a>
+          <a class="btn btn-ghost" href="${link('glossaire')}">Glossaire</a>
+        </div>
+        <p class="small muted" style="margin:var(--sp-2) 0 0">La révision mêlée tire
+          des versets au hasard, toutes règles confondues : c’est la situation
+          réelle de lecture, où rien n’annonce la règle à venir.</p>
       </section>
 
       ${data.familles.map((f) => `
@@ -186,7 +196,9 @@ async function screenExercice(el, id) {
   }
 
   const index = await ruleIndex();
-  const keys = [...(index[rule.annotation] ?? [])].sort(() => Math.random() - 0.5).slice(0, 8);
+  // Tirage pondéré plutôt qu'aléatoire pur : sur quarante versets indexés, huit
+  // pris au hasard reposent les mêmes et en laissent d'autres jamais vus.
+  const keys = await drill.pick(index[rule.annotation] ?? [], 8, verseKey(rule.annotation));
 
   const rounds = await Promise.all(keys.map(async (key) => {
     const [s] = key.split(':');
@@ -236,6 +248,7 @@ async function screenExercice(el, id) {
       verse.classList.add('locked');
       const ok = picked.size === r.targets.size && [...picked].every((i) => r.targets.has(i));
       if (ok) right++;
+      drill.record(verseKey(rule.annotation)(r.key), ok);
 
       for (const w of verse.querySelectorAll('.w')) {
         const i = Number(w.dataset.w);
@@ -278,6 +291,198 @@ async function screenExercice(el, id) {
   draw();
 }
 
+/* ─────────────────────── révision mêlée ─────────────────────── */
+
+const MELE_STEP = 'm3:mele';
+
+/**
+ * Révision toutes règles confondues.
+ *
+ * L'exercice par règle a un défaut que rien ne corrige de l'intérieur : on sait
+ * déjà quelle règle chercher. Or à la lecture, personne n'annonce que le mot
+ * suivant porte un ikhfâ — c'est justement la reconnaissance qui manque.
+ *
+ * Deux formes alternent donc ici :
+ *
+ *  - « nommer »    : un mot est souligné, la règle est à trouver ;
+ *  - « sélection » : la règle est donnée, les mots sont à trouver.
+ *
+ * Les leurres viennent en priorité de la même famille : distinguer un ikhfâ d'un
+ * iqlâb est l'exercice, le distinguer d'un madd lâzim ne l'est pas.
+ */
+async function screenMele(el) {
+  el.innerHTML = '<div class="card"><div class="loading">Préparation…</div></div>';
+
+  const [data, index] = await Promise.all([lessons.tajweedRules(), ruleIndex()]);
+  const rules = data.rules.filter((r) => r.annotation && index[r.annotation]?.length);
+  const picks = await drill.pick(rules, 8, (r) => `rule:${r.id}`);
+
+  const rounds = await Promise.all(picks.map(async (rule) => {
+    // Trois versets candidats plutôt qu'un.
+    //
+    // « Nommer » ne se pose que sur un mot ne portant qu'une seule règle : sur un
+    // mot qui en porte deux, deux réponses seraient justes et l'exercice
+    // sanctionnerait la bonne. Beaucoup de versets n'offrent aucun mot de ce
+    // genre — le madd naturel, par exemple, se superpose à presque tout. Avec un
+    // seul candidat, la forme « nommer » ne sortait qu'une fois sur huit.
+    const keys = await drill.pick(index[rule.annotation], 3, verseKey(rule.annotation));
+    const wanted = Math.random() < 0.5 ? 'nommer' : 'selection';
+
+    const candidates = await Promise.all(keys.map(async (key) => {
+      const [s] = key.split(':');
+      const [v, all] = await Promise.all([quran.ayah(key), quran.tajweed(s)]);
+      const ann = all.get(key) ?? [];
+      const targets = wordsWithRule(v.text, ann, rule.annotation);
+      const solo = [...targets].filter((i) => rules.every(
+        (o) => o.id === rule.id || !wordsWithRule(v.text, ann, o.annotation).has(i)));
+      return { key, text: v.text, targets, solo };
+    }));
+
+    const c = (wanted === 'nommer' && candidates.find((x) => x.solo.length)) || candidates[0];
+    const { key, text, targets, solo } = c;
+    const kind = wanted === 'nommer' && solo.length ? 'nommer' : 'selection';
+    const word = solo[Math.floor(Math.random() * solo.length)];
+
+    const family = shuffle(rules.filter((o) => o.id !== rule.id && o.family === rule.family));
+    const rest = shuffle(rules.filter((o) => o.id !== rule.id && o.family !== rule.family));
+    const choices = shuffle([rule, ...[...family, ...rest].slice(0, 3)]);
+
+    return { kind, rule, key, text, targets, word, choices };
+  }));
+
+  let n = 0, right = 0;
+
+  const skeleton = (r, body) => `
+    <div class="stack">
+      <section class="card">
+        <header class="quiz-head">
+          <span class="small muted">Question ${n + 1} sur ${rounds.length}</span>
+          <div class="progress" style="flex:1"><i style="width:${(n / rounds.length) * 100}%"></i></div>
+        </header>
+        ${body}
+        <p class="small muted"><span class="ref">${esc(r.key)}</span></p>
+        <div class="quiz-feedback" hidden></div>
+        <div style="display:flex;gap:var(--sp-2);flex-wrap:wrap">
+          ${r.kind === 'selection'
+            ? '<button class="btn" type="button" id="check">Vérifier</button>' : ''}
+          <button class="btn btn-ghost" type="button" id="next" hidden>
+            ${n === rounds.length - 1 ? 'Terminer' : 'Suivant'}</button>
+        </div>
+      </section>
+    </div>`;
+
+  // Le verset est rendu sans couleurs : les colorer donnerait la réponse.
+  const verseHtml = (r) => `<p class="ar ar-quran exo-verse">${render(r.text, [])}</p>`;
+
+  const finish = (r, ok) => {
+    if (ok) right++;
+    drill.record(`rule:${r.rule.id}`, ok);
+    drill.record(verseKey(r.rule.annotation)(r.key), ok);
+    el.querySelector('#next').hidden = false;
+  };
+
+  const drawNommer = (r) => {
+    el.innerHTML = skeleton(r, `
+      <p class="quiz-q">Quelle règle s’applique au mot souligné ?</p>
+      ${verseHtml(r)}
+      <div class="quiz-choices" role="group">
+        ${r.choices.map((c) => `<button class="choice" type="button" data-id="${c.id}">
+          <strong>${esc(c.name_fr)}</strong>
+          <span class="ar-inline">${c.name_ar}</span></button>`).join('')}
+      </div>`);
+
+    const verse = el.querySelector('.exo-verse');
+    verse.classList.add('locked');
+    verse.querySelector(`.w[data-w="${r.word}"]`)?.classList.add('w-vocab');
+
+    for (const b of el.querySelectorAll('.choice')) {
+      b.addEventListener('click', () => {
+        if (el.querySelector('.choice[disabled]')) return;
+        const ok = b.dataset.id === r.rule.id;
+        for (const other of el.querySelectorAll('.choice')) {
+          other.disabled = true;
+          if (other.dataset.id === r.rule.id) other.classList.add('choice-right');
+        }
+        if (!ok) b.classList.add('choice-wrong');
+
+        const fb = el.querySelector('.quiz-feedback');
+        fb.className = `quiz-feedback ${ok ? 'ok' : 'ko'}`;
+        fb.innerHTML = `<strong>${ok ? 'Juste.' : 'Non.'}</strong>
+          ${esc(r.rule.name_fr)} — ${esc(r.rule.cue)}`;
+        fb.hidden = false;
+        finish(r, ok);
+      });
+    }
+  };
+
+  const drawSelection = (r) => {
+    el.innerHTML = skeleton(r, `
+      <p class="quiz-q">Sélectionne <strong>tous les mots</strong> où s’applique
+        <span class="rule-swatch" style="--tj-color:var(--tj-${r.rule.annotation})"></span>
+        <strong>${esc(r.rule.name_fr)}</strong>.</p>
+      ${verseHtml(r)}`);
+
+    const picked = new Set();
+    const verse = el.querySelector('.exo-verse');
+
+    verse.addEventListener('click', (e) => {
+      const w = e.target.closest('.w');
+      if (!w || verse.classList.contains('locked')) return;
+      const i = Number(w.dataset.w);
+      if (picked.has(i)) { picked.delete(i); w.classList.remove('w-picked'); }
+      else { picked.add(i); w.classList.add('w-picked'); }
+    });
+
+    el.querySelector('#check').addEventListener('click', () => {
+      verse.classList.add('locked');
+      const ok = picked.size === r.targets.size && [...picked].every((i) => r.targets.has(i));
+
+      for (const w of verse.querySelectorAll('.w')) {
+        const i = Number(w.dataset.w);
+        if (r.targets.has(i)) w.classList.add('w-target');
+        else if (picked.has(i)) w.classList.add('w-miss');
+      }
+
+      const fb = el.querySelector('.quiz-feedback');
+      fb.className = `quiz-feedback ${ok ? 'ok' : 'ko'}`;
+      fb.innerHTML = ok
+        ? '<strong>Juste.</strong> Tous les mots sont trouvés.'
+        : `<strong>Pas tout à fait.</strong> ${r.targets.size} mot${r.targets.size > 1 ? 's' : ''}
+           concerné${r.targets.size > 1 ? 's' : ''}, maintenant souligné${r.targets.size > 1 ? 's' : ''}.`;
+      fb.hidden = false;
+      el.querySelector('#check').hidden = true;
+      finish(r, ok);
+    });
+  };
+
+  const draw = () => {
+    const r = rounds[n];
+    if (r.kind === 'nommer') drawNommer(r); else drawSelection(r);
+    el.querySelector('#next').addEventListener('click', () => {
+      n++;
+      if (n < rounds.length) draw(); else done();
+    });
+  };
+
+  const done = async () => {
+    const score = right / rounds.length;
+    await progress.record(MELE_STEP, { score });
+    el.innerHTML = `
+      <div class="card">
+        <h2>${score >= 0.8 ? 'Révision validée' : 'Presque'}</h2>
+        <p class="quiz-score ${score >= 0.8 ? 'ok' : 'ko'}">${right} / ${rounds.length}</p>
+        <p class="small muted">Les règles manquées reviendront en priorité à la
+          prochaine révision.</p>
+        <div style="display:flex;gap:var(--sp-2);flex-wrap:wrap">
+          <a class="btn" href="${link('exercice')}">Recommencer</a>
+          <a class="btn btn-ghost" href="${link('')}">Toutes les règles</a>
+        </div>
+      </div>`;
+  };
+
+  draw();
+}
+
 async function screenGlossaire(el) {
   const { glossaire } = await lessons.tajweedRules();
   el.innerHTML = `
@@ -303,7 +508,7 @@ export default {
     const [head, arg] = path.split('/');
     if (!head) return screenIndex(el);
     if (head === 'regle') return screenRegle(el, arg);
-    if (head === 'exercice') return screenExercice(el, arg);
+    if (head === 'exercice') return arg ? screenExercice(el, arg) : screenMele(el);
     if (head === 'glossaire') return screenGlossaire(el);
 
     el.innerHTML = `<div class="card"><p>Écran inconnu.</p>

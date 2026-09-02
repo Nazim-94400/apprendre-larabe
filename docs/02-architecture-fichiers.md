@@ -40,6 +40,7 @@ réécrire les URL vers `index.html`.
 │   │   ├── store.js            état applicatif + abonnements
 │   │   ├── progress.js         lecture/écriture de la progression, déblocage
 │   │   ├── srs.js              algorithme SM-2
+│   │   ├── drill.js            tirage pondéré des questions d'exercice
 │   │   ├── audio-player.js     lecture, vitesse 0.5–1.5x, boucle, file d'attente
 │   │   ├── recorder.js         MediaRecorder + capture Web Audio
 │   │   ├── analysis.js         MFCC + DTW (comparaison de récitation)
@@ -111,6 +112,39 @@ Le routeur ne connaît rien des modules au-delà de ce contrat. Ajouter un modul
 en déposant un dossier et en l'enregistrant dans une table de routes — sans toucher au
 reste. `unmount()` est obligatoire : sans lui, l'audio d'une leçon continue de jouer
 quand on navigue ailleurs, un défaut classique de ce type d'application.
+
+---
+
+## Règle d'écriture des exercices
+
+Trois contraintes, apprises en corrigeant des exercices ratés :
+
+**1. La réponse ne doit jamais figurer dans l'énoncé.** Montrer ب et demander de
+choisir entre ب, ت, ث et ن n'exerce que la comparaison de deux images. Le premier
+jeu de quiz du Module 1 avait exactement ce défaut. Le test à faire passer à toute
+nouvelle question : *un lecteur qui ne connaît rien à l'arabe peut-il répondre en
+comparant les formes ?* Si oui, la question ne mesure rien.
+
+**2. Une seule forme de question s'apprend comme une paire, pas comme une lecture.**
+Chaque exercice propose donc au moins trois formes tirées au hasard sur le même
+matériau — reconnaître, produire, situer. Elles portent le même identifiant d'item
+dans `drill`, préfixé par la forme : `lire:syll:syll-1:ba:0`. La statistique retire
+le préfixe.
+
+**3. Le tirage est pondéré, pas uniforme** (`core/drill.js`). Douze questions tirées
+uniformément sur quatre-vingts items laissent la majorité du matériau jamais vue par
+quelqu'un qui fait deux séances. Le poids `(1 + 2 × ratés) / (1 + vus)` fait passer
+l'inconnu d'abord et ramène l'erreur vite, sans jamais exclure un item.
+
+Corollaire pour les leurres : ils viennent du plus proche voisin disponible —
+lettres confusables, même thème, même famille de règles, même colonne de voyelle.
+Un leurre lointain se rejette sans savoir la réponse.
+
+Un cas particulier mérite attention : une question à choix unique doit avoir **une
+seule** bonne réponse. Deux gloses identiques dans le lexique (`اذا` et `اذ`, tous
+deux « lorsque »), deux racines tirées deux fois, un mot portant deux règles de
+tajwîd à la fois — chacun rend une question insoluble plutôt que difficile, et
+sanctionne la bonne réponse. Les trois cas sont écartés à la construction.
 
 ---
 

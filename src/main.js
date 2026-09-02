@@ -42,8 +42,15 @@ async function boot() {
   syncFlags(store.get());
   store.subscribe(syncFlags);
 
-  await initRouter(document.getElementById('vue'));
+  // Le service worker est enregistré AVANT le routeur, et volontairement.
+  //
+  // Placé après, il ne s'enregistrait que si le démarrage aboutissait. Un bug qui
+  // fige le premier écran empêchait alors toute mise à jour d'arriver : le
+  // correctif publié n'était jamais récupéré, et l'application restait cassée sans
+  // recours. Une panne doit rester réparable à distance.
   registerServiceWorker();
+
+  await initRouter(document.getElementById('vue'));
 }
 
 boot().catch((e) => {

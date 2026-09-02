@@ -1,7 +1,7 @@
 /**
  * Module 7 — Vocabulaire coranique.
  *
- * Les 500 mots les plus fréquents couvrent 58 % du texte. En comprendre une
+ * Les deux mille mots les plus fréquents couvrent 75 % du texte. En comprendre une
  * fraction change complètement l'écoute d'une récitation : on cesse d'entendre
  * une suite de sons pour reconnaître des mots.
  *
@@ -14,6 +14,7 @@ import * as vocab from '../../data-access/vocab.js';
 import * as quran from '../../data-access/quran.js';
 import * as srs from '../../core/srs.js';
 import * as progress from '../../core/progress.js';
+import * as drill from '../../core/drill.js';
 import { render, tokenize } from '../../data-access/tajweed.js';
 import { quiz } from '../../ui/components/quiz.js';
 
@@ -86,7 +87,7 @@ async function screenListe(el) {
   el.innerHTML = `
     <div class="stack">
       <section class="card">
-        <h2>Les 500 mots les plus fréquents</h2>
+        <h2>Les ${words.length} mots les plus fréquents</h2>
         <p class="small muted">Classés par nombre d'occurrences. Un mot sans
           traduction reste listé mais n'apparaît pas dans les quiz.</p>
       </section>
@@ -183,40 +184,110 @@ async function screenMot(el, rawId) {
 
 /* ─────────────────────────── quiz ─────────────────────────── */
 
+const shuffle = (a) => [...a].sort(() => Math.random() - 0.5);
+
+/** Premier sens d'une glose, pour comparer « de, depuis ; qui » et « de, au sujet de ». */
+const sense = (w) => (w.fr ?? '').split(/[;,(]/)[0].trim().toLowerCase();
+
+/**
+ * Leurres pris dans le même thème : « nuit » contre « jour » exerce, pas
+ * « nuit » contre « Pharaon ».
+ *
+ * Écartés en revanche, les mots dont le premier sens est celui de la réponse :
+ * quelques paires du lexique se traduisent pareil (اذا et اذ, « lorsque »), et
+ * proposer les deux rend la question insoluble plutôt que difficile.
+ */
+function wrongWords(words, w, n = 3) {
+  const ok = (x) => x.id !== w.id && sense(x) !== sense(w);
+  const out = shuffle(words.filter((x) => ok(x) && x.theme === w.theme)).slice(0, n);
+  const rest = shuffle(words.filter((x) => ok(x) && !out.includes(x)));
+  while (out.length < n && rest.length) out.push(rest.pop());
+  return out;
+}
+
 async function screenQuiz(el) {
   const words = await vocab.glossed();
-  const pool = [...words].sort(() => Math.random() - 0.5).slice(0, 12);
+  const picked = await drill.pick(words, 12, (w) => `vocab:${w.id}`);
 
-  const questions = await Promise.all(pool.map(async (w) => {
-    const key = w.examples[0];
-    const [s] = key.split(':');
-    const [v, rules] = await Promise.all([quran.ayah(key), quran.tajweed(s)]);
-    const hits = vocab.findInVerse(v.text, w.id);
+  /**
+   * Trois formes de question, tirées au hasard. Toujours demander le sens d'un mot
+   * montré n'entraîne que la reconnaissance ; produire le mot à partir du sens est
+   * une autre compétence, et c'est celle qui sert à la lecture suivie.
+   */
+  const build = {
+    // Dans un vrai verset : le mot souligné, le sens à trouver.
+    async contexte(w) {
+      const key = w.examples[Math.floor(Math.random() * w.examples.length)];
+      if (!key) return null;
+      const [s] = key.split(':');
+      const [v, rules] = await Promise.all([quran.ayah(key), quran.tajweed(s)]);
+      if (!v) return null;
 
-    // Le verset est rendu puis le mot cible souligné : la question porte sur un
-    // emploi réel, pas sur le mot isolé de tout contexte.
-    const tmp = document.createElement('div');
-    tmp.innerHTML = render(v.text, rules.get(key) ?? []);
-    for (const i of hits) tmp.querySelector(`.w[data-w="${i}"]`)?.classList.add('w-vocab');
+      const tmp = document.createElement('div');
+      tmp.innerHTML = render(v.text, rules.get(key) ?? []);
+      for (const i of vocab.findInVerse(v.text, w.id)) {
+        tmp.querySelector(`.w[data-w="${i}"]`)?.classList.add('w-vocab');
+      }
 
-    const wrong = [...words]
-      .filter((x) => x.id !== w.id && x.theme === w.theme)
-      .sort(() => Math.random() - 0.5).slice(0, 3);
-    while (wrong.length < 3) {
-      const c = words[Math.floor(Math.random() * words.length)];
-      if (c.id !== w.id && !wrong.includes(c)) wrong.push(c);
+      return {
+        id: `contexte:${w.id}`,
+        prompt: `<p class="quiz-q">Que signifie le mot souligné ?</p>
+                 <p class="ar ar-quran">${tmp.innerHTML}</p>`,
+        aside: `${esc(key)} — ${w.occurrences} occurrences dans le Coran`,
+        choices: [w, ...wrongWords(words, w)].map((c) => ({ id: c.id, label: esc(c.fr) })),
+        answer: w.id,
+        hint: w.root ? `Racine <span class="ar-inline">${w.root}</span>.` : ''
+      };
+    },
+
+    // Sens inverse : le français est donné, le mot arabe à reconnaître.
+    async produire(w) {
+      return {
+        id: `produire:${w.id}`,
+        prompt: `<p class="quiz-q">Quel mot signifie <strong>${esc(w.fr)}</strong> ?</p>`,
+        choices: [w, ...wrongWords(words, w)].map((c) => ({
+          id: c.id, label: `<span class="ar ar-quran" style="font-size:1.6em">${c.form}</span>` })),
+        answer: w.id
+      };
+    },
+
+    // La racine : trois consonnes qui portent une famille entière de mots.
+    async racine(w) {
+      if (!w.root) return null;
+      // Racines distinctes : deux leurres identiques donneraient deux bonnes
+      // réponses apparentes, et le mot arabe rend la répétition invisible.
+      //
+      // Et de préférence des racines qui partagent une consonne avec la bonne :
+      // face à trois racines sans rapport, on reconnaît la réponse à la forme des
+      // lettres sans avoir rien dépouillé. Avec une lettre commune, il faut lire.
+      const letters = new Set(w.root.split(/\s+/));
+      const pool = [...new Set(
+        shuffle(words.filter((x) => x.root && x.root !== w.root)).map((x) => x.root)
+      )];
+      const close = pool.filter((r) => r.split(/\s+/).some((c) => letters.has(c)));
+      const others = [...close, ...pool.filter((r) => !close.includes(r))].slice(0, 3);
+      if (others.length < 3) return null;
+      return {
+        id: `racine:${w.id}`,
+        prompt: `<p class="quiz-q">Quelle est la racine de ce mot ?</p>
+                 <p class="ar ar-quran" style="text-align:center;font-size:2.4em">${w.form}</p>`,
+        aside: esc(w.fr),
+        choices: [w.root, ...others].map((r) => ({
+          id: r, label: `<span class="ar-inline" style="font-size:1.4em">${r}</span>` })),
+        answer: w.root,
+        hint: 'La racine est le squelette de consonnes commun à toute une famille de mots.'
+      };
     }
+  };
 
-    return {
-      id: w.id,
-      prompt: `<p class="quiz-q">Que signifie le mot souligné ?</p>
-               <p class="ar ar-quran">${tmp.innerHTML}</p>`,
-      aside: `${esc(key)} — ${w.occurrences} occurrences dans le Coran`,
-      choices: [w, ...wrong].map((c) => ({ id: c.id, label: esc(c.fr) })),
-      answer: w.id,
-      hint: w.root ? `Racine <span class="ar-inline">${w.root}</span>.` : ''
-    };
-  }));
+  const order = ['contexte', 'produire', 'racine'];
+  const questions = (await Promise.all(picked.map(async (w) => {
+    for (const k of shuffle(order)) {
+      const q = await build[k](w);
+      if (q) return q;
+    }
+    return null;
+  }))).filter(Boolean);
 
   const host = document.createElement('div');
   el.innerHTML = '';
@@ -228,7 +299,9 @@ async function screenQuiz(el) {
       await progress.record('m7:quiz', { score });
       // Les mots ratés entrent en révision, les autres progressent.
       for (const q of questions) {
-        await srs.review(cardId(q.id), wrong.includes(q.id) ? 0 : 2);
+        const id = q.id.split(':').slice(1).join(':');
+        await srs.review(cardId(id), wrong.includes(q.id) ? 0 : 2);
+        await drill.record(`vocab:${id}`, !wrong.includes(q.id));
       }
     }
   });

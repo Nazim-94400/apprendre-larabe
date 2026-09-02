@@ -8,6 +8,7 @@
 
 import * as lessons from '../../data-access/lessons.js';
 import * as progress from '../../core/progress.js';
+import * as drill from '../../core/drill.js';
 import { quiz } from '../../ui/components/quiz.js';
 import { diagram } from './diagram.js';
 import { wireListen, stopListening } from '../../ui/components/listen.js';
@@ -254,40 +255,102 @@ async function screenDiscrimination(el) {
   });
 }
 
+const shuffle = (a) => [...a].sort(() => Math.random() - 0.5);
+
 async function screenQuiz(el) {
   const mk = await lessons.makharij();
   const idx = await lessons.letterIndex();
 
-  // On interroge sur la zone plutôt que sur le point exact : c'est le niveau utile
-  // pour corriger sa prononciation, et cela reste jouable après une seule lecture.
-  const pool = mk.points.flatMap((p) => p.letters.map((lid) => ({ lid, point: p })));
+  // Une lettre ne relève que d'un point ; on indexe donc par lettre, et le point
+  // s'en déduit. Le yâ' et le wâw font exception — ils figurent en prolongation et
+  // en consonne — et l'on retient alors leur point consonantique, le seul qui
+  // s'articule vraiment.
+  const items = [];
   const seen = new Set();
-  const picks = [];
-  for (const item of pool.sort(() => Math.random() - 0.5)) {
-    if (seen.has(item.lid)) continue;
-    seen.add(item.lid);
-    picks.push(item);
-    if (picks.length === 12) break;
+  for (const p of mk.points) {
+    for (const lid of p.letters) {
+      if (seen.has(lid) && p.id === 'jawf') continue;
+      seen.add(lid);
+      items.push({ id: lid, letter: idx.get(lid), point: p });
+    }
   }
-
-  const questions = picks.map(({ lid, point }) => {
-    const l = idx.get(lid);
-    const good = mk.zones.find((z) => z.id === point.zone);
-    return {
-      id: lid,
+  /**
+   * Trois formes de question. Interroger toujours dans le même sens finit par
+   * s'apprendre comme une liste ordonnée plutôt que comme une géographie de la
+   * bouche : on retient « la troisième réponse » et non l'endroit du son.
+   */
+  const gens = [
+    // Reconnaître la zone d'une lettre.
+    ({ letter, point }) => ({
+      id: `zone:${letter.id}`,
       prompt: `<p class="quiz-q">De quelle zone sort cette lettre ?</p>
-               <p class="ar ar-huge">${l.forms.isolated}</p>`,
-      aside: esc(l.name_fr),
+               <p class="ar ar-huge">${letter.forms.isolated}</p>`,
+      aside: esc(letter.name_fr),
       choices: mk.zones.map((z) => ({ id: z.id, label: esc(z.name_fr) })),
-      answer: good.id,
+      answer: point.zone,
       hint: `${esc(point.name_fr)} — ${esc(point.cue)}`
-    };
-  });
+    }),
+
+    // Sens inverse : une zone, et la lettre qui en vient parmi quatre.
+    ({ letter, point }) => {
+      const zone = mk.zones.find((z) => z.id === point.zone);
+      const others = shuffle(items.filter((i) => i.point.zone !== point.zone)).slice(0, 3);
+      if (others.length < 3) return null;
+      return {
+        id: `depuis-zone:${letter.id}`,
+        prompt: `<p class="quiz-q">Laquelle de ces lettres sort de
+                   <strong>${esc(zone.name_fr)}</strong> ?</p>`,
+        aside: esc(zone.desc),
+        choices: [letter, ...others.map((o) => o.letter)].map((c) => ({
+          id: c.id, label: `<span class="ar ar-letter">${c.forms.isolated}</span>` })),
+        answer: letter.id
+      };
+    },
+
+    // Le point exact : quelles lettres le partagent. C'est ce qui explique les
+    // confusions — ط, د et ت sortent du même endroit et ne diffèrent que par la
+    // voix et l'emphase.
+    ({ letter, point }) => {
+      const siblings = point.letters.filter((x) => x !== letter.id);
+      if (!siblings.length) return null;
+      const good = idx.get(siblings[Math.floor(Math.random() * siblings.length)]);
+      const others = shuffle(items.filter((i) => i.point.id !== point.id)).slice(0, 3);
+      if (!good || others.length < 3) return null;
+      return {
+        id: `meme-point:${letter.id}`,
+        prompt: `<p class="quiz-q">Quelle lettre s’articule exactement
+                   <strong>au même endroit</strong> que
+                   <span class="ar-inline">${letter.forms.isolated}</span> ?</p>`,
+        aside: `${esc(letter.name_fr)} — ${esc(point.name_fr)}`,
+        choices: [good, ...others.map((o) => o.letter)].map((c) => ({
+          id: c.id, label: `<span class="ar ar-letter">${c.forms.isolated}</span>` })),
+        answer: good.id,
+        hint: esc(point.cue)
+      };
+    }
+  ];
+
+  const picked = await drill.pick(items, 12, (i) => `makhraj:${i.id}`);
+  const questions = picked.map((item) => {
+    for (const g of shuffle(gens)) {
+      const q = g(item);
+      if (q) return q;
+    }
+    return null;
+  }).filter(Boolean);
 
   const host = document.createElement('div');
   el.innerHTML = '';
   el.append(host);
-  quiz(host, { questions, onFinish: ({ score }) => progress.record('m2:quiz', { score }) });
+  quiz(host, {
+    questions,
+    onFinish: async ({ score, wrong }) => {
+      await progress.record('m2:quiz', { score });
+      await drill.recordAll(questions.map((q) => ({
+        id: `makhraj:${q.id.split(':')[1]}`, ok: !wrong.includes(q.id)
+      })));
+    }
+  });
 }
 
 /* ─────────────────────────── utilitaires ─────────────────────────── */

@@ -14,10 +14,12 @@
 import * as quran from '../../data-access/quran.js';
 import * as lessons from '../../data-access/lessons.js';
 import * as progress from '../../core/progress.js';
+import * as drill from '../../core/drill.js';
 import { render } from '../../data-access/tajweed.js';
 import { createPlayer, reciters, downloadSurah } from '../../core/audio-player.js';
 import { store } from '../../core/store.js';
 import { wireListen, stopListening } from '../../ui/components/listen.js';
+import { quiz } from '../../ui/components/quiz.js';
 
 const M = '04-lecture';
 const link = (r) => `#/m/${M}${r ? '/' + r : ''}`;
@@ -112,7 +114,12 @@ async function screenSyllabes(el, id) {
         </table>
       </section>
 
-      <button class="btn" type="button" id="mark">J’ai lu ce tableau à voix haute</button>
+      <div style="display:flex;gap:var(--sp-2);flex-wrap:wrap">
+        <button class="btn" type="button" id="mark">J’ai lu ce tableau à voix haute</button>
+        <a class="btn btn-ghost" href="${link('exo/' + step.id)}">Se contrôler</a>
+      </div>
+      <p class="small muted">Le contrôle tire douze syllabes du tableau, jamais les
+        mêmes, et pose la question dans les deux sens : lire et écrire.</p>
     </div>`;
 
   wireListen(el);
@@ -120,6 +127,120 @@ async function screenSyllabes(el, id) {
     await progress.record(`m4:${step.id}`, { done: true });
     e.target.textContent = 'Étape validée';
     e.target.disabled = true;
+  });
+}
+
+/* ─────────────────────── contrôle de lecture ─────────────────────── */
+
+const shuffle = (a) => [...a].sort(() => Math.random() - 0.5);
+
+/**
+ * Le tableau se lit à voix haute, sans correcteur : rien ne dit si « بِ » a bien
+ * été lu « bi » plutôt que « ba ». Ce contrôle sert de miroir.
+ *
+ * Trois formes, parce qu'une seule s'apprend comme une paire d'images plutôt que
+ * comme une lecture : reconnaître le son d'une syllabe écrite, retrouver la
+ * syllabe à partir du son, et nommer la lettre sous la voyelle — les trois
+ * gestes que demande la lecture suivie.
+ */
+async function screenExo(el, id) {
+  const step = PARCOURS.find((s) => s.id === id);
+  if (step?.kind !== 'syllabes') {
+    el.innerHTML = `<div class="card"><p>Pas de contrôle pour cette étape.</p>
+      <a class="btn btn-ghost" href="${link('')}">Retour</a></div>`;
+    return;
+  }
+
+  const idx = await lessons.letterIndex();
+  const letters = step.letters.map((lid) => idx.get(lid)).filter(Boolean);
+  const vowels = VOWELS[step.vowels];
+
+  // Une syllabe = une lettre × une voyelle. C'est l'unité que le tableau entraîne,
+  // donc l'unité que le tirage doit suivre.
+  const items = letters.flatMap((l) => vowels.map(([mark, tr], vi) => ({
+    id: `syll:${step.id}:${l.id}:${vi}`,
+    letter: l,
+    glyph: l.forms.isolated + mark,
+    translit: l.translit.split(' ')[0] + (tr === '(soukoun)' ? '' : tr),
+    vowel: vi
+  })));
+
+  const picked = await drill.pick(items, Math.min(12, items.length));
+
+  /** Leurres proches : même lettre autre voyelle, même voyelle autre lettre. */
+  const near = (it, n = 3) => {
+    const same = shuffle(items.filter((x) => x.letter.id === it.letter.id && x.vowel !== it.vowel));
+    const col = shuffle(items.filter((x) => x.vowel === it.vowel && x.letter.id !== it.letter.id));
+    const rest = shuffle(items.filter((x) => x.id !== it.id));
+    const out = [];
+    for (const x of [...same, ...col, ...rest]) {
+      if (out.length === n) break;
+      if (x.id !== it.id && !out.some((o) => o.translit === x.translit)) out.push(x);
+    }
+    return out;
+  };
+
+  const build = {
+    // Lire : la syllabe est écrite, le son est à trouver.
+    lire: (it) => ({
+      id: `lire:${it.id}`,
+      prompt: `<p class="quiz-q">Comment se lit cette syllabe ?</p>
+               <p class="ar ar-letter" style="text-align:center;font-size:2.6em">${it.glyph}</p>`,
+      choices: [it, ...near(it)].map((c) => ({ id: c.id, label: `<code>${esc(c.translit)}</code>` })),
+      answer: it.id
+    }),
+
+    // Écrire : le son est donné, la syllabe est à reconnaître. C'est le geste de
+    // l'écriture, celui qui manque quand on ne fait que déchiffrer.
+    ecrire: (it) => ({
+      id: `ecrire:${it.id}`,
+      prompt: `<p class="quiz-q">Quelle syllabe se lit <code>${esc(it.translit)}</code> ?</p>`,
+      choices: [it, ...near(it)].map((c) => ({
+        id: c.id, label: `<span class="ar ar-letter">${c.glyph}</span>` })),
+      answer: it.id
+    }),
+
+    // Nommer la lettre sous la voyelle : c'est là que بـ, تـ et ثـ se confondent.
+    lettre: (it) => {
+      const others = shuffle(letters.filter((l) => l.id !== it.letter.id)).slice(0, 3);
+      if (others.length < 3) return null;
+      return {
+        id: `lettre:${it.id}`,
+        prompt: `<p class="quiz-q">Quelle lettre porte cette voyelle ?</p>
+                 <p class="ar ar-letter" style="text-align:center;font-size:2.6em">${it.glyph}</p>`,
+        choices: [it.letter, ...others].map((l) => ({ id: l.id, label: esc(l.name_fr) })),
+        answer: it.letter.id
+      };
+    }
+  };
+
+  const kinds = Object.keys(build);
+  const questions = picked.map((it) => {
+    for (const k of shuffle(kinds)) {
+      const q = build[k](it);
+      if (q) return q;
+    }
+    return null;
+  }).filter(Boolean);
+
+  const host = document.createElement('div');
+  el.innerHTML = '';
+  el.append(host);
+
+  quiz(host, {
+    questions,
+    onFinish: async ({ score, wrong }) => {
+      await progress.record(`m4:${step.id}:exo`, { score });
+      // La statistique porte sur la syllabe, pas sur la forme de question : c'est
+      // la syllabe qu'il faut revoir, quelle que soit la manière de la demander.
+      await drill.recordAll(questions.map((q) => ({
+        id: q.id.split(':').slice(1).join(':'),
+        ok: !wrong.includes(q.id)
+      })));
+      host.insertAdjacentHTML('beforeend', `
+        <p style="margin-top:var(--sp-3)"><a class="btn btn-ghost"
+          href="${link('syllabes/' + step.id)}">Revoir le tableau</a></p>`);
+    }
   });
 }
 
@@ -279,6 +400,7 @@ export default {
     const [head, arg] = path.split('/');
     if (!head) return screenIndex(el);
     if (head === 'syllabes') return screenSyllabes(el, arg);
+    if (head === 'exo') return screenExo(el, arg);
     if (head === 'lire') return screenLire(el, arg);
 
     el.innerHTML = `<div class="card"><p>Écran inconnu.</p>

@@ -9,7 +9,7 @@
 import * as lessons from '../../data-access/lessons.js';
 import * as vocab from '../../data-access/vocab.js';
 import * as progress from '../../core/progress.js';
-import * as speech from '../../core/speech.js';
+import * as drill from '../../core/drill.js';
 import { quiz } from '../../ui/components/quiz.js';
 import { strokeView } from '../../ui/components/stroke.js';
 import { wireListen, stopListening } from '../../ui/components/listen.js';
@@ -355,6 +355,124 @@ function distractors(pool, target, n = 3) {
 /** Retire le tashkîl d'un mot, pour ne travailler que le squelette écrit. */
 const bare = (w) => w.replace(/[ً-ْٰۖ-ۭـ]/g, '');
 
+const POSITIONS = [
+  ['isolated', 'isolée'], ['initial', 'initiale'],
+  ['medial', 'médiane'], ['final', 'finale']
+];
+
+/**
+ * Chaque exercice propose plusieurs formes de question, tirées au hasard à chaque
+ * séance.
+ *
+ * Une question unique se retient comme une paire à apparier plutôt que comme un
+ * savoir : au bout de deux passages, on répond à la forme sans plus lire le fond.
+ * Alterner reconnaissance (montrer, faire nommer) et rappel (nommer, faire
+ * reconnaître) oblige à tenir les deux sens du lien, qui ne s'apprennent pas
+ * ensemble.
+ *
+ * Un générateur reçoit la lettre visée et le vivier de distracteurs, et rend une
+ * question — ou null s'il ne s'applique pas à cette lettre.
+ */
+const GENERATORS = {
+  noms: [
+    // Reconnaissance : la forme est donnée, le nom est à retrouver.
+    (l, pool) => ({
+      id: `noms:vue:${l.id}`,
+      prompt: `<p class="quiz-q">Comment se nomme cette lettre ?</p>
+               <p class="ar ar-huge">${l.forms.isolated}</p>`,
+      choices: [l, ...distractors(pool, l)].map((c) => ({ id: c.id, label: esc(c.name_fr) })),
+      answer: l.id,
+      hint: l.note ? esc(l.note) : ''
+    }),
+
+    // Rappel : le nom est donné, la forme est à retrouver. Aucune fuite —
+    // l'énoncé est en français, les propositions en arabe.
+    (l, pool) => ({
+      id: `noms:rappel:${l.id}`,
+      prompt: `<p class="quiz-q">Laquelle est le <strong>${esc(l.name_fr)}</strong> ?</p>`,
+      choices: [l, ...distractors(pool, l)].map((c) => ({
+        id: c.id, label: `<span class="ar ar-letter">${c.forms.isolated}</span>` })),
+      answer: l.id
+    }),
+
+    // Par la translittération : le pont entre le son écrit et la lettre.
+    (l, pool) => ({
+      id: `noms:translit:${l.id}`,
+      prompt: `<p class="quiz-q">Quelle lettre se transcrit
+                 <code>${esc(l.translit)}</code> ?</p>`,
+      choices: [l, ...distractors(pool, l)].map((c) => ({
+        id: c.id, label: `<span class="ar ar-letter">${c.forms.isolated}</span>` })),
+      answer: l.id
+    })
+  ],
+
+  formes: [
+    // Une forme attachée, à rattacher à sa lettre.
+    (l, pool) => {
+      const choices = l.connects_forward
+        ? POSITIONS.slice(1) : [POSITIONS[3]];
+      const [key, label] = choices[Math.floor(Math.random() * choices.length)];
+      const from = key === 'final' ? pool : pool.filter((x) => x.connects_forward);
+      return {
+        id: `formes:lettre:${l.id}`,
+        prompt: `<p class="quiz-q">De quelle lettre est-ce la forme ${label} ?</p>
+                 <p class="ar ar-huge">${l.forms[key]}</p>`,
+        choices: [l, ...distractors(from, l)].map((c) => ({ id: c.id, label: esc(c.name_fr) })),
+        answer: l.id,
+        hint: l.connects_forward ? '' :
+          `Le ${esc(l.name_fr)} ne se lie pas à la suivante : sa forme initiale
+           est identique à sa forme isolée.`
+      };
+    },
+
+    // Une lettre et une position, la bonne graphie à choisir.
+    (l, pool) => {
+      if (!l.connects_forward) return null;
+      const [key, label] = POSITIONS[1 + Math.floor(Math.random() * 3)];
+      const from = distractors(pool.filter((x) => x.connects_forward), l);
+      return {
+        id: `formes:graphie:${l.id}`,
+        prompt: `<p class="quiz-q">Comment s’écrit le <strong>${esc(l.name_fr)}</strong>
+                   en position ${label} ?</p>`,
+        choices: [l, ...from].map((c) => ({
+          id: c.id, label: `<span class="ar ar-letter">${c.forms[key]}</span>` })),
+        answer: l.id
+      };
+    },
+
+    // La position elle-même, à reconnaître au trait de liaison.
+    (l) => {
+      if (!l.connects_forward) return null;
+      const [key, label] = POSITIONS[1 + Math.floor(Math.random() * 3)];
+      void label;
+      return {
+        id: `formes:position:${l.id}`,
+        prompt: `<p class="quiz-q">Dans quelle position ce
+                   <strong>${esc(l.name_fr)}</strong> est-il écrit ?</p>
+                 <p class="ar ar-huge">${l.forms[key]}</p>`,
+        choices: POSITIONS.map(([k, lab]) => ({ id: k, label: esc(lab) })),
+        answer: key,
+        hint: 'Un trait à droite signale une liaison avec la lettre précédente ; à gauche, avec la suivante.'
+      };
+    }
+  ]
+};
+
+/**
+ * Les boutons d'écoute passent par la chaîne enregistrement → Coran → synthèse,
+ * et se désactivent d'eux-mêmes quand aucune des trois n'est disponible.
+ */
+const wireSpeak = (el) => wireListen(el);
+
+/** Applique un générateur au hasard, en réessayant si celui tiré ne s'applique pas. */
+function generate(list, item, pool) {
+  for (const g of [...list].sort(() => Math.random() - 0.5)) {
+    const q = g(item, pool);
+    if (q) return q;
+  }
+  return null;
+}
+
 async function screenQuiz(el, kind) {
   const { letters, tashkil } = await lessons.alphabet();
   const real = letters.filter((l) => l.id !== 'hamza');
@@ -362,94 +480,79 @@ async function screenQuiz(el, kind) {
   let questions = [];
   let stepId = '';
 
-  /* ── Nommer : on montre la lettre, on demande son nom ──────────────────────
-     L'inverse — donner le nom et faire choisir la lettre — mettait le glyphe
-     cherché dans les propositions, et le nom arabe « بَاء » contient déjà le ب.
-     L'exercice se résolvait par appariement visuel, sans rien mémoriser. */
-  if (kind === 'noms') {
-    stepId = 'm1:quiz-noms';
-    questions = sample(real, 12).map((l) => ({
-      id: l.id,
-      prompt: `<p class="quiz-q">Comment se nomme cette lettre ?</p>
-               <p class="ar ar-huge">${l.forms.isolated}</p>`,
-      choices: [l, ...distractors(real, l)].map((c) => ({
-        id: c.id, label: esc(c.name_fr) })),
-      answer: l.id,
-      hint: l.note ? esc(l.note) : ''
-    }));
+  if (kind === 'noms' || kind === 'formes') {
+    stepId = `m1:quiz-${kind}`;
+    const picked = await drill.pick(real, 12, (l) => `${kind}:${l.id}`);
+    questions = picked.map((l) => generate(GENERATORS[kind], l, real)).filter(Boolean);
   }
 
-  /* ── Formes : reconnaître une lettre à sa forme contextuelle ───────────────
-     Les propositions ne portent que le nom français. Et les six lettres qui ne
-     se lient pas sont écartées des formes initiale et médiane : leur forme
-     initiale EST leur forme isolée, la question n'aurait pas de sens. */
-  if (kind === 'formes') {
-    stepId = 'm1:quiz-formes';
-    const connecting = real.filter((l) => l.connects_forward);
-
-    questions = sample(real, 12).map((l) => {
-      const shapes = l.connects_forward
-        ? [['initial', 'initiale'], ['medial', 'médiane'], ['final', 'finale']]
-        : [['final', 'finale']];
-      const [key, label] = shapes[Math.floor(Math.random() * shapes.length)];
-      const pool = key === 'final' ? real : connecting;
-
-      return {
-        id: l.id + ':' + key,
-        prompt: `<p class="quiz-q">De quelle lettre est-ce la forme ${label} ?</p>
-                 <p class="ar ar-huge">${l.forms[key]}</p>`,
-        choices: [l, ...distractors(pool, l)].map((c) => ({
-          id: c.id, label: esc(c.name_fr) })),
-        answer: l.id,
-        hint: l.connects_forward ? '' :
-          `Le ${esc(l.name_fr)} ne se lie pas à la lettre suivante : il n’a donc pas
-           de forme initiale ni médiane distinctes.`
-      };
-    });
-  }
-
-  /* ── Tashkîl : lire une syllabe ────────────────────────────────────────────
-     Les distracteurs font varier la voyelle ET la consonne, en piochant dans les
-     lettres confondues : ne faire varier que la voyelle laissait deviner la
-     consonne, qui figurait à l'identique dans les quatre propositions. */
+  /* ── Tashkîl ────────────────────────────────────────────────────────────── */
   if (kind === 'tashkil') {
     stepId = 'm1:quiz-tashkil';
-    const marks = tashkil.filter((t) => ['fatha', 'kasra', 'damma'].includes(t.id));
+    const marks = tashkil.filter((t) => ['fatha', 'kasra', 'damma', 'sukun'].includes(t.id));
+    const voyelles = marks.filter((t) => t.id !== 'sukun');
     const tr = (l) => l.translit.split(' ')[0].replace('ā', 'a');
 
-    questions = sample(real, 12).map((l) => {
-      const t = marks[Math.floor(Math.random() * marks.length)];
-      const vowel = t.translit.slice(1);
-      const good = tr(l) + vowel;
+    const gens = [
+      // Lire la syllabe. Les distracteurs font varier la voyelle ET la consonne :
+      // n'en changer qu'une laissait deviner l'autre.
+      (l) => {
+        const t = voyelles[Math.floor(Math.random() * voyelles.length)];
+        const good = tr(l) + t.translit.slice(1);
+        const others = new Set();
+        for (const m of voyelles) if (m.id !== t.id) others.add(tr(l) + m.translit.slice(1));
+        for (const d of distractors(real, l, 2)) others.add(tr(d) + t.translit.slice(1));
+        return {
+          id: `tashkil:lire:${l.id}`,
+          prompt: `<p class="quiz-q">Comment se lit cette syllabe ?</p>
+                   <p class="ar ar-huge">${l.forms.isolated}${t.mark}</p>
+                   <p style="text-align:center"><button class="btn btn-ghost listen" type="button"
+                      data-letter="${l.id}" data-mark="${t.mark}"
+                      data-text="${l.forms.isolated}${t.mark}">Écouter</button></p>`,
+          choices: [good, ...[...others].filter((s) => s !== good).slice(0, 3)]
+            .map((s) => ({ id: s, label: `<code>${esc(s)}</code>` })),
+          answer: good,
+          hint: `${esc(t.name_fr)} : ${esc(t.sound)}.`
+        };
+      },
 
-      const others = new Set();
-      for (const m of marks) if (m.id !== t.id) others.add(tr(l) + m.translit.slice(1));
-      for (const d of distractors(real, l, 2)) others.add(tr(d) + vowel);
+      // Nommer le signe, sans passer par la transcription.
+      (l) => {
+        const t = marks[Math.floor(Math.random() * marks.length)];
+        return {
+          id: `tashkil:signe:${l.id}`,
+          prompt: `<p class="quiz-q">Quel signe porte cette lettre ?</p>
+                   <p class="ar ar-huge">${l.forms.isolated}${t.mark}</p>`,
+          choices: marks.map((m) => ({ id: m.id, label: esc(m.name_fr) })),
+          answer: t.id,
+          hint: `${esc(t.name_fr)} se place ${esc(t.position)}.`
+        };
+      },
 
-      return {
-        id: l.id + ':' + t.id,
-        prompt: `<p class="quiz-q">Comment se lit cette syllabe ?</p>
-                 <p class="ar ar-huge">${l.forms.isolated}${t.mark}</p>
-                 <p style="text-align:center"><button class="btn btn-ghost listen" type="button"
-                    data-letter="${l.id}" data-mark="${t.mark}"
-                    data-text="${l.forms.isolated}${t.mark}">Écouter</button></p>`,
-        choices: [good, ...[...others].filter((s) => s !== good).slice(0, 3)]
-          .map((s) => ({ id: s, label: `<code>${esc(s)}</code>` })),
-        answer: good,
-        hint: `${esc(t.name_fr)} : ${esc(t.sound)}.`
-      };
-    });
+      // Sens inverse : la transcription est donnée, la graphie à retrouver.
+      (l) => {
+        const t = voyelles[Math.floor(Math.random() * voyelles.length)];
+        const good = l.forms.isolated + t.mark;
+        const others = voyelles.filter((m) => m.id !== t.id)
+          .map((m) => l.forms.isolated + m.mark);
+        const d = distractors(real, l, 1)[0];
+        if (d) others.push(d.forms.isolated + t.mark);
+        return {
+          id: `tashkil:ecrire:${l.id}`,
+          prompt: `<p class="quiz-q">Laquelle se lit
+                     <code>${esc(tr(l) + t.translit.slice(1))}</code> ?</p>`,
+          choices: [good, ...others.slice(0, 3)].map((s) => ({
+            id: s, label: `<span class="ar ar-letter">${s}</span>` })),
+          answer: good
+        };
+      }
+    ];
+
+    const picked = await drill.pick(real, 12, (l) => `tashkil:${l.id}`);
+    questions = picked.map((l) => generate(gens, l, real)).filter(Boolean);
   }
 
-  /* ── Écriture : attacher les lettres ───────────────────────────────────────
-     Le cœur de l'écriture arabe n'est pas de tracer une lettre isolée, mais de
-     savoir ce qu'elle devient une fois attachée — et de reconnaître les six qui
-     ne s'attachent pas. On montre donc les lettres séparées d'un mot réel du
-     Coran, et l'on demande sa forme écrite.
-
-     Les distracteurs sont construits à partir du mot lui-même : deux lettres
-     interverties, ou une lettre remplacée par celle qu'on lui confond. Un mot
-     sans rapport se rejetterait d'un coup d'œil. */
+  /* ── Écriture ───────────────────────────────────────────────────────────── */
   if (kind === 'ecriture') {
     stepId = 'm1:quiz-ecriture';
 
@@ -457,7 +560,7 @@ async function screenQuiz(el, kind) {
     const byChar = new Map(real.map((l) => [l.forms.isolated, l]));
 
     const usable = glossed
-      .map((w) => ({ w, chars: [...bare(w.form)] }))
+      .map((w) => ({ ...w, chars: [...bare(w.form)] }))
       .filter(({ chars }) => chars.length >= 3 && chars.length <= 5
         && chars.every((c) => byChar.has(c)));
 
@@ -467,39 +570,76 @@ async function screenQuiz(el, kind) {
       return c.join('');
     };
     const substitute = (chars, i) => {
-      const l = byChar.get(chars[i]);
-      const d = distractors(real, l, 1)[0];
+      const d = distractors(real, byChar.get(chars[i]), 1)[0];
       if (!d) return null;
       const c = [...chars];
       c[i] = d.forms.isolated;
       return c.join('');
     };
-
-    questions = sample(usable, Math.min(10, usable.length)).map(({ w, chars }) => {
+    // Les leurres sont bâtis sur le mot lui-même : un mot sans rapport se
+    // rejetterait d'un coup d'œil, sans rien exercer.
+    const variants = (chars) => {
       const good = chars.join('');
-      const wrong = new Set();
+      const out = new Set();
       for (let i = 0; i < chars.length - 1; i++) {
         const s = swap(chars, i);
-        if (s !== good) wrong.add(s);
+        if (s !== good) out.add(s);
       }
       for (let i = 0; i < chars.length; i++) {
         const s = substitute(chars, i);
-        if (s && s !== good) wrong.add(s);
+        if (s && s !== good) out.add(s);
       }
+      return [...out].sort(() => Math.random() - 0.5);
+    };
 
-      return {
-        id: 'ecrit:' + w.id,
-        prompt: `<p class="quiz-q">Ces lettres, une fois attachées, donnent quel mot ?</p>
-                 <p class="ar ar-huge letters-apart">${chars.join(' ')}</p>`,
-        aside: `${esc(w.fr)} — ${w.occurrences} occurrences dans le Coran`,
-        choices: [good, ...[...wrong].sort(() => Math.random() - 0.5).slice(0, 3)]
-          .map((s) => ({ id: s, label: `<span class="ar ar-letter">${s}</span>` })),
-        answer: good,
-        hint: chars.some((c) => !byChar.get(c).connects_forward)
-          ? 'Attention : ce mot contient une lettre qui ne se lie pas à la suivante.'
-          : ''
-      };
-    });
+    const gens = [
+      (w) => {
+        const good = w.chars.join('');
+        return {
+          id: `ecriture:attacher:${w.id}`,
+          prompt: `<p class="quiz-q">Ces lettres, une fois attachées, donnent quel mot ?</p>
+                   <p class="ar ar-huge letters-apart">${w.chars.join(' ')}</p>`,
+          aside: `${esc(w.fr)} — ${w.occurrences} occurrences dans le Coran`,
+          choices: [good, ...variants(w.chars).slice(0, 3)].map((s) => ({
+            id: s, label: `<span class="ar ar-letter">${s}</span>` })),
+          answer: good,
+          hint: w.chars.some((c) => !byChar.get(c).connects_forward)
+            ? 'Ce mot contient une lettre qui ne se lie pas à la suivante.' : ''
+        };
+      },
+
+      // Le sens inverse est plus dur : il faut voir où une lettre finit.
+      (w) => {
+        const good = w.chars.join(' ');
+        return {
+          id: `ecriture:detacher:${w.id}`,
+          prompt: `<p class="quiz-q">De quelles lettres ce mot est-il composé ?</p>
+                   <p class="ar ar-huge">${w.chars.join('')}</p>`,
+          aside: esc(w.fr),
+          choices: [good, ...variants(w.chars).slice(0, 3).map((s) => [...s].join(' '))]
+            .map((s) => ({ id: s, label: `<span class="ar ar-letter letters-apart">${s}</span>` })),
+          answer: good
+        };
+      },
+
+      (w) => {
+        const first = byChar.get(w.chars[0]);
+        if (!first) return null;
+        return {
+          id: `ecriture:premiere:${w.id}`,
+          prompt: `<p class="quiz-q">Par quelle lettre ce mot commence-t-il ?</p>
+                   <p class="ar ar-huge">${w.chars.join('')}</p>`,
+          aside: `${esc(w.fr)} — l’arabe se lit de droite à gauche`,
+          choices: [first, ...distractors(real, first)].map((c) => ({
+            id: c.id, label: esc(c.name_fr) })),
+          answer: first.id
+        };
+      }
+    ];
+
+    const picked = await drill.pick(usable, Math.min(10, usable.length),
+      (w) => `ecriture:${w.id}`);
+    questions = picked.map((w) => generate(gens, w, real)).filter(Boolean);
   }
 
   const host = document.createElement('div');
@@ -509,17 +649,24 @@ async function screenQuiz(el, kind) {
 
   quiz(host, {
     questions,
-    onFinish: ({ score }) => progress.record(stepId, { score })
+    onFinish: async ({ score, wrong }) => {
+      await progress.record(stepId, { score });
+      // Chaque item est noté pour que la séance suivante reparte de ce qui
+      // manque, au lieu de retirer au hasard dans tout l'alphabet.
+      //
+      // L'identifiant de question porte la variante (« noms:rappel:ba ») alors
+      // que la statistique porte sur l'item (« noms:ba ») : c'est la lettre qui
+      // est sue ou non, pas la façon de l'interroger.
+      await drill.recordAll(questions.map((q) => {
+        const p = q.id.split(':');
+        return {
+          id: p.length >= 3 ? `${p[0]}:${p.slice(2).join(':')}` : q.id,
+          ok: !wrong.includes(q.id)
+        };
+      }));
+    }
   });
 }
-
-/* ─────────────────────────── utilitaires ─────────────────────────── */
-
-/**
- * Les boutons d'écoute passent par la chaîne enregistrement → Coran → synthèse,
- * et se désactivent d'eux-mêmes quand aucune des trois n'est disponible.
- */
-const wireSpeak = (el) => wireListen(el);
 
 /* ─────────────────────────── module ─────────────────────────── */
 

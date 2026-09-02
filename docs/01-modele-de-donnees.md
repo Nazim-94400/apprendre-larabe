@@ -168,6 +168,7 @@ ne demande alors **aucune modification de code**.
 | `srs` | `card_id` (clé pivot) | `ease`, `interval`, `due`, `reps`, `lapses` (SM-2) |
 | `recordings` | auto-inc | `Blob` audio, `verse_key`, date, durée, score, features |
 | `stats` | date | temps passé, séries, versets validés |
+| `drill` | id d'item | `seen`, `wrong`, `last` — tirage des questions d'exercice |
 
 `localStorage` n'est utilisé que pour le thème et la dernière page visitée — c'est-à-dire
 ce qui doit être lu **avant** le premier rendu, pour éviter le flash de thème clair.
@@ -175,6 +176,22 @@ ce qui doit être lu **avant** le premier rendu, pour éviter le flash de thème
 Le store `srs` accepte indifféremment `"2:255"` et `"letter:dhad"` comme identifiant de
 carte : la répétition espacée couvre donc aussi bien la mémorisation de sourates
 (Module 6) que la révision des lettres et des règles, sans second système.
+
+### `drill` et `srs` ne font pas le même travail
+
+`srs` répond à « quand faut-il revoir cette carte » — une date, un intervalle qui
+s'allonge. `drill` répond à « laquelle des 87 syllabes de ce tableau poser
+maintenant » — un poids, à l'intérieur d'une séance déjà commencée.
+
+Les identifiants suivent la convention de la clé pivot, un préfixe par famille
+d'items : `letter:dhad`, `rule:ikhfa`, `tj:ikhfa:2:255` (un verset pour une règle),
+`syll:syll-1:ba:0` (une lettre × une voyelle), `vocab:<id>`. Un même item peut être
+suivi par les deux stores : le vocabulaire est à la fois révisé dans le temps et
+tiré dans les quiz.
+
+La statistique porte toujours sur **l'item**, jamais sur la forme de question. Une
+lettre ratée en « nommer » revient volontiers en « reconnaître » : c'est la lettre
+qui n'est pas sue, pas la question.
 
 ---
 

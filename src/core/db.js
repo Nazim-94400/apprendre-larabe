@@ -8,7 +8,7 @@
  */
 
 const DB_NAME = 'arabe-coran';
-const DB_VERSION = 1;
+const DB_VERSION = 2;
 
 /** Déclaration du schéma, version par version. */
 const MIGRATIONS = {
@@ -22,22 +22,95 @@ const MIGRATIONS = {
     rec.createIndex('verse_key', 'verse_key');
     rec.createIndex('date', 'date');
     db.createObjectStore('stats');                               // clé : AAAA-MM-JJ
+  },
+
+  /**
+   * `drill` retient, pour chaque item d'exercice, combien de fois il a été vu et
+   * raté. Le tirage des questions s'en sert pour proposer d'abord ce qui n'a
+   * jamais été vu, puis ce qui a été manqué — sans quoi un tirage uniforme
+   * repose les mêmes lettres et en laisse d'autres jamais rencontrées.
+   */
+  2(db) {
+    db.createObjectStore('drill');                               // clé : id d'item
   }
 };
 
 let dbPromise = null;
 
+/**
+ * Délai au-delà duquel on renonce à ouvrir la base.
+ *
+ * Une montée de version bloquée par un onglet qui ne relâche pas sa connexion
+ * laisse la requête en attente indéfiniment : ni succès, ni erreur, ni même
+ * `blocked` dans certains cas. L'application restait alors figée sur
+ * « Chargement… », sans message ni recours.
+ *
+ * Mieux vaut échouer franchement : les lectures retombent sur leurs valeurs par
+ * défaut, l'interface s'affiche, et seule la progression est indisponible.
+ */
+const OPEN_TIMEOUT = 5000;
+
+/**
+ * Mémoire courte des échecs.
+ *
+ * Sans elle, chaque lecture retente l'ouverture et attend son propre délai : un
+ * écran qui interroge quatre stores mettait vingt-trois secondes à s'afficher au
+ * lieu de cinq. Une nouvelle tentative reste possible passé ce court répit, pour
+ * que la fermeture de l'onglet fautif suffise à rétablir la situation.
+ */
+const FAIL_MEMO = 3000;
+let lastFailure = 0;
+let lastError = null;
+
 function open() {
   if (dbPromise) return dbPromise;
+  if (Date.now() - lastFailure < FAIL_MEMO) return Promise.reject(lastError);
   dbPromise = new Promise((resolve, reject) => {
     const req = indexedDB.open(DB_NAME, DB_VERSION);
+
+    const timer = setTimeout(() => {
+      dbPromise = null;   // une tentative ultérieure doit pouvoir réessayer
+      lastFailure = Date.now();
+      lastError = new Error(
+        'La base de données ne répond pas. Ferme les autres onglets de '
+        + 'l’application, puis recharge la page.');
+      reject(lastError);
+    }, OPEN_TIMEOUT);
+    const settle = (fn) => (...args) => { clearTimeout(timer); fn(...args); };
+    const ok = settle(resolve);
+    const ko = settle((err) => { lastFailure = Date.now(); lastError = err; reject(err); });
+
     req.onupgradeneeded = (e) => {
       const db = req.result;
       for (let v = e.oldVersion + 1; v <= DB_VERSION; v++) MIGRATIONS[v]?.(db, req.transaction);
     };
-    req.onsuccess = () => resolve(req.result);
-    req.onerror = () => reject(req.error);
-    req.onblocked = () => reject(new Error('IndexedDB bloquée par un autre onglet'));
+
+    req.onsuccess = () => {
+      const db = req.result;
+      lastFailure = 0;
+      lastError = null;
+
+      // Un autre onglet demande une montée de version : on libère la connexion,
+      // sinon sa migration reste bloquée et SON application échoue au chargement.
+      // C'est le cas courant de deux onglets ouverts pendant une mise à jour.
+      db.onversionchange = () => {
+        db.close();
+        dbPromise = null;
+      };
+
+      ok(db);
+    };
+
+    req.onerror = () => { dbPromise = null; ko(req.error); };
+
+    // Un onglet ancien qui ne relâche pas la base. Mieux vaut une consigne claire
+    // qu'une erreur technique : l'utilisateur peut agir, le code non.
+    req.onblocked = () => {
+      dbPromise = null;
+      ko(new Error(
+        'La base de données est ouverte dans un autre onglet, ce qui empêche la '
+        + 'mise à jour. Ferme les autres onglets, puis recharge la page.'));
+    };
   });
   return dbPromise;
 }
