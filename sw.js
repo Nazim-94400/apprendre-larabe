@@ -12,7 +12,7 @@
  * apparente.
  */
 
-const VERSION = 'v22';
+const VERSION = 'v24';
 const SHELL = `app-shell-${VERSION}`;
 const DATA  = `data-${VERSION}`;
 const AUDIO = 'audio';                 // volontairement non versionné : jamais purgé

@@ -570,3 +570,7 @@
   .hifz-level { padding-inline: var(--sp-4); }
   .row input[type="checkbox"] { width: 26px; height: 26px; }
 }
+
+/* Lettres présentées détachées : l'espacement doit être franc, sinon l'œil les
+   recolle et l'exercice perd son objet. */
+.letters-apart { letter-spacing: .18em; word-spacing: .1em; }
