@@ -551,3 +551,22 @@
 
 .verse-block { display: block; }
 .verse-block .ar { margin: 0; }
+
+/* ── Cibles tactiles ───────────────────────────────────────────────────────── */
+
+/* Sur écran tactile, une cible de moins de 44 px se rate une fois sur trois.
+   Les puces de niveau du Module 6 mesuraient 28 px, les petits boutons 34.
+   L'agrandissement est réservé au pointeur grossier : à la souris, des boutons
+   de 44 px partout alourdiraient inutilement les listes. */
+@media (pointer: coarse) {
+  .hifz-level,
+  .small-btn,
+  .icon-btn,
+  .pb-btn,
+  .vocab-chip,
+  .form-cell,
+  .syll { min-height: 44px; }
+
+  .hifz-level { padding-inline: var(--sp-4); }
+  .row input[type="checkbox"] { width: 26px; height: 26px; }
+}
