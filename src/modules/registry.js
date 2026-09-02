@@ -33,12 +33,12 @@ export const MODULES = [
     subtitle: 'Enregistrement, comparaison, validation verset par verset',
     icon: '\u062A' },
 
-  { id: '06-hifz',        n: 6, phase: 4, state: 'todo',
+  { id: '06-hifz',        n: 6, phase: 4, state: 'done',
     title: 'Mémorisation',
     subtitle: 'Masquage progressif et révision espacée',
     icon: '\u062D' },
 
-  { id: '07-vocabulaire', n: 7, phase: 4, state: 'todo',
+  { id: '07-vocabulaire', n: 7, phase: 4, state: 'done',
     title: 'Vocabulaire coranique',
     subtitle: 'Mots fréquents, racines trilitères, quiz sur versets',
     icon: '\u0643' }

@@ -57,9 +57,17 @@ s'alignent pas sur le texte — voir `docs/03-sources-et-licences.md`, section 9
 | Module 2 — makhârij, schéma SVG, discrimination | fait |
 | Module 3 — 18 règles, exemples réels, exercices | fait |
 | Module 4 — lecture guidée, audio, surlignage mot à mot | fait |
+| Module 5 — enregistrement, comparaison rythmique, historique | fait |
+| Module 6 — masquage progressif, répétition espacée | fait |
+| Module 7 — 500 mots fréquents, quiz sur versets réels | fait |
 | Horodatages mot à mot — 3 récitateurs, 6 236 versets | générés |
-| Modules 5 à 7 | squelettes |
+| Audio des lettres isolées | absent — aucune source libre |
 | Traduction française des versets | licence non résolue |
+
+Les quatre phases de la feuille de route sont couvertes. Ce qui reste tient aux
+sources, pas au code : il n'existe pas de banque libre d'enregistrements par
+lettre (la synthèse vocale du navigateur sert de solution d'attente), et la
+licence d'une traduction française complète n'est pas réglée.
 
 ## Documentation
 

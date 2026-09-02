@@ -203,3 +203,47 @@ en 2017 et `ـۧ` aujourd'hui, se retrouve sur le م suivant.
 Ne jamais désactiver les contrôles de `build-tajweed.mjs` pour « faire passer » une
 génération. Une annotation décalée colore la mauvaise lettre et enseigne une erreur —
 c'est pire que l'absence de couleur.
+
+---
+
+## 10. Horodatages mot à mot
+
+### cpfair/quran-align — RETENU
+- URL : https://github.com/cpfair/quran-align (archive de la page *Releases*)
+- Licence : **CC BY 4.0**
+- Contenu : bornes de chaque mot en millisecondes, pour douze récitateurs.
+  Trois sont embarqués : Husary mu'allim, Husary murattal, Al-Afasy.
+- Pourquoi c'est important : les noms de fichiers du jeu de données correspondent
+  exactement aux dossiers d'EveryAyah. L'audio joué et les horodatages viennent
+  donc du **même enregistrement** — le surlignage est exact, non estimé d'après la
+  longueur des mots.
+
+Deux corrections appliquées à la génération, documentées dans
+`tools/build-segments.mjs` :
+
+1. **Basmala.** Tanzil la préfixe au premier verset des sourates 2 à 114 ; l'audio
+   d'EveryAyah ne la contient pas. Sans décalage, le surlignage de « qul huwa
+   llâhu ahad » éclaire les mots de la basmala. 106 versets recalés.
+2. **Marques de pause.** Le texte Uthmani sépare par des espaces des signes qui ne
+   sont pas des mots (ۖ ۗ ۚ). L'aligneur ne les compte pas. La définition du mot est
+   désormais unique, importée depuis `src/data-access/tajweed.js` par le script de
+   génération — deux définitions séparées finissent toujours par diverger.
+
+## 11. Contenus rédigés pour le projet
+
+Ces fichiers n'ont pas de source externe. Ils sont **à faire relire par une personne
+qualifiée** avant tout usage pédagogique large, ce que rappelle le bloc `_meta` de
+chacun.
+
+| Fichier | Contenu |
+|---|---|
+| `data/lessons/alphabet.json` | 29 lettres, formes, sifât, lettres confondues, tashkîl |
+| `data/lessons/makharij.json` | 17 points d'articulation, 5 zones, exercices de paires |
+| `data/lessons/tajweed-rules.json` | 18 règles, glossaire de 17 termes |
+| `tools/vocab-gloss.json` | sens français des 160 mots les plus fréquents |
+| `tools/surah-names-fr.json` | noms français des 114 sourates |
+
+En revanche, tout ce qui est **chiffré ou situé dans le texte** est calculé, jamais
+recopié : les occurrences de vocabulaire sont comptées sur le texte (77 430 mots hors
+basmalas préfixées, soit exactement le décompte du Quranic Arabic Corpus), et les
+exemples de règles sont extraits des annotations vérifiées.

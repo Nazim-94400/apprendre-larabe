@@ -349,3 +349,121 @@
 }
 .rec-list li:last-child { border-bottom: 0; }
 .small-btn { min-height: 34px; padding: 0 var(--sp-3); }
+
+/* ── Mémorisation ──────────────────────────────────────────────────────────── */
+
+.hifz-stats {
+  display: grid; grid-template-columns: repeat(3, 1fr);
+  gap: var(--sp-2); margin-top: var(--sp-3);
+}
+.hifz-stats > div {
+  display: flex; flex-direction: column; align-items: center;
+  padding: var(--sp-3) var(--sp-2);
+  background: var(--c-surface-2); border-radius: var(--radius-sm);
+}
+.hifz-stats strong { font-size: var(--fs-xl); }
+
+/* Anneau de progression : conic-gradient évite un SVG par sourate. */
+.hifz-ring {
+  flex: none; display: grid; place-items: center;
+  width: 44px; height: 44px; border-radius: 50%;
+  background: conic-gradient(var(--c-accent) calc(var(--pct) * 1%), var(--c-surface-2) 0);
+  position: relative;
+}
+.hifz-ring::before {
+  content: ''; position: absolute; inset: 4px;
+  border-radius: 50%; background: var(--c-surface);
+}
+.hifz-ring > span { position: relative; font-size: 10px; font-variant-numeric: tabular-nums; }
+
+.hifz-levels { display: flex; gap: var(--sp-1); flex-wrap: wrap; margin-bottom: var(--sp-2); }
+.hifz-level {
+  padding: var(--sp-1) var(--sp-3);
+  border: 1px solid var(--c-border); border-radius: 999px;
+  background: transparent; color: var(--c-text-soft);
+  font: inherit; font-size: var(--fs-xs); cursor: pointer;
+}
+.hifz-level.is-on { background: var(--c-accent); color: var(--c-accent-text); border-color: var(--c-accent); }
+
+/* Un mot masqué garde sa largeur : la silhouette du verset reste lisible, ce qui
+   est la moitié de l'indice quand on mémorise. */
+.hifz-verse .w-hidden {
+  color: transparent;
+  background: var(--c-surface-2);
+  border-radius: 4px;
+  box-shadow: inset 0 0 0 1px var(--c-border);
+  cursor: pointer;
+}
+.hifz-verse .w-hidden .tj { color: transparent; }
+.hifz-verse.all-hidden .w {
+  color: transparent; background: var(--c-surface-2);
+  border-radius: 4px; box-shadow: inset 0 0 0 1px var(--c-border);
+}
+.hifz-verse.all-hidden .tj { color: transparent; }
+
+.grade-row {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+  gap: var(--sp-2); margin-top: var(--sp-3);
+}
+.grade {
+  display: flex; flex-direction: column; gap: 2px; align-items: center;
+  padding: var(--sp-3) var(--sp-2);
+  border: 1px solid var(--c-border); border-radius: var(--radius-sm);
+  background: var(--c-surface); color: var(--c-text);
+  font: inherit; cursor: pointer;
+}
+.grade:hover { border-color: var(--c-accent); }
+.g-again:hover { border-color: var(--c-danger); }
+.g-easy:hover  { border-color: var(--c-success); }
+
+/* ── Vocabulaire ───────────────────────────────────────────────────────────── */
+
+.vocab-row { display: flex; flex-wrap: wrap; gap: var(--sp-2); }
+
+.vocab-chip {
+  display: flex; flex-direction: column; align-items: center; gap: 0;
+  padding: var(--sp-2) var(--sp-3);
+  background: var(--c-surface-2); border: 1px solid transparent;
+  border-radius: var(--radius-sm); text-decoration: none; color: inherit;
+}
+.vocab-chip:hover { border-color: var(--c-accent); }
+.vocab-chip .ar { font-size: calc(1.6rem * var(--text-scale)); line-height: 1.6; }
+
+.vocab-table { width: 100%; border-collapse: collapse; }
+.vocab-table td { padding: var(--sp-2) var(--sp-1); border-bottom: 1px solid var(--c-border); }
+.vocab-table tr:last-child td { border-bottom: 0; }
+.vocab-table td:first-child { width: 2.6em; text-align: end; font-variant-numeric: tabular-nums; }
+.vocab-table td:last-child { text-align: end; font-variant-numeric: tabular-nums; }
+.vocab-table .ar { font-size: calc(1.5rem * var(--text-scale)); }
+.vocab-table a { text-decoration: none; }
+
+/* Le mot étudié est souligné, pas colorié : la couleur est déjà prise par le
+   tajweed, et deux systèmes de couleur superposés deviennent illisibles. */
+.w-vocab {
+  text-decoration: underline solid var(--c-accent);
+  text-decoration-thickness: 3px;
+  text-underline-offset: 7px;
+}
+
+/* ── Tableau de bord ───────────────────────────────────────────────────────── */
+
+.mod-progress { display: grid; gap: var(--sp-1); }
+
+.mod-line {
+  display: flex; align-items: center; gap: var(--sp-3);
+  padding: var(--sp-2) var(--sp-1);
+  border-radius: var(--radius-sm);
+  text-decoration: none; color: inherit;
+}
+.mod-line:hover { background: var(--c-surface-2); }
+
+.mod-n {
+  flex: none; display: grid; place-items: center;
+  width: 22px; height: 22px; border-radius: 50%;
+  background: var(--c-surface-2); color: var(--c-text-faint);
+  font-size: var(--fs-xs); font-weight: 700;
+}
+.mod-name { flex: 1 1 auto; min-width: 0; font-size: var(--fs-sm);
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.mod-bar { flex: 0 1 90px; }
+.mod-val { flex: none; font-variant-numeric: tabular-nums; min-width: 3em; text-align: end; }
