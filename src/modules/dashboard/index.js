@@ -10,6 +10,9 @@
 import { MODULES } from '../registry.js';
 import * as progress from '../../core/progress.js';
 import * as srs from '../../core/srs.js';
+import * as drill from '../../core/drill.js';
+import * as lessons from '../../data-access/lessons.js';
+import * as vocab from '../../data-access/vocab.js';
 
 const esc = (s) => String(s).replace(/[&<>"]/g, (c) =>
   ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
@@ -92,9 +95,80 @@ export default {
           </div>
         </section>` : ''}
 
+        <section class="card" id="couverture">
+          <h2>Ce que tu as déjà travaillé</h2>
+          <div class="loading">Calcul…</div>
+        </section>
+
         <p class="small muted"><a href="#/sources">Sources et licences</a></p>
       </div>`;
+
+    fillCoverage(el.querySelector('#couverture'));
   },
 
   unmount() {}
 };
+
+/**
+ * Couverture du matériau, famille par famille.
+ *
+ * La barre de progression des modules dit si on a *ouvert* les écrans. Elle ne dit
+ * rien du matériau : on peut avoir « fait » le quiz des lettres en n'ayant jamais
+ * croisé que douze des vingt-neuf. Ce tableau-là compte les items réellement
+ * rencontrés au moins une fois, et c'est lui qui montre ce qu'il reste.
+ *
+ * Il est rempli après le premier rendu : quatre fichiers de leçon suffisent à
+ * retarder l'affichage de l'accueil, et l'accueil doit être immédiat.
+ */
+async function fillCoverage(host) {
+  if (!host) return;
+
+  const [alpha, mk, rules, cur, words] = await Promise.all([
+    lessons.alphabet(), lessons.makharij(), lessons.tajweedRules(),
+    lessons.curriculum(), vocab.glossed()
+  ]);
+
+  const syllables = cur.steps
+    .filter((s) => s.kind === 'syllabes')
+    .flatMap((s) => s.letters.flatMap((l) =>
+      (cur.vowel_sets[s.vowels] ?? []).map((_, vi) => ({ id: `syll:${s.id}:${l}:${vi}` }))));
+
+  // « hamza » est écartée des quiz du Module 1 : elle n'a pas de tracé propre.
+  // La compter au dénominateur donnerait une couverture plafonnée à 28/29.
+  const real = alpha.letters.filter((l) => l.id !== 'hamza');
+  const per = (prefix, src = real) => src.map((l) => ({ id: `${prefix}:${l.id}` }));
+
+  const families = [
+    { label: 'Nom et son des lettres', href: '#/m/01-fondations/quiz/noms',
+      items: per('noms') },
+    { label: 'Les quatre formes', href: '#/m/01-fondations/quiz/formes',
+      items: per('formes') },
+    { label: 'Lettres vocalisées', href: '#/m/01-fondations/quiz/tashkil',
+      items: per('tashkil') },
+    // Le dénominateur vient des points d'articulation, pas de l'alphabet : le
+    // quiz du Module 2 interroge les lettres telles que la carte les recense.
+    { label: 'Points d’articulation', href: '#/m/02-makharij/quiz',
+      items: [...new Set(mk.points.flatMap((p) => p.letters))].map((id) => ({ id: `makhraj:${id}` })) },
+    { label: 'Syllabes du parcours', href: '#/m/04-lecture',
+      items: syllables },
+    { label: 'Règles de tajwîd', href: '#/m/03-tajweed/exercice',
+      items: rules.rules.filter((r) => r.annotation).map((r) => ({ id: `rule:${r.id}` })) },
+    { label: 'Mots traduits', href: '#/m/07-vocabulaire/quiz',
+      items: words.map((w) => ({ id: `vocab:${w.id}` })) }
+  ];
+
+  const cov = await Promise.all(families.map((f) => drill.coverage(f.items)));
+
+  host.innerHTML = `
+    <h2>Ce que tu as déjà travaillé</h2>
+    <p class="small muted">Le matériau rencontré au moins une fois en exercice —
+      pas les écrans ouverts.</p>
+    <div class="mod-progress">
+      ${families.map((f, i) => `
+        <a class="mod-line" href="${f.href}">
+          <span class="mod-name">${esc(f.label)}</span>
+          <span class="progress mod-bar"><i style="width:${cov[i].ratio * 100}%"></i></span>
+          <span class="small muted mod-val">${cov[i].seen}/${cov[i].total}</span>
+        </a>`).join('')}
+    </div>`;
+}

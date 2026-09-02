@@ -261,19 +261,27 @@ async function screenQuiz(el) {
   const mk = await lessons.makharij();
   const idx = await lessons.letterIndex();
 
-  // Une lettre ne relève que d'un point ; on indexe donc par lettre, et le point
-  // s'en déduit. Le yâ' et le wâw font exception — ils figurent en prolongation et
-  // en consonne — et l'on retient alors leur point consonantique, le seul qui
-  // s'articule vraiment.
-  const items = [];
-  const seen = new Set();
+  // Une lettre ne relève que d'un point dans le quiz ; on indexe donc par lettre,
+  // et le point s'en déduit.
+  //
+  // Quatre lettres figurent pourtant à deux endroits : le yâ' et le wâw comme
+  // prolongation (jawf) et comme consonne, le noun et le mîm comme consonnes et
+  // par la ghunna (khayshum). On retient le point consonantique, le seul qui
+  // s'articule vraiment — sans quoi la même lettre était posée deux fois dans la
+  // même séance, avec deux réponses justes différentes.
+  const byLetter = new Map();
   for (const p of mk.points) {
     for (const lid of p.letters) {
-      if (seen.has(lid) && p.id === 'jawf') continue;
-      seen.add(lid);
-      items.push({ id: lid, letter: idx.get(lid), point: p });
+      const held = byLetter.get(lid);
+      if (held && !['jawf', 'khayshum'].includes(held.point.id)) continue;
+      byLetter.set(lid, { id: lid, letter: idx.get(lid), point: p });
     }
   }
+  const items = [...byLetter.values()];
+
+  /** Toutes les lettres d'une zone, quel que soit le point qui les porte. */
+  const zoneLetters = (zid) => new Set(
+    mk.points.filter((p) => p.zone === zid).flatMap((p) => p.letters));
   /**
    * Trois formes de question. Interroger toujours dans le même sens finit par
    * s'apprendre comme une liste ordonnée plutôt que comme une géographie de la
@@ -283,7 +291,12 @@ async function screenQuiz(el) {
     // Reconnaître la zone d'une lettre.
     ({ letter, point }) => ({
       id: `zone:${letter.id}`,
-      prompt: `<p class="quiz-q">De quelle zone sort cette lettre ?</p>
+      // Le yâ', le wâw, le noun et le mîm sortent de deux endroits. La question
+      // porte sur leur articulation de consonne, et doit le dire : sans quoi le
+      // jawf ou le khayshum sont des réponses justes qu'on compterait fausses.
+      prompt: `<p class="quiz-q">De quelle zone sort cette lettre
+                 ${mk.points.filter((p) => p.letters.includes(letter.id)).length > 1
+                   ? '<span class="small muted">(comme consonne)</span>' : ''} ?</p>
                <p class="ar ar-huge">${letter.forms.isolated}</p>`,
       aside: esc(letter.name_fr),
       choices: mk.zones.map((z) => ({ id: z.id, label: esc(z.name_fr) })),
@@ -294,7 +307,10 @@ async function screenQuiz(el) {
     // Sens inverse : une zone, et la lettre qui en vient parmi quatre.
     ({ letter, point }) => {
       const zone = mk.zones.find((z) => z.id === point.zone);
-      const others = shuffle(items.filter((i) => i.point.zone !== point.zone)).slice(0, 3);
+      // Même précaution : une lettre rattachée ailleurs peut figurer dans un point
+      // de cette zone. Le filtre porte donc sur les listes, pas sur le rattachement.
+      const inZone = zoneLetters(point.zone);
+      const others = shuffle(items.filter((i) => !inZone.has(i.id))).slice(0, 3);
       if (others.length < 3) return null;
       return {
         id: `depuis-zone:${letter.id}`,
@@ -314,7 +330,11 @@ async function screenQuiz(el) {
       const siblings = point.letters.filter((x) => x !== letter.id);
       if (!siblings.length) return null;
       const good = idx.get(siblings[Math.floor(Math.random() * siblings.length)]);
-      const others = shuffle(items.filter((i) => i.point.id !== point.id)).slice(0, 3);
+      // Le filtre porte sur la liste du point, pas sur le point retenu pour la
+      // lettre : le wâw est rattaché aux lèvres, mais il figure aussi au jawf.
+      // Le proposer comme leurre sur une question de jawf donnerait deux réponses
+      // justes.
+      const others = shuffle(items.filter((i) => !point.letters.includes(i.id))).slice(0, 3);
       if (!good || others.length < 3) return null;
       return {
         id: `meme-point:${letter.id}`,
