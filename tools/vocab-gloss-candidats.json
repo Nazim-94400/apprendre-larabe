@@ -1,0 +1,457 @@
+{
+  "_meta": {
+    "source": "« 80% des mots du Qour'ân » — AL-LAWH",
+    "license": "CC BY-NC-SA 3.0 FR — attribution et partage à l'identique",
+    "contact": "allawhou@gmail.com",
+    "note": "CANDIDATS À RELIRE. Appariements extraits automatiquement puis filtrés : seuls les mots arabes réellement présents dans le Coran sous cette forme sont retenus. Le sens français, lui, n'est pas vérifié.",
+    "pages": "20–58",
+    "generated": "2026-09-02"
+  },
+  "candidates": {
+    "اليم": {
+      "fr": "Douloureux",
+      "rank": 167,
+      "page": 46
+    },
+    "مع": {
+      "fr": "Avec",
+      "rank": 174,
+      "page": 32
+    },
+    "رسول": {
+      "fr": "Messager(s) (pl.",
+      "rank": 192,
+      "page": 51
+    },
+    "هي": {
+      "fr": "Ils/elles pl. inanimé",
+      "rank": 209,
+      "page": 26
+    },
+    "مثل": {
+      "fr": "Quelque chose semblable à",
+      "rank": 212,
+      "page": 29
+    },
+    "هذه": {
+      "fr": "de",
+      "rank": 216,
+      "page": 23
+    },
+    "جعل": {
+      "fr": "Faire, mettre en place, faire de qqch une autre qqch",
+      "rank": 218,
+      "page": 56
+    },
+    "اهل": {
+      "fr": "Gens de, habitants, peuple, proches",
+      "rank": 231,
+      "page": 29
+    },
+    "الحكيم": {
+      "fr": "Le Sage, Le Juste. Sage, juste, sagace.",
+      "rank": 235,
+      "page": 37
+    },
+    "هؤلاء": {
+      "fr": "Ceux-ci, celles-ci, ces m./fm.pl.",
+      "rank": 243,
+      "page": 23
+    },
+    "ذكر": {
+      "fr": "Mâle (pl.",
+      "rank": 264,
+      "page": 54
+    },
+    "العظيم": {
+      "fr": "Le Suprême, Le Majestueux. Immense, sublime.",
+      "rank": 276,
+      "page": 38
+    },
+    "ماء": {
+      "fr": "Eau",
+      "rank": 279,
+      "page": 42
+    },
+    "شديد": {
+      "fr": "Sévère, dur, fort, intense.",
+      "rank": 283,
+      "page": 38
+    },
+    "الساعه": {
+      "fr": "L'Heure, heure",
+      "rank": 287,
+      "page": 46
+    },
+    "حق": {
+      "fr": "Plus en droit, plus digne.",
+      "rank": 294,
+      "page": 39
+    },
+    "ملك": {
+      "fr": "Royauté, autorité, règne",
+      "rank": 298,
+      "page": 42
+    },
+    "ابن": {
+      "fr": "Fils (pl. / (",
+      "rank": 347,
+      "page": 52
+    },
+    "الغيب": {
+      "fr": "Le monde de l’invisible. Invisible, absence.",
+      "rank": 357,
+      "page": 48
+    },
+    "سواء": {
+      "fr": "Même, égale, pareil",
+      "rank": 374,
+      "page": 42
+    },
+    "جزاء": {
+      "fr": "Récompense, bonne rétribution",
+      "rank": 379,
+      "page": 46
+    },
+    "ولي": {
+      "fr": "Plus près, plus proche.",
+      "rank": 380,
+      "page": 39
+    },
+    "جناح": {
+      "fr": "Péché, faute",
+      "rank": 384,
+      "page": 49
+    },
+    "عباده": {
+      "fr": "Adorer, servir, s'assujetir",
+      "rank": 389,
+      "page": 58
+    },
+    "ذو": {
+      "fr": "Qui a, détenteur de, doué de, doté de",
+      "rank": 391,
+      "page": 29
+    },
+    "عدو": {
+      "fr": "Ennemi (pl.",
+      "rank": 412,
+      "page": 54
+    },
+    "قريه": {
+      "fr": "Cité, ville (pl.",
+      "rank": 426,
+      "page": 43
+    },
+    "ماذا": {
+      "fr": "Qu'est-ce que ?",
+      "rank": 432,
+      "page": 28
+    },
+    "سميع": {
+      "fr": "Celui qui entend chaque chose5.",
+      "rank": 452,
+      "page": 36
+    },
+    "عسي": {
+      "fr": "Peut-être, il y a espoir, il est possible, il se peut que",
+      "rank": 458,
+      "page": 34
+    },
+    "اول": {
+      "fr": "Ceux-là, celles-là, ces m./fm.pl.",
+      "rank": 468,
+      "page": 23
+    },
+    "نار": {
+      "fr": "Feu, fournaise",
+      "rank": 479,
+      "page": 45
+    },
+    "اولي": {
+      "fr": "Premier (première). (fm.",
+      "rank": 508,
+      "page": 37
+    },
+    "ذي": {
+      "fr": "Lequel, celui/ce qui, qui, que m.sg.",
+      "rank": 510,
+      "page": 23
+    },
+    "سحر": {
+      "fr": "Enchanter, ensorceler",
+      "rank": 533,
+      "page": 56
+    },
+    "اظلم": {
+      "fr": "Plus injuste.",
+      "rank": 538,
+      "page": 39
+    },
+    "عاد": {
+      "fr": "Ad (peuple), Thamoud (peuple)",
+      "rank": 555,
+      "page": 51
+    },
+    "حسنه": {
+      "fr": "Bonne (action) (pl.",
+      "rank": 559,
+      "page": 49
+    },
+    "ولد": {
+      "fr": "Enfant (pl.",
+      "rank": 565,
+      "page": 52
+    },
+    "ذات": {
+      "fr": "Qui a, détentrice de, douée de, doté de",
+      "rank": 578,
+      "page": 29
+    },
+    "ذا": {
+      "fr": "Qui a, détenteur de, doué de, doté de",
+      "rank": 596,
+      "page": 29
+    },
+    "شر": {
+      "fr": "Mauvais, pire (pl.",
+      "rank": 623,
+      "page": 49
+    },
+    "فوق": {
+      "fr": "Au dessus de",
+      "rank": 628,
+      "page": 27
+    },
+    "قلوب": {
+      "fr": "Cœur (pl.",
+      "rank": 631,
+      "page": 53
+    },
+    "شك": {
+      "fr": "Etre reconnaissant, remercier",
+      "rank": 639,
+      "page": 58
+    },
+    "لوط": {
+      "fr": "Lot, Ismaël1, Isaac1",
+      "rank": 643,
+      "page": 51
+    },
+    "سنه": {
+      "fr": "Langue (membre), langage (pl.",
+      "rank": 653,
+      "page": 53
+    },
+    "قريب": {
+      "fr": "Près, proche.",
+      "rank": 663,
+      "page": 38
+    },
+    "مكان": {
+      "fr": "Place, endroit, lieu",
+      "rank": 676,
+      "page": 43
+    },
+    "ويل": {
+      "fr": "Malheur à …",
+      "rank": 689,
+      "page": 45
+    },
+    "فريق": {
+      "fr": "Partie, groupe, division",
+      "rank": 698,
+      "page": 42
+    },
+    "قتل": {
+      "fr": "Tuer, combattre",
+      "rank": 717,
+      "page": 58
+    },
+    "رجل": {
+      "fr": "Homme (pl.",
+      "rank": 718,
+      "page": 52
+    },
+    "عيسي": {
+      "fr": "Moïse, Jésus (ﬁls de) Marie",
+      "rank": 753,
+      "page": 51
+    },
+    "شهداء": {
+      "fr": "Témoin (pl.",
+      "rank": 764,
+      "page": 47
+    },
+    "بي": {
+      "fr": "Prophète, Envoyé (pl.",
+      "rank": 767,
+      "page": 51
+    },
+    "شهيد": {
+      "fr": "Témoin (pl.",
+      "rank": 774,
+      "page": 47
+    },
+    "ذهب": {
+      "fr": "Aller, partir",
+      "rank": 801,
+      "page": 56
+    },
+    "وراء": {
+      "fr": "Derrière",
+      "rank": 821,
+      "page": 27
+    },
+    "دين": {
+      "fr": "Géniteur (père)/ Les deux parents/ Mère(s) (pl.",
+      "rank": 852,
+      "page": 52
+    },
+    "صدق": {
+      "fr": "Etre vrai, dire la vérité",
+      "rank": 853,
+      "page": 58
+    },
+    "رسل": {
+      "fr": "Messager(s) (pl.",
+      "rank": 857,
+      "page": 51
+    },
+    "شركاء": {
+      "fr": "(pl.",
+      "rank": 859,
+      "page": 48
+    },
+    "حميم": {
+      "fr": "Bouillant, chaud, brûlant.",
+      "rank": 871,
+      "page": 37
+    },
+    "الغفور": {
+      "fr": "Le Pardonneur, L’Expiateur de fautes.",
+      "rank": 884,
+      "page": 36
+    },
+    "عهد": {
+      "fr": "Engagement, pacte",
+      "rank": 890,
+      "page": 48
+    },
+    "وجه": {
+      "fr": "Face, visage (pl.",
+      "rank": 904,
+      "page": 53
+    },
+    "قليل": {
+      "fr": "Peu. (fm.",
+      "rank": 939,
+      "page": 38
+    },
+    "حديث": {
+      "fr": "(pl.",
+      "rank": 945,
+      "page": 49
+    },
+    "عباد": {
+      "fr": "Serviteur, adorateur (pl.",
+      "rank": 967,
+      "page": 54
+    },
+    "الحميد": {
+      "fr": "Digne de toutes les plus belles éloges.",
+      "rank": 980,
+      "page": 37
+    },
+    "فعل": {
+      "fr": "En effet, certes +",
+      "rank": 1092,
+      "page": 33
+    },
+    "وجوه": {
+      "fr": "Face, visage (pl.",
+      "rank": 1159,
+      "page": 53
+    },
+    "نور": {
+      "fr": "Lumière",
+      "rank": 1175,
+      "page": 47
+    },
+    "دار": {
+      "fr": "Maison, demeure, habitation (pl.",
+      "rank": 1195,
+      "page": 43
+    },
+    "مال": {
+      "fr": "Richesse, biens matériels (pl.",
+      "rank": 1198,
+      "page": 43
+    },
+    "شكور": {
+      "fr": "Reconnaissant, plein de gratitude6.",
+      "rank": 1224,
+      "page": 36
+    },
+    "اثم": {
+      "fr": "Péché, transgression, crime",
+      "rank": 1273,
+      "page": 49
+    },
+    "حساب": {
+      "fr": "Compte(s)",
+      "rank": 1285,
+      "page": 46
+    },
+    "مس": {
+      "fr": "Fixé, déterminé, spéciﬁé, nommé, désigné",
+      "rank": 1317,
+      "page": 45
+    },
+    "باس": {
+      "fr": "Puissance, colère, punition, tourment",
+      "rank": 1340,
+      "page": 42
+    },
+    "خلف": {
+      "fr": "Derrière, après , à la suite",
+      "rank": 1350,
+      "page": 27
+    },
+    "اي": {
+      "fr": "Où/où que",
+      "rank": 1360,
+      "page": 27
+    },
+    "زوج": {
+      "fr": "(pl.",
+      "rank": 1570,
+      "page": 52
+    },
+    "رجال": {
+      "fr": "Homme (pl.",
+      "rank": 1639,
+      "page": 52
+    },
+    "مكر": {
+      "fr": "Comploter",
+      "rank": 1645,
+      "page": 58
+    },
+    "عبد": {
+      "fr": "Serviteur, adorateur (pl.",
+      "rank": 1703,
+      "page": 54
+    },
+    "مسجد": {
+      "fr": "Mosquée (pl.",
+      "rank": 1772,
+      "page": 43
+    },
+    "القمر": {
+      "fr": "La Lune",
+      "rank": 1953,
+      "page": 41
+    }
+  }
+}

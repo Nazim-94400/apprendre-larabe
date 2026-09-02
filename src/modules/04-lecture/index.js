@@ -129,9 +129,9 @@ async function screenLire(el, surahArg) {
   const surahId = Number(surahArg) || 1;
   const prefs = store.get();
 
-  const [list, meta, verses, rules, voices] = await Promise.all([
+  const [list, meta, verses, rules, voices, trad] = await Promise.all([
     quran.surahs(), quran.surah(surahId), quran.ayahs(surahId),
-    quran.tajweed(surahId), reciters()
+    quran.tajweed(surahId), reciters(), quran.translation(surahId)
   ]);
 
   const reciterId = voices.some((r) => r.id === prefs.reciter) ? prefs.reciter : voices[0].id;
@@ -163,10 +163,13 @@ async function screenLire(el, surahArg) {
 
       <section class="card verses" id="verses">
         ${verses.map((v, i) => `
-          <p class="ar ar-quran verse" data-key="${v.key}" data-i="${i}">
-            ${render(v.text, rules.get(v.key) ?? [])}
-            <span class="ayah-n">${v.n}</span>
-          </p>`).join('')}
+          <div class="verse-block verse" data-key="${v.key}" data-i="${i}">
+            <p class="ar ar-quran">
+              ${render(v.text, rules.get(v.key) ?? [])}
+              <span class="ayah-n">${v.n}</span>
+            </p>
+            ${trad.get(v.key) ? `<p class="trad">${esc(trad.get(v.key))}</p>` : ''}
+          </div>`).join('')}
       </section>
     </div>
 

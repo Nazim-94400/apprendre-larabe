@@ -13,6 +13,7 @@ const DEFAULTS = {
   tajweedColors: true,
   showTashkil: true,
   showTranslit: true,
+  showTranslation: true,
   translation: 'fr'
 };
 

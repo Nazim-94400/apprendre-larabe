@@ -77,8 +77,9 @@ async function screenIndex(el, surahArg) {
 
 async function screenVerset(el, key) {
   const [s] = key.split(':');
-  const [verse, meta, rules, voices] = await Promise.all([
-    quran.ayah(key), quran.surah(s), quran.tajweed(s), reciters()
+  const [verse, meta, rules, voices, trad] = await Promise.all([
+    quran.ayah(key), quran.surah(s), quran.tajweed(s), reciters(),
+    quran.translation(s)
   ]);
   if (!verse) { el.innerHTML = '<div class="card"><p>Verset inconnu.</p></div>'; return; }
 
@@ -93,6 +94,7 @@ async function screenVerset(el, key) {
         <p class="small muted" style="margin-bottom:var(--sp-1)">
           ${esc(meta.name_fr)} <span class="ref">${esc(key)}</span></p>
         <p class="ar ar-quran" id="verse">${render(verse.text, rules.get(key) ?? [])}</p>
+        ${trad.get(key) ? `<p class="trad">${esc(trad.get(key))}</p>` : ''}
         <div style="display:flex;gap:var(--sp-2);flex-wrap:wrap;margin-top:var(--sp-3)">
           <button class="btn btn-ghost" type="button" id="listen">Écouter la référence</button>
           <span class="small muted" id="ref-state"></span>

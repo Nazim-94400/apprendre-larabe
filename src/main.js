@@ -37,6 +37,7 @@ async function boot() {
   const syncFlags = (s) => {
     document.documentElement.dataset.tajweed = s.tajweedColors ? 'on' : 'off';
     document.documentElement.dataset.tashkil = s.showTashkil ? 'on' : 'off';
+    document.documentElement.dataset.translation = s.showTranslation ? 'on' : 'off';
   };
   syncFlags(store.get());
   store.subscribe(syncFlags);

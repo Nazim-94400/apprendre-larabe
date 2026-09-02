@@ -247,3 +247,56 @@ En revanche, tout ce qui est **chiffré ou situé dans le texte** est calculé, 
 recopié : les occurrences de vocabulaire sont comptées sur le texte (77 430 mots hors
 basmalas préfixées, soit exactement le décompte du Quranic Arabic Corpus), et les
 exemples de règles sont extraits des annotations vérifiées.
+
+---
+
+## 12. Traduction française
+
+### Hamidullah, via Tanzil — RETENU
+- URL : https://tanzil.net/trans/
+- Format : `sourate|verset|texte`, **6 236 versets, aucun manquant**
+- Alignement : la traduction vient de la même source que le texte arabe, donc de la
+  même numérotation. Il n'y a rien à deviner.
+- Licence : Tanzil énonce que les traductions qu'il diffuse le sont « for
+  non-commercial purposes only », et qu'un autre usage demande l'accord du traducteur
+  ou de l'éditeur.
+
+> **Ce n'est pas une licence libre**, mais une autorisation d'usage énoncée par le
+> diffuseur. Le projet étant non commercial par construction — l'audio EveryAyah
+> l'impose déjà — l'usage entre dans ce cadre. Attribution et lien vers Tanzil sont
+> obligatoires et figurent sur l'écran « Sources ». La distinction compte si le
+> projet devait un jour changer de nature.
+
+### Kazimirski — ÉCARTÉ, et pourquoi
+
+C'était le premier choix : domaine public (traducteur mort en 1887, édition de 1869),
+texte intégral sur Wikisource, extractible proprement en `<ol><li>`, un verset par
+élément.
+
+Il a été abandonné sur une mesure, pas sur une impression : **55 sourates sur 114
+seulement découpent en autant de versets que la numérotation de Hafs** employée ici.
+Les traductions du XIXᵉ siècle suivent la numérotation européenne de Flügel, qui
+diffère sur des dizaines de versets.
+
+Aligner malgré tout attacherait la traduction du verset 5 au verset 4 — invisible à
+la lecture, et grave dans une application de récitation. Le détail est consigné en
+tête de `tools/build-translation.mjs`.
+
+## 13. Vocabulaire : apport du document du Drive
+
+Une partie des sens français dérive de « 80% des mots du Qour'ân » (AL-LAWH),
+**CC BY-NC-SA 3.0 FR** — attribution et partage à l'identique.
+
+`tools/extract-vocab-pdf.mjs` en extrait les paires français/arabe. Deux garde-fous :
+
+1. **Validation par le texte.** Chaque mot arabe extrait est normalisé puis cherché
+   dans la liste de fréquences, comptée sur le Coran. Un mot qui ne s'y trouve pas
+   sous cette forme est écarté — ce qui élimine les lignes mal découpées et les
+   glyphes mal lus. Sur 404 lignes candidates, 487 mots ont été rejetés à ce titre.
+2. **Relecture humaine.** Les 89 candidats restants ont été repris un par un :
+   **un tiers étaient décalés d'une ligne** et attribuaient à un mot le sens de son
+   voisin — « شك » rendu par « être reconnaissant », « سنة » par « langue ». 84 ont
+   été retenus après correction, 5 écartés pour ambiguïté.
+
+Le fichier `tools/vocab-gloss-candidats.json` conserve la sortie brute, non fusionnée,
+pour que la démarche reste vérifiable.

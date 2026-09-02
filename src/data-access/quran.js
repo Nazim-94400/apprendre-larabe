@@ -65,3 +65,21 @@ export async function tajweed(surahId) {
 
 /** Vide le cache mémoire. Utile aux tests ; sans effet sur le cache du service worker. */
 export const clearCache = () => cache.clear();
+
+/**
+ * Traduction française d'une sourate, indexée par clé de verset.
+ *
+ * Renvoie une Map vide si le fichier manque : une traduction absente ne doit
+ * jamais empêcher d'afficher le texte arabe, qui est l'objet principal.
+ */
+export async function translation(surahId, code = 'fr-hamidullah') {
+  try {
+    const d = await load(`translations/${code}/${pad(surahId)}.json`);
+    return new Map(Object.entries(d.ayahs));
+  } catch {
+    return new Map();
+  }
+}
+
+/** Traductions disponibles, avec leur licence. Pour l'écran « Sources ». */
+export const translations = () => load('translations/index.json').catch(() => null);

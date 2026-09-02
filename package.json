@@ -15,7 +15,9 @@
     "build:vocab": "node tools/build-vocab.mjs",
     "build:review": "node tools/build-review.mjs",
     "build:letter-audio": "node tools/build-letter-audio.mjs",
-    "build:data": "npm run fetch && npm run build:quran && npm run build:tajweed && npm run build:segments && npm run build:vocab",
+    "build:translation": "node tools/build-translation.mjs",
+    "extract:vocab-pdf": "node tools/extract-vocab-pdf.mjs",
+    "build:data": "npm run fetch && npm run build:quran && npm run build:tajweed && npm run build:segments && npm run build:translation && npm run build:vocab",
     "serve": "powershell -ExecutionPolicy Bypass -File tools/serve.ps1",
     "serve:pages": "powershell -ExecutionPolicy Bypass -File tools/serve.ps1 -Port 8081 -Base apprendre-larabe"
   }

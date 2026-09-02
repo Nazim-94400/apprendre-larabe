@@ -28,7 +28,9 @@ const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 const TEXT = join(ROOT, 'data', 'quran', 'text');
 const OUT = join(ROOT, 'data', 'vocab');
 
-const TOP = 500;
+// 2 000 formes couvrent environ les trois quarts du texte. Au-delà, la longue
+// traîne des hapax n'apporte plus rien à un apprenant et alourdit le fichier.
+const TOP = 2000;
 
 // La normalisation est importée de src/data-access/vocab.js : c'est la même que
 // celle utilisée à l'affichage pour retrouver le mot dans ses exemples. Deux

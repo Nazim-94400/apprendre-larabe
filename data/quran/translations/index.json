@@ -1,0 +1,16 @@
+{
+  "_meta": {
+    "generated": "2026-09-02"
+  },
+  "default": "fr-hamidullah",
+  "translations": [
+    {
+      "code": "fr-hamidullah",
+      "name": "Muhammad Hamidullah",
+      "lang": "fr",
+      "source": "Tanzil.net",
+      "url": "https://tanzil.net/trans/",
+      "license": "Usage non commercial autorisé par Tanzil ; accord du traducteur ou de l’éditeur requis pour tout autre usage."
+    }
+  ]
+}

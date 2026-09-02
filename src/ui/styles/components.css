@@ -535,3 +535,19 @@
 .listen-note--quran     { border-inline-start-color: var(--c-accent); }
 .listen-note--speech    { border-inline-start-color: var(--c-warning); }
 .listen-note--none      { border-inline-start-color: var(--c-danger); }
+
+/* ── Traduction française ──────────────────────────────────────────────────── */
+
+/* Retrait et corps réduit : la traduction accompagne le verset, elle ne rivalise
+   pas avec lui. C'est l'arabe qu'on apprend à lire. */
+.trad {
+  margin: var(--sp-1) 0 0;
+  padding-inline-start: var(--sp-3);
+  border-inline-start: 2px solid var(--c-border);
+  font-size: var(--fs-sm);
+  color: var(--c-text-soft);
+}
+[data-translation="off"] .trad { display: none; }
+
+.verse-block { display: block; }
+.verse-block .ar { margin: 0; }

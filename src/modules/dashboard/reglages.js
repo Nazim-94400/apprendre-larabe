@@ -34,6 +34,8 @@ export default {
             <input id="f-tashkil" type="checkbox" ${s.showTashkil ? 'checked' : ''}></label>
           <label class="row"><span>Afficher la translittération</span>
             <input id="f-translit" type="checkbox" ${s.showTranslit ? 'checked' : ''}></label>
+          <label class="row"><span>Afficher la traduction française</span>
+            <input id="f-trad" type="checkbox" ${s.showTranslation ? 'checked' : ''}></label>
           <p class="ar ar-center" style="margin:var(--sp-4) 0 0">\u0628\u0650\u0633\u0652\u0645\u0650 \u0627\u0644\u0644\u0651\u064E\u0647\u0650</p>
           <p class="small muted ar-center" style="text-align:center">Aperçu de la taille de lecture</p>
         </section>
@@ -73,6 +75,7 @@ export default {
     el.querySelector('#f-tajweed').onchange = (e) => store.set({ tajweedColors: e.target.checked });
     el.querySelector('#f-tashkil').onchange = (e) => store.set({ showTashkil: e.target.checked });
     el.querySelector('#f-translit').onchange = (e) => store.set({ showTranslit: e.target.checked });
+    el.querySelector('#f-trad').onchange = (e) => store.set({ showTranslation: e.target.checked });
 
     /* ---- stockage ---- */
 

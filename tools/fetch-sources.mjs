@@ -53,7 +53,15 @@ const SOURCES = [
   // qu'au réalignement — le texte affiché reste l'édition Tanzil actuelle.
   { file: 'quran-uthmani-2017.txt',
     url: 'https://github.com/cpfair/quran-tajweed/files/7281388/quran-uthmani.txt',
-    note: 'Texte de référence des offsets (Tanzil, instantané d\'avril 2017)' }
+    note: 'Texte de référence des offsets (Tanzil, instantané d\'avril 2017)' },
+
+  // Traduction française. Elle vient de Tanzil, comme le texte arabe : les deux
+  // suivent donc la même numérotation, et l'alignement verset par verset est acquis
+  // sans avoir à le deviner. Voir tools/build-translation.mjs pour la raison du
+  // choix de Hamidullah plutôt que Kazimirski.
+  { file: 'fr.hamidullah.txt',
+    url: 'https://tanzil.net/trans/fr.hamidullah',
+    note: 'Traduction française de Hamidullah — Tanzil, usage non commercial' }
 ];
 
 async function exists(p) {
