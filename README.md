@@ -1,5 +1,4 @@
-| Gestion du stockage — audio hors ligne, enregistrements | fait |
-| Audio des lettres isolées | absent — aucune source libre || Module 1 — alphabet, tracé animé, formes, tashkîl, trois quiz | fait |# Apprendre l'arabe — du tracé des lettres à la récitation
+# Apprendre l'arabe — du tracé des lettres à la récitation
 
 **En ligne : https://nazim-94400.github.io/apprendre-larabe/**
 
@@ -54,7 +53,7 @@ s'alignent pas sur le texte — voir `docs/03-sources-et-licences.md`, section 9
 | Couche d'accès aux données et moteur de coloration | fait |
 | Inventaire du Drive (8 PDF) | fait — `docs/00-inventaire-drive.md` |
 | Écran Sources et licences | fait |
-| Module 1 — alphabet, formes, tashkîl, trois quiz | fait |
+| Module 1 — alphabet, tracé animé, formes, tashkîl, trois quiz | fait |
 | Module 2 — makhârij, schéma SVG, discrimination | fait |
 | Module 3 — 18 règles, exemples réels, exercices | fait |
 | Module 4 — lecture guidée, audio, surlignage mot à mot | fait |
@@ -62,6 +61,7 @@ s'alignent pas sur le texte — voir `docs/03-sources-et-licences.md`, section 9
 | Module 6 — masquage progressif, répétition espacée | fait |
 | Module 7 — 500 mots fréquents, quiz sur versets réels | fait |
 | Horodatages mot à mot — 3 récitateurs, 6 236 versets | générés |
+| Gestion du stockage — audio hors ligne, enregistrements | fait |
 | Audio des lettres isolées | absent — aucune source libre |
 | Traduction française des versets | licence non résolue |
 
