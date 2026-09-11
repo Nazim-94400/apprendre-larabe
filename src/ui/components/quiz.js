@@ -22,6 +22,20 @@ const shuffle = (a) => {
 };
 
 /**
+ * Sceau de résultat : un anneau rempli à proportion du score. Jade si l'étape
+ * est validée, laiton sinon — le laiton signale ce qui reste à faire. Pas de
+ * rouge : on ne punit pas un 70 %.
+ *
+ * Exporté pour les exercices qui n'utilisent pas ce moteur (sélection de mots
+ * dans un verset) : tous les écrans de fin se ressemblent.
+ */
+export const seal = (pct, passed) => `
+  <div class="seal${passed ? '' : ' ko'}" style="--deg:${pct * 3.6}deg" aria-hidden="true">
+    <span class="seal-halo"></span>
+    <span class="seal-arc"><span class="seal-pct">${pct} %</span></span>
+  </div>`;
+
+/**
  * @param {HTMLElement} host
  * @param {object} opts
  * @param {Array}  opts.questions  [{ id, prompt, aside?, choices:[{id,label}], answer, hint? }]
@@ -42,8 +56,9 @@ export function quiz(host, { questions, onFinish, finishLabel = 'Terminer' }) {
     host.innerHTML = `
       <section class="card quiz">
         <header class="quiz-head">
-          <span class="small muted">Question ${index + 1} sur ${items.length}</span>
+          <span class="small muted quiz-pos">Question ${index + 1} sur ${items.length}</span>
           <div class="progress" style="flex:1"><i style="width:${(index / items.length) * 100}%"></i></div>
+          <span class="small quiz-right" title="Bonnes réponses">${right} juste${right > 1 ? 's' : ''}</span>
         </header>
 
         <div class="quiz-prompt">${q.prompt}</div>
@@ -79,10 +94,12 @@ export function quiz(host, { questions, onFinish, finishLabel = 'Terminer' }) {
 
         feedback.className = `quiz-feedback ${ok ? 'ok' : 'ko'}`;
         feedback.innerHTML = ok
-          ? `<strong>Juste.</strong>${q.hint ? ` ${q.hint}` : ''}`
-          : `<strong>Non.</strong> La réponse était
-             <span class="quiz-answer">${q.choices.find((c) => c.id === q.answer)?.label ?? ''}</span>.
-             ${q.hint ? `<br>${q.hint}` : ''}`;
+          ? `<p class="quiz-verdict">Juste.</p>${q.hint ? `<p class="small muted" style="margin:0">${q.hint}</p>` : ''}`
+          : `<p class="quiz-verdict">Non.</p>
+             <p style="margin:0">La réponse était
+             <span class="quiz-answer">${q.choices.find((c) => c.id === q.answer)?.label ?? ''}</span>.</p>
+             ${q.hint ? `<p class="small muted" style="margin:var(--sp-1) 0 0">${q.hint}</p>` : ''}`;
+        host.querySelector('.quiz-right').textContent = `${right} juste${right > 1 ? 's' : ''}`;
         feedback.hidden = false;
         next.hidden = false;
         next.focus();
@@ -110,19 +127,29 @@ export function quiz(host, { questions, onFinish, finishLabel = 'Terminer' }) {
     const passed = score >= 0.8;
 
     host.innerHTML = `
-      <section class="card">
+      <section class="card quiz-result">
+        ${seal(pct, passed)}
         <h2>${passed ? 'Étape validée' : 'Presque'}</h2>
-        <p class="quiz-score ${passed ? 'ok' : 'ko'}">${right} / ${items.length}
-          <span class="small muted">(${pct} %)</span></p>
-        <p class="small muted">${passed
-          ? 'Tu peux passer à la suite.'
-          : 'Il faut 80 % pour valider l’étape. Reprends la leçon puis retente.'}</p>
-        <button class="btn" type="button" id="quiz-retry">Recommencer</button>
+        <p class="quiz-score">${right} sur ${items.length}</p>
+        <p class="small muted quiz-note">${passed
+          ? 'Tu peux passer à la suite. Les erreurs reviendront en priorité dans une prochaine série.'
+          : 'Il faut 80 % pour valider l’étape. Une nouvelle série reprend en priorité ce qui a été manqué.'}</p>
+        <div class="hero-actions">
+          <button class="btn" type="button" id="quiz-retry">Nouvelle série</button>
+          <button class="btn btn-ghost" type="button" id="quiz-back">Retour au module</button>
+        </div>
       </section>`;
 
+    // Nouvelle série plutôt que la même rejouée : le module qui monte ce quiz
+    // refait son tirage, pondéré par les erreurs qui viennent d'être enregistrées.
     host.querySelector('#quiz-retry').addEventListener('click', () => {
-      index = 0; right = 0; wrong.length = 0;
-      renderQuestion();
+      dispatchEvent(new HashChangeEvent('hashchange'));
+    });
+    // Retour au module, pas `history.back()` : arrivé par un lien direct, on
+    // quitterait l'application.
+    host.querySelector('#quiz-back').addEventListener('click', () => {
+      const m = location.hash.match(/^#\/m\/[^/]+/);
+      location.hash = m ? m[0] : '#/';
     });
 
     onFinish?.({ score, right, total: items.length, wrong: [...wrong] });

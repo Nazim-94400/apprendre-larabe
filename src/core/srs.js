@@ -19,6 +19,7 @@
  */
 
 import { db } from './db.js';
+import { touch } from './activity.js';
 
 export const GRADES = [
   { id: 0, key: 'again', label: 'Oublié',    hint: 'Revoir dans quelques minutes' },
@@ -84,6 +85,7 @@ export async function put(card) {
 
 /** Note une carte, en la créant si besoin. */
 export async function review(id, g) {
+  touch();
   const card = (await get(id)) ?? newCard(id);
   return put(grade(card, g));
 }

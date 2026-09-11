@@ -18,7 +18,7 @@ export function applyTheme(theme) {
   if (meta) {
     const dark = theme === 'dark' ||
       (theme === 'auto' && matchMedia('(prefers-color-scheme: dark)').matches);
-    meta.content = dark ? '#12100e' : '#faf7f2';
+    meta.content = dark ? '#0e0d0a' : '#f4efe4';
   }
 }
 

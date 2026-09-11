@@ -75,25 +75,43 @@ async function screenIndex(el) {
     </div>`;
 }
 
+/**
+ * Les lettres à tracer : vingt-huit, pas vingt-neuf.
+ *
+ * alphabet.json recense aussi la hamza, qui n'a pas de tracé propre — elle se
+ * pose sur un support. Les quiz et la couverture de l'accueil l'écartent déjà ;
+ * la grille et la fiche doivent faire de même, sinon l'écran titré « vingt-huit
+ * lettres » en affiche vingt-neuf et la fiche annonce « lettre 29 sur 28 ».
+ */
+const traced = (letters) => letters.filter((l) => l.id !== 'hamza');
+
 async function screenLettres(el) {
-  const { letters } = await lessons.alphabet();
+  const letters = traced((await lessons.alphabet()).letters);
 
   el.innerHTML = `
-    <div class="stack">
-      <section class="card">
-        <h2>Les 28 lettres</h2>
-        <p class="muted small">Touche une lettre pour ouvrir sa fiche : formes, point
-          d’articulation, caractéristiques, et lettres avec lesquelles on la confond.</p>
-      </section>
-      <div class="letter-grid">
-        ${letters.map((l) => `
-          <a class="letter-tile" href="${link('lettre/' + l.id)}">
-            <span class="ar ar-letter letter-glyph">${l.forms.isolated}</span>
-            <span class="letter-name">${esc(l.name_fr)}</span>
-          </a>`).join('')}
-      </div>
-      <button class="btn" type="button" id="mark">J’ai parcouru les 28 lettres</button>
-    </div>`;
+    <header class="page-head">
+      <p class="page-date">Module 1 · fondations</p>
+      <p class="page-lede">Les vingt-huit lettres</p>
+      <p class="page-sub">Touche une lettre pour ouvrir sa fiche : le sens du tracé,
+        les quatre formes, le point d’articulation, et celles avec lesquelles on la
+        confond.</p>
+    </header>
+
+    <div class="letter-grid">
+      ${letters.map((l) => `
+        <a class="letter-tile" href="${link('lettre/' + l.id)}">
+          <span class="ar ar-letter letter-glyph">${l.forms.isolated}</span>
+          <span class="letter-name">${esc(l.name_fr)}</span>
+          <span class="letter-tick${l.connects_forward ? '' : ' is-loose'}">${
+            l.connects_forward ? 'se lie' : 'ne se lie pas'}</span>
+        </a>`).join('')}
+    </div>
+
+    <p class="small muted" style="margin:var(--sp-4) 0 var(--sp-5)">
+      Six lettres <strong>ne se lient pas</strong> à la suivante : après elles, le mot
+      repart d’une forme isolée ou initiale.</p>
+
+    <button class="btn" type="button" id="mark">J’ai parcouru les 28 lettres</button>`;
 
   el.querySelector('#mark').addEventListener('click', async (e) => {
     await progress.record('m1:lettres', { done: true });
@@ -103,108 +121,134 @@ async function screenLettres(el) {
 }
 
 async function screenLettre(el, id) {
-  const [{ letters, sifat }, mk] = await Promise.all([lessons.alphabet(), lessons.makharij()]);
-  const l = letters.find((x) => x.id === id);
+  const [{ letters: all, sifat }, mk] = await Promise.all([lessons.alphabet(), lessons.makharij()]);
+  const l = all.find((x) => x.id === id);
   if (!l) { el.innerHTML = '<div class="card"><p>Lettre inconnue.</p></div>'; return; }
 
+  // La hamza garde sa fiche (on y arrive depuis d'autres écrans), mais hors du
+  // rang et de la navigation : précédente et suivante restent dans les 28.
+  const letters = traced(all);
   const point = mk.points.find((p) => p.id === l.makhraj);
   const zone = mk.zones.find((z) => z.id === point?.zone);
-  const conf = l.confusable_with.map((c) => letters.find((x) => x.id === c)).filter(Boolean);
+  const conf = l.confusable_with.map((c) => all.find((x) => x.id === c)).filter(Boolean);
   const i = letters.findIndex((x) => x.id === id);
-  const prev = letters[i - 1], next = letters[i + 1];
+  const prev = i > 0 ? letters[i - 1] : null;
+  const next = i >= 0 ? letters[i + 1] : null;
 
   const vowels = [
     { mark: 'َ', tr: 'a' }, { mark: 'ِ', tr: 'i' },
-    { mark: 'ُ', tr: 'u' }, { mark: 'ْ', tr: '(soukoun)' }
+    { mark: 'ُ', tr: 'u' }, { mark: 'ْ', tr: '' }
   ];
+  const FORMS = [['isolated', 'Isolée'], ['initial', 'Initiale'], ['medial', 'Médiane'], ['final', 'Finale']];
+  const base = l.translit.split(' ')[0];
 
   el.innerHTML = `
-    <div class="stack">
-      <section class="card letter-hero">
-        <div class="ar ar-letter letter-big">${l.forms.isolated}</div>
-        <div>
-          <h2 style="margin-bottom:var(--sp-1)">${esc(l.name_fr)}
-            <span class="ar-inline">${l.name_ar}</span></h2>
-          <p class="small muted" style="margin:0">Translittération : <code>${esc(l.translit)}</code></p>
-          <button class="btn btn-ghost listen" data-letter="${l.id}" data-mark="" data-text="${l.name_ar}"
-                  style="margin-top:var(--sp-3)">Écouter</button>
+    <section class="letter-hero">
+      <div id="stroke"></div>
+      <div class="letter-hero-body">
+        <p class="eyebrow">${i >= 0 ? `Lettre ${i + 1} sur ${letters.length}` : 'Signe d’écriture'}</p>
+        <h2>${esc(l.name_fr)} <span class="ar-inline">${l.name_ar}</span></h2>
+        <p class="small muted letter-translit-row">Translittération
+          <span class="letter-translit">${esc(l.translit)}</span></p>
+        <div class="hero-actions">
+          <button class="btn listen" type="button" data-letter="${l.id}" data-mark=""
+                  data-text="${l.name_ar}">Écouter</button>
+          <button class="btn btn-ghost" type="button" data-replay>Rejouer le tracé</button>
         </div>
-      </section>
+        <p class="stroke-note">Le tracé part de la droite. Il montre le sens
+          d’écriture, pas l’ordre exact des traits : les points se posent en dernier.</p>
+      </div>
+    </section>
 
-      <section class="card">
-        <h3>Le tracé</h3>
-        <div id="stroke"></div>
-      </section>
-
-      <section class="card">
+    <div class="sheet-cols">
+      <section>
         <h3>Les quatre formes</h3>
-        <div class="forms-row">
-          ${[['isolated', 'Isolée'], ['initial', 'Initiale'], ['medial', 'Médiane'], ['final', 'Finale']]
-            .map(([k, label]) => `
-              <div class="form-cell">
-                <span class="ar ar-letter">${l.forms[k]}</span>
-                <span class="small muted">${label}</span>
-              </div>`).join('')}
-        </div>
-        ${l.connects_forward
-          ? ''
-          : `<p class="small muted" style="margin-top:var(--sp-3)">
-               Cette lettre <strong>ne se lie pas</strong> à celle qui suit : après elle,
-               le mot repart d’une forme isolée ou initiale.</p>`}
-      </section>
-
-      <section class="card">
-        <h3>Avec les voyelles</h3>
-        <div class="forms-row">
-          ${vowels.map((v) => `
-            <button class="form-cell listen" type="button" data-letter="${l.id}" data-mark="${v.mark}" data-text="${l.forms.isolated}${v.mark}">
-              <span class="ar ar-letter">${l.forms.isolated}${v.mark}</span>
-              <span class="small muted">${l.translit.split(' ')[0]}${v.tr === '(soukoun)' ? '' : v.tr}</span>
+        <div class="forms-row forms-4">
+          ${FORMS.map(([k, label]) => `
+            <button class="form-cell${k === 'isolated' ? ' is-on' : ''}" type="button" data-form="${k}"
+                    aria-pressed="${k === 'isolated'}">
+              <span class="ar ar-letter">${l.forms[k]}</span>
+              <span class="form-label">${label}</span>
             </button>`).join('')}
         </div>
+        <p class="small muted">${l.connects_forward
+          ? 'Touche une forme pour en voir le tracé. La lettre change de forme selon sa place dans le mot.'
+          : 'Cette lettre <strong>ne se lie pas</strong> à celle qui suit : après elle, le mot repart d’une forme isolée ou initiale.'}</p>
       </section>
 
-      <section class="card">
+      <section>
+        <h3>Avec les voyelles</h3>
+        <div class="forms-row forms-4">
+          ${vowels.map((v) => `
+            <button class="form-cell listen" type="button" data-letter="${l.id}" data-mark="${v.mark}"
+                    data-text="${l.forms.isolated}${v.mark}">
+              <span class="ar ar-letter">${l.forms.isolated}${v.mark}</span>
+              <span class="form-translit">${esc(base + v.tr)}${v.tr ? '' : ' <span class="muted">(soukoun)</span>'}</span>
+            </button>`).join('')}
+        </div>
+        <p class="small muted">Les voyelles brèves ne changent pas la lettre : elles
+          se posent au-dessus ou en dessous.</p>
+      </section>
+    </div>
+
+    <div class="sheet-cols">
+      <section>
         <h3>Point d’articulation</h3>
-        <p><strong>${esc(point?.name_fr ?? '—')}</strong>
+        <p class="makhraj-name"><strong>${esc(point?.name_fr ?? '—')}</strong>
           <span class="ar-inline">${point?.name_ar ?? ''}</span></p>
         <p class="small muted">${esc(point?.desc ?? '')}</p>
-        ${point?.cue ? `<p class="small cue">${esc(point.cue)}</p>` : ''}
+        ${point?.cue ? `<p class="cue">${esc(point.cue)}</p>` : ''}
         <p class="small muted">Zone : ${esc(zone?.name_fr ?? '—')} —
           <a href="#/m/02-makharij/point/${point?.id}">voir le schéma</a></p>
       </section>
 
-      <section class="card">
+      <section>
         <h3>Caractéristiques</h3>
-        <ul class="plan small">
-          ${l.sifat.map((s) => `<li><strong>${esc(sifat[s]?.name_fr ?? s)}</strong>
-             <span class="ar-inline">${sifat[s]?.name_ar ?? ''}</span> —
-             ${esc(sifat[s]?.desc ?? '')}</li>`).join('')}
-        </ul>
-        ${l.note ? `<p class="small cue">${esc(l.note)}</p>` : ''}
-      </section>
-
-      ${conf.length ? `
-      <section class="card">
-        <h3>À ne pas confondre avec</h3>
-        <div class="forms-row">
-          ${conf.map((c) => `
-            <a class="form-cell" href="${link('lettre/' + c.id)}">
-              <span class="ar ar-letter">${c.forms.isolated}</span>
-              <span class="small muted">${esc(c.name_fr)}</span>
-            </a>`).join('')}
+        <div class="sifat-row">
+          ${l.sifat.map((s) => `<span class="sifa" title="${esc(sifat[s]?.desc ?? '')}">
+            ${esc(sifat[s]?.name_fr ?? s)}<span class="ar-inline">${sifat[s]?.name_ar ?? ''}</span></span>`).join('')}
         </div>
-      </section>` : ''}
+        <dl class="sifat-list small">
+          ${l.sifat.map((s) => `<div><dt>${esc(sifat[s]?.name_fr ?? s)}</dt>
+            <dd class="muted">${esc(sifat[s]?.desc ?? '')}</dd></div>`).join('')}
+        </dl>
+        ${l.note ? `<p class="small muted">${esc(l.note)}</p>` : ''}
+      </section>
+    </div>
 
-      <nav class="pager">
-        ${prev ? `<a class="btn btn-ghost" href="${link('lettre/' + prev.id)}">← ${esc(prev.name_fr)}</a>` : '<span></span>'}
-        <a class="btn btn-ghost" href="${link('lettres')}">Toutes les lettres</a>
-        ${next ? `<a class="btn btn-ghost" href="${link('lettre/' + next.id)}">${esc(next.name_fr)} →</a>` : '<span></span>'}
-      </nav>
-    </div>`;
+    ${conf.length ? `
+    <section class="sheet-section">
+      <h3>À ne pas confondre avec</h3>
+      <p class="small muted">Le squelette est le même : seuls les points ou le point
+        d’articulation changent.</p>
+      <div class="confus-row">
+        ${conf.map((c) => `
+          <a class="form-cell" href="${link('lettre/' + c.id)}">
+            <span class="ar ar-letter">${c.forms.isolated}</span>
+            <span class="letter-name">${esc(c.name_fr)}</span>
+          </a>`).join('')}
+      </div>
+    </section>` : ''}
+
+    <nav class="pager">
+      ${prev ? `<a class="btn btn-ghost" href="${link('lettre/' + prev.id)}">← ${esc(prev.name_fr)}</a>` : '<span></span>'}
+      <a class="btn btn-ghost pager-mid" href="${link('lettres')}">Toutes les lettres</a>
+      ${next ? `<a class="btn btn-ghost" href="${link('lettre/' + next.id)}">${esc(next.name_fr)} →</a>` : '<span></span>'}
+    </nav>`;
 
   wireSpeak(el);
   stroke = strokeView(el.querySelector('#stroke'), l);
+
+  el.querySelector('[data-replay]').addEventListener('click', () => stroke.play());
+  for (const b of el.querySelectorAll('[data-form]')) {
+    b.addEventListener('click', () => {
+      for (const o of el.querySelectorAll('[data-form]')) {
+        o.classList.toggle('is-on', o === b);
+        o.setAttribute('aria-pressed', String(o === b));
+      }
+      stroke.setForm(b.dataset.form);
+    });
+  }
 }
 
 async function screenFormes(el) {

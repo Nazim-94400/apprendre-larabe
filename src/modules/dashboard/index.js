@@ -5,12 +5,17 @@
  * vient après, une fois cette réponse donnée — un tableau de bord qui commence par
  * des statistiques laisse l'apprenant décider, ce qui est précisément l'effort
  * qu'on veut lui épargner.
+ *
+ * Mise en page « manuscrit » : un chapeau centré, le module en cours dans un
+ * feuillet avec son médaillon, la série de la semaine, puis deux colonnes à
+ * filets — le parcours (ce qui est ouvert) et le matériau (ce qui est su).
  */
 
 import { MODULES } from '../registry.js';
 import * as progress from '../../core/progress.js';
 import * as srs from '../../core/srs.js';
 import * as drill from '../../core/drill.js';
+import * as activity from '../../core/activity.js';
 import * as lessons from '../../data-access/lessons.js';
 import * as vocab from '../../data-access/vocab.js';
 
@@ -29,12 +34,26 @@ const MODULE_STEPS = {
 };
 
 const plural = (n, s = 's') => (n > 1 ? s : '');
+const pct = (r) => `${Math.round(r * 100)} %`;
+
+const DAY_INITIALS = ['D', 'L', 'M', 'M', 'J', 'V', 'S'];
+const DATE_FMT = new Intl.DateTimeFormat('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' });
+
+/** Ligne à filet : numéro, nom, filet de progression, valeur. */
+const line = ({ href, n, name, ratio, val, brass = false }) => `
+  <a class="mod-line" href="${href}">
+    ${n != null ? `<span class="mod-n${ratio ? ' is-started' : ''}">${n}</span>` : ''}
+    <span class="mod-name">${esc(name)}</span>
+    ${ratio == null ? '' : `<span class="progress mod-bar${brass ? ' is-brass' : ''}">
+      <i style="width:${ratio * 100}%"></i></span>`}
+    <span class="small muted mod-val">${val}</span>
+  </a>`;
 
 export default {
   title: 'Apprendre l’arabe',
 
   async mount(el) {
-    const cards = await srs.all();
+    const [cards, week] = await Promise.all([srs.all(), activity.recent(7)]);
 
     const stats = await Promise.all(MODULES.map(async (m) => {
       const steps = MODULE_STEPS[m.id];
@@ -46,62 +65,86 @@ export default {
         : { m, done: 0, total: 0, ratio: null };
     }));
 
-    const dueCards = cards.filter((c) => c.due <= Date.now());
+    const due = cards.filter((c) => c.due <= Date.now()).length;
     const summary = srs.summarize(cards);
 
     // La suite proposée : le premier module non terminé, dans l'ordre du parcours.
-    const next = stats.find((s) => s.ratio !== null && s.ratio < 1)?.m
-      ?? MODULES.find((m) => m.phase >= 2)
-      ?? MODULES[0];
+    const nextStat = stats.find((s) => s.ratio !== null && s.ratio < 1)
+      ?? stats.find((s) => s.m.phase >= 2)
+      ?? stats[0];
+    const next = nextStat.m;
+    const fresh = stats.every((s) => !s.done) && !week.total;
+
+    // Le bouton secondaire sert ce qui presse : les révisions échues d'abord,
+    // sinon un retour aux lettres, qui reste la base de tout le reste.
+    const second = due
+      ? `<a class="btn btn-ghost" href="#/reviser">Réviser · ${due}</a>`
+      : `<a class="btn btn-ghost" href="#/m/01-fondations/lettres">Revoir les lettres</a>`;
 
     el.innerHTML = `
-      <div class="stack">
-        <section class="card">
-          <h2>Continuer</h2>
-          <p class="muted small">Module ${next.n} — ${esc(next.subtitle)}</p>
-          <a class="btn" href="#/m/${next.id}">${esc(next.title)}</a>
-        </section>
+      <header class="page-head">
+        <p class="page-date">${esc(DATE_FMT.format(new Date()))}</p>
+        <p class="page-lede">${fresh ? 'Commence par les lettres.' : 'Reprends là où tu t’es arrêté.'}</p>
+        <div class="fleuron" aria-hidden="true"><span>۞</span></div>
+      </header>
 
-        ${dueCards.length ? `
-        <section class="card">
-          <h2>À réviser</h2>
-          <p class="muted small">${dueCards.length} carte${plural(dueCards.length)}
-            arrive${plural(dueCards.length, 'nt')} à échéance.</p>
-          <a class="btn" href="#/reviser">Réviser maintenant</a>
-        </section>` : ''}
+      <section class="card card-framed hero">
+        <div class="hero-glyph" aria-hidden="true"><span>${next.icon}</span></div>
+        <div class="hero-body">
+          <p class="eyebrow">Module ${next.n} · ${fresh ? 'pour commencer' : 'étape en cours'}</p>
+          <h2>${esc(next.title)}</h2>
+          <p class="muted">${esc(next.subtitle)}</p>
+          <div class="hero-actions">
+            <a class="btn" href="#/m/${next.id}">${fresh ? 'Commencer' : 'Continuer'}</a>
+            ${second}
+          </div>
+        </div>
+        ${nextStat.ratio != null ? `
+        <div class="ring">
+          <span class="ring-arc">${pct(nextStat.ratio)}</span>
+          <span class="progress" style="width:56px"><i style="width:${nextStat.ratio * 100}%"></i></span>
+          <span>du module</span>
+        </div>` : ''}
+      </section>
 
-        <section class="card">
-          <h2>Où j’en suis</h2>
+      <section class="streak" aria-label="Activité des sept derniers jours">
+        <div>
+          <p class="streak-line">${week.streak
+            ? `${week.streak} jour${plural(week.streak)} d’affilée`
+            : 'Aucune série en cours'}</p>
+          <p class="small muted" style="margin:0">${cards.length
+            ? `${summary.known} acquis · ${summary.learning} en cours · ${due} à réviser`
+            : 'Un exercice par jour suffit à tenir la série.'}</p>
+        </div>
+        <div class="streak-days">
+          ${week.days.map((d) => `
+            <div class="streak-day" title="${esc(DATE_FMT.format(d.date))}${d.done ? ' — travaillé' : ''}">
+              <span>${DAY_INITIALS[d.date.getDay()]}</span>
+              <span class="streak-dot${d.done ? ' is-done' : ''}${d.today ? ' is-today' : ''}"></span>
+            </div>`).join('')}
+        </div>
+      </section>
+
+      <div class="home-cols">
+        <section>
+          <h3>Le parcours</h3>
+          <p class="small muted">Sept modules, du tracé à la récitation.</p>
           <div class="mod-progress">
-            ${stats.map(({ m, ratio, done, total }) => `
-              <a class="mod-line" href="#/m/${m.id}">
-                <span class="mod-n">${m.n}</span>
-                <span class="mod-name">${esc(m.title)}</span>
-                ${ratio === null
-                  ? '<span class="small muted mod-val">libre</span>'
-                  : `<span class="progress mod-bar"><i style="width:${ratio * 100}%"></i></span>
-                     <span class="small muted mod-val">${done}/${total}</span>`}
-              </a>`).join('')}
+            ${stats.map(({ m, ratio, done, total }) => line({
+              href: `#/m/${m.id}`, n: m.n, name: m.title, ratio,
+              val: ratio === null ? 'libre' : `${done}/${total}`
+            })).join('')}
           </div>
         </section>
 
-        ${cards.length ? `
-        <section class="card">
-          <h2>Mémoire</h2>
-          <div class="hifz-stats">
-            <div><strong>${summary.known}</strong><span class="small muted">acquis</span></div>
-            <div><strong>${summary.learning}</strong><span class="small muted">en cours</span></div>
-            <div><strong>${summary.due}</strong><span class="small muted">à réviser</span></div>
-          </div>
-        </section>` : ''}
-
-        <section class="card" id="couverture">
-          <h2>Ce que tu as déjà travaillé</h2>
+        <section id="couverture">
+          <h3>Ce que tu as travaillé</h3>
           <div class="loading">Calcul…</div>
         </section>
+      </div>
 
-        <p class="small muted"><a href="#/sources">Sources et licences</a></p>
-      </div>`;
+      <p class="small muted home-foot">Progression stockée sur cet appareil seulement,
+        sans compte. <a href="#/sources">Sources et licences</a></p>`;
 
     fillCoverage(el.querySelector('#couverture'));
   },
@@ -119,6 +162,9 @@ export default {
  *
  * Il est rempli après le premier rendu : quatre fichiers de leçon suffisent à
  * retarder l'affichage de l'accueil, et l'accueil doit être immédiat.
+ *
+ * Ses filets sont en laiton, ceux du parcours en jade : les deux colonnes
+ * mesurent deux choses différentes, la couleur le dit avant le titre.
  */
 async function fillCoverage(host) {
   if (!host) return;
@@ -160,15 +206,12 @@ async function fillCoverage(host) {
   const cov = await Promise.all(families.map((f) => drill.coverage(f.items)));
 
   host.innerHTML = `
-    <h2>Ce que tu as déjà travaillé</h2>
-    <p class="small muted">Le matériau rencontré au moins une fois en exercice —
-      pas les écrans ouverts.</p>
+    <h3>Ce que tu as travaillé</h3>
+    <p class="small muted">Le matériau rencontré en exercice — pas les écrans ouverts.</p>
     <div class="mod-progress">
-      ${families.map((f, i) => `
-        <a class="mod-line" href="${f.href}">
-          <span class="mod-name">${esc(f.label)}</span>
-          <span class="progress mod-bar"><i style="width:${cov[i].ratio * 100}%"></i></span>
-          <span class="small muted mod-val">${cov[i].seen}/${cov[i].total}</span>
-        </a>`).join('')}
+      ${families.map((f, i) => line({
+        href: f.href, name: f.label, ratio: cov[i].ratio, brass: true,
+        val: `${cov[i].seen}/${cov[i].total}`
+      })).join('')}
     </div>`;
 }

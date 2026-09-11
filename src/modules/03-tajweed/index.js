@@ -15,6 +15,7 @@ import * as quran from '../../data-access/quran.js';
 import * as progress from '../../core/progress.js';
 import * as drill from '../../core/drill.js';
 import { render, wordsWithRule } from '../../data-access/tajweed.js';
+import { seal } from '../../ui/components/quiz.js';
 
 const M = '03-tajweed';
 const link = (r) => `#/m/${M}${r ? '/' + r : ''}`;
@@ -259,8 +260,8 @@ async function screenExercice(el, id) {
       const fb = el.querySelector('.quiz-feedback');
       fb.className = `quiz-feedback ${ok ? 'ok' : 'ko'}`;
       fb.innerHTML = ok
-        ? '<strong>Juste.</strong> Tous les mots sont trouvés.'
-        : `<strong>Pas tout à fait.</strong> Les mots concernés sont maintenant soulignés :
+        ? '<p class="quiz-verdict">Juste.</p><p style="margin:0">Tous les mots sont trouvés.</p>'
+        : `<p class="quiz-verdict">Pas tout à fait.</p> Les mots concernés sont maintenant soulignés :
            ${r.targets.size} sur ${verse.querySelectorAll('.w').length}.`;
       fb.hidden = false;
 
@@ -278,10 +279,11 @@ async function screenExercice(el, id) {
     const score = right / rounds.length;
     await progress.record(exStepOf(rule.id), { score });
     el.innerHTML = `
-      <div class="card">
+      <div class="card quiz-result">
+        ${seal(Math.round(score * 100), score >= 0.8)}
         <h2>${score >= 0.8 ? 'Exercice validé' : 'Presque'}</h2>
-        <p class="quiz-score ${score >= 0.8 ? 'ok' : 'ko'}">${right} / ${rounds.length}</p>
-        <div style="display:flex;gap:var(--sp-2);flex-wrap:wrap">
+        <p class="quiz-score">${right} sur ${rounds.length}</p>
+        <div class="hero-actions">
           <a class="btn btn-ghost" href="${link('regle/' + rule.id)}">Revoir la règle</a>
           <a class="btn" href="${link('')}">Autres règles</a>
         </div>
@@ -407,8 +409,8 @@ async function screenMele(el) {
 
         const fb = el.querySelector('.quiz-feedback');
         fb.className = `quiz-feedback ${ok ? 'ok' : 'ko'}`;
-        fb.innerHTML = `<strong>${ok ? 'Juste.' : 'Non.'}</strong>
-          ${esc(r.rule.name_fr)} — ${esc(r.rule.cue)}`;
+        fb.innerHTML = `<p class="quiz-verdict">${ok ? 'Juste.' : 'Non.'}</p>
+          <p style="margin:0"><strong>${esc(r.rule.name_fr)}</strong> — ${esc(r.rule.cue)}</p>`;
         fb.hidden = false;
         finish(r, ok);
       });
@@ -446,8 +448,8 @@ async function screenMele(el) {
       const fb = el.querySelector('.quiz-feedback');
       fb.className = `quiz-feedback ${ok ? 'ok' : 'ko'}`;
       fb.innerHTML = ok
-        ? '<strong>Juste.</strong> Tous les mots sont trouvés.'
-        : `<strong>Pas tout à fait.</strong> ${r.targets.size} mot${r.targets.size > 1 ? 's' : ''}
+        ? '<p class="quiz-verdict">Juste.</p><p style="margin:0">Tous les mots sont trouvés.</p>'
+        : `<p class="quiz-verdict">Pas tout à fait.</p> ${r.targets.size} mot${r.targets.size > 1 ? 's' : ''}
            concerné${r.targets.size > 1 ? 's' : ''}, maintenant souligné${r.targets.size > 1 ? 's' : ''}.`;
       fb.hidden = false;
       el.querySelector('#check').hidden = true;
@@ -468,12 +470,13 @@ async function screenMele(el) {
     const score = right / rounds.length;
     await progress.record(MELE_STEP, { score });
     el.innerHTML = `
-      <div class="card">
+      <div class="card quiz-result">
+        ${seal(Math.round(score * 100), score >= 0.8)}
         <h2>${score >= 0.8 ? 'Révision validée' : 'Presque'}</h2>
-        <p class="quiz-score ${score >= 0.8 ? 'ok' : 'ko'}">${right} / ${rounds.length}</p>
-        <p class="small muted">Les règles manquées reviendront en priorité à la
+        <p class="quiz-score">${right} sur ${rounds.length}</p>
+        <p class="small muted quiz-note">Les règles manquées reviendront en priorité à la
           prochaine révision.</p>
-        <div style="display:flex;gap:var(--sp-2);flex-wrap:wrap">
+        <div class="hero-actions">
           <a class="btn" href="${link('exercice')}">Recommencer</a>
           <a class="btn btn-ghost" href="${link('')}">Toutes les règles</a>
         </div>

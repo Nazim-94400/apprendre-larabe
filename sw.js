@@ -12,7 +12,7 @@
  * apparente.
  */
 
-const VERSION = 'v32';
+const VERSION = 'v33';
 const SHELL = `app-shell-${VERSION}`;
 const DATA  = `data-${VERSION}`;
 const AUDIO = 'audio';                 // volontairement non versionné : jamais purgé
@@ -32,6 +32,7 @@ const SHELL_ASSETS = [
   './src/ui/styles/rtl.css',
   './src/ui/styles/components.css',
   './src/ui/styles/tajweed.css',
+  './src/ui/styles/components-v2.css',
   './src/modules/registry.js',
   './src/modules/dashboard/index.js',
   './src/modules/dashboard/liste.js',
@@ -40,6 +41,9 @@ const SHELL_ASSETS = [
   './src/modules/dashboard/sources.js',
   './assets/fonts/amiri-arabic-400-normal.woff2',
   './assets/fonts/scheherazade-new-arabic-400-normal.woff2',
+  './assets/fonts/amiri-latin-400-normal.woff2',
+  './assets/fonts/instrument-sans-latin-400-normal.woff2',
+  './assets/fonts/instrument-sans-latin-600-normal.woff2',
   './assets/icons/icon.svg'
 ];
 

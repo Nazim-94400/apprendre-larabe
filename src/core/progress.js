@@ -11,6 +11,7 @@
  */
 
 import { db } from './db.js';
+import { touch } from './activity.js';
 
 export const MASTERY_THRESHOLD = 0.8;
 
@@ -47,6 +48,7 @@ export async function isDone(stepId) {
  */
 export async function record(stepId, { score = null, done = null } = {}) {
   const map = await all();
+  touch();
   const prev = map.get(stepId) ?? { attempts: 0, best: null, status: 'todo', first: null };
 
   const best = score == null ? prev.best : Math.max(prev.best ?? 0, score);

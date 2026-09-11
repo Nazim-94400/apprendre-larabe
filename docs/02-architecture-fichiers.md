@@ -64,7 +64,8 @@ réécrire les URL vers `index.html`.
 │   │       ├── tokens.css      variables (couleurs, espacements, thèmes)
 │   │       ├── base.css
 │   │       ├── rtl.css
-│   │       └── tajweed.css     une couleur par règle
+│   │       ├── tajweed.css     une couleur par règle
+│   │       └── components-v2.css  direction « manuscrit », chargée en dernier
 │   │
 │   └── modules/
 │       ├── 01-fondations/      alphabet, formes, tracé, tashkîl

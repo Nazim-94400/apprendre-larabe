@@ -1,0 +1,569 @@
+/* Direction « manuscrit » (v2) — correctifs et affinages par-dessus components.css.
+   À charger APRÈS components.css (dernier <link> de index.html).
+
+   Trois corrections de fond, en plus de l'habillage :
+
+   1. Les descendantes de Scheherazade New (jîm, 'ayn, mîm, nûn…) débordent très
+      largement de leur boîte de ligne et venaient barrer l'étiquette placée sous
+      la glyphe. Chaque glyphe reçoit donc une boîte de hauteur FIXE et centrée,
+      plutôt qu'une interligne relative.
+   2. Le dévoilement du tracé n'agit plus sur la glyphe mais sur un voile posé
+      par-dessus (voir plus bas) : une animation interrompue ne peut plus faire
+      disparaître l'objet central de l'écran.
+   3. Les grilles sont séparées par des filets d'un pixel — le fond de la grille
+      EST le filet — au lieu d'être des cartes flottantes espacées.
+
+   Rien ici ne renomme une variable ou une classe existante : les modules 2 à 7
+   héritent de la direction sans être modifiés. */
+
+/* ── Grilles à filets ──────────────────────────────────────────────────────── */
+
+/* Le fond de la grille est le filet : un gap de 1px laisse voir le fond, donc
+   les séparateurs sont parfaitement continus, sans double bordure aux jonctions. */
+.letter-grid,
+.stroke-forms,
+.vocab-row {
+  display: grid; gap: 1px;
+  background: var(--c-border);
+  border: 1px solid var(--c-border);
+}
+.letter-grid { grid-template-columns: repeat(auto-fill, minmax(104px, 1fr)); }
+.stroke-forms { grid-template-columns: repeat(4, 1fr); }
+.vocab-row { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); }
+
+.letter-tile,
+.form-cell,
+.vocab-chip {
+  border: 0; border-radius: 0;
+  background: var(--c-surface);
+  transition: background .2s;
+}
+.letter-tile { padding: var(--sp-5) var(--sp-2) var(--sp-4); }
+.letter-tile:hover,
+.form-cell:hover,
+.vocab-chip:hover { background: var(--c-accent-soft); border-color: transparent; }
+
+/* Boîte fixe et centrée : la descendante ne peut plus mordre sur l'étiquette. */
+.letter-glyph {
+  display: grid; place-items: center;
+  height: calc(3.75rem * var(--text-scale));
+  font-family: var(--f-letter);
+  font-size: calc(2.6rem * var(--text-scale));
+  line-height: 1;
+}
+.letter-name {
+  font-size: var(--fs-eyebrow); letter-spacing: .06em;
+  color: var(--c-text-soft); text-align: center;
+}
+
+/* Repère de liaison. Le laiton ne marque que l'EXCEPTION — la lettre qui ne se
+   lie pas — pour que la couleur porte vraiment une information. */
+.letter-tick {
+  font-size: var(--fs-eyebrow); letter-spacing: .1em;
+  text-transform: uppercase; color: var(--c-text-soft);
+  background: none; width: auto; height: auto;
+}
+.letter-tick.is-loose { color: var(--c-brass); }
+
+/* ── Sens d'écriture : le voile, pas la lettre ─────────────────────────────── */
+
+/* Clipper la glyphe elle-même a un défaut rédhibitoire : si l'animation est
+   interrompue ou rejouée à contretemps, la lettre reste masquée et l'écran perd
+   son sujet. On anime donc un voile couleur fond posé PAR-DESSUS, réduit à
+   scaleX(0) au repos : la lettre est visible quoi qu'il arrive. */
+.stroke-stage .ar {
+  display: grid; place-items: center;
+  height: calc(7.2rem * var(--text-scale));
+  font-size: var(--fs-ar-huge);
+  line-height: 1;
+}
+.stroke-ghost { display: none; }
+.stroke-ink { position: static; clip-path: none; color: var(--c-text); }
+
+.stroke-veil {
+  position: absolute; inset: -4% -2%;
+  background: var(--c-bg);
+  transform: scaleX(0);
+  /* L'arabe s'écrit de droite à gauche : le voile se retire vers la gauche, donc
+     la partie droite de la lettre apparaît la première. */
+  transform-origin: left center;
+  pointer-events: none;
+}
+.stroke-stage.is-drawing .stroke-veil {
+  animation: stroke-veil 1.7s cubic-bezier(.25,.9,.3,1) both;
+}
+@keyframes stroke-veil { from { transform: scaleX(1); } to { transform: scaleX(0); } }
+
+@media (prefers-reduced-motion: reduce) {
+  .stroke-veil { animation: none !important; transform: scaleX(0) !important; }
+}
+
+.stroke-dir {
+  font-size: var(--fs-eyebrow); letter-spacing: .14em; text-transform: uppercase;
+  color: var(--c-text-faint);
+}
+.stroke-note {
+  font-family: var(--f-dsp); font-size: var(--fs-lg);
+  font-style: italic; color: var(--c-text-soft);
+}
+
+/* ── Fiche de lettre ───────────────────────────────────────────────────────── */
+
+/* Le hero n'est plus une carte : un filet de séparation suffit, la page respire. */
+.letter-hero {
+  gap: var(--sp-7); padding: 0 0 var(--sp-6);
+  background: none; border: 0; border-bottom: 1px solid var(--c-border);
+  box-shadow: none; margin-bottom: var(--sp-6);
+}
+.letter-hero h2 { font-size: var(--fs-3xl); line-height: 1.18; }
+
+.letter-translit {
+  display: inline-block; padding: 3px var(--sp-2);
+  background: var(--c-surface); border: 1px solid var(--c-border);
+  font-family: ui-monospace, Menlo, monospace; color: var(--c-text);
+}
+
+.form-cell .ar,
+.pair-cell .ar,
+.tashkil-glyph .ar,
+.choice .ar,
+.vocab-chip .ar {
+  display: grid; place-items: center;
+  line-height: 1;
+}
+.form-cell .ar,
+.pair-cell .ar { height: calc(3rem * var(--text-scale)); font-size: calc(2.1rem * var(--text-scale)); }
+.tashkil-glyph .ar { height: calc(3.6rem * var(--text-scale)); }
+.choice .ar { height: calc(2.8rem * var(--text-scale)); }
+.vocab-chip .ar { height: calc(2.4rem * var(--text-scale)); }
+
+/* Le repère pratique parle d'un geste, pas d'une définition : laiton, et en
+   serif — c'est une phrase à se répéter, pas une donnée. */
+.cue {
+  border-inline-start: 2px solid var(--c-brass);
+  background: var(--c-brass-soft);
+  border-radius: 0;
+  padding: var(--sp-4) var(--sp-5);
+  font-family: var(--f-dsp); font-size: var(--fs-lg);
+  line-height: 1.6; color: var(--c-text);
+}
+
+.sifat-row { display: flex; flex-wrap: wrap; gap: var(--sp-2); }
+.sifa {
+  display: inline-flex; align-items: baseline; gap: 7px;
+  padding: 6px var(--sp-3);
+  border: 1px solid var(--c-border); border-radius: 999px;
+  background: var(--c-surface); font-size: var(--fs-sm);
+}
+.sifa .ar-inline { color: var(--c-text-faint); }
+
+.pager {
+  display: flex; gap: var(--sp-3); align-items: center; justify-content: space-between;
+  flex-wrap: wrap; padding-top: var(--sp-5); border-top: 1px solid var(--c-border);
+}
+/* Les voisines se lisent comme un ourlet de page : serif, sans cadre. */
+.pager .btn-ghost:first-child,
+.pager .btn-ghost:last-child {
+  border: 0; padding-inline: var(--sp-1);
+  font-family: var(--f-dsp); font-size: var(--fs-lg);
+  letter-spacing: 0; text-transform: none;
+}
+
+/* ── Accueil ───────────────────────────────────────────────────────────────── */
+
+.page-date {
+  margin: 0 0 var(--sp-3);
+  font-size: var(--fs-eyebrow); font-weight: 600;
+  letter-spacing: .3em; text-transform: uppercase; color: var(--c-brass);
+}
+
+.hero {
+  display: flex; flex-wrap: wrap; align-items: center;
+  gap: clamp(20px, 4vw, 46px); padding: clamp(20px, 3.6vw, 42px);
+}
+
+/* Médaillon : cercle, halo qui respire, filet intérieur. C'est l'objet précieux
+   de l'écran — la seule forme circulaire du contenu. */
+.hero-glyph {
+  flex: none; position: relative;
+  display: grid; place-items: center;
+  width: clamp(120px, 20vw, 164px); height: clamp(120px, 20vw, 164px);
+  border: 0; border-radius: 50%; background: none;
+  font-family: var(--f-letter); font-size: clamp(62px, 11vw, 92px);
+  line-height: 1; color: var(--c-accent);
+}
+.hero-glyph::before {
+  content: ''; position: absolute; inset: 0;
+  border-radius: 50%; background: var(--c-accent-soft);
+}
+.hero-glyph::after {
+  content: ''; position: absolute; inset: 9px;
+  border: 1px solid var(--c-hair); border-radius: 50%;
+}
+.hero-glyph > span { position: relative; }
+@media (prefers-reduced-motion: no-preference) {
+  .hero-glyph::before { animation: hero-glow 4.5s ease-in-out infinite; }
+}
+@keyframes hero-glow { 0%, 100% { opacity: .55; } 50% { opacity: 1; } }
+
+.hero-body { flex: 1 1 250px; min-width: 0; }
+.hero-body h2 { margin-bottom: var(--sp-2); font-size: clamp(26px, 3.6vw, 38px); }
+.hero-body > p { max-width: 46ch; }
+.hero-actions { display: flex; flex-wrap: wrap; gap: var(--sp-3); margin-top: var(--sp-5); }
+
+/* Le pourcentage devient un chiffre de titre : c'est un résultat, pas une jauge. */
+.ring { flex: none; display: flex; flex-direction: column; align-items: center; gap: var(--sp-2); min-width: 96px; }
+.ring-arc {
+  width: auto; height: auto; background: none; border-radius: 0;
+  font-family: var(--f-dsp); font-size: clamp(34px, 5vw, 46px); line-height: 1.1;
+  color: var(--c-accent); font-variant-numeric: tabular-nums; white-space: nowrap;
+}
+.ring-arc::before { display: none; }
+.ring > span:last-child {
+  font-size: var(--fs-eyebrow); letter-spacing: .16em;
+  text-transform: uppercase; color: var(--c-text-faint);
+}
+
+/* Lignes de progression : filets pleine largeur, pas de pastilles numérotées. */
+.mod-progress { display: block; }
+.mod-line {
+  gap: var(--sp-4); padding: var(--sp-3) var(--sp-1);
+  border-radius: 0; border-bottom: 1px solid var(--c-border);
+  align-items: baseline;
+}
+.mod-line:hover { background: var(--c-surface); }
+.mod-n {
+  width: auto; height: auto; min-width: 1.3em;
+  border-radius: 0; background: none;
+  font-family: var(--f-dsp); font-size: var(--fs-md); font-weight: 400;
+  color: var(--c-text-faint); font-variant-numeric: tabular-nums;
+}
+.mod-n.is-started { background: none; color: var(--c-accent); }
+.mod-name { font-size: var(--fs-md); }
+.mod-bar { flex: 0 1 72px; }
+
+/* Série : sept points, un par jour. Le laiton marque aujourd'hui. */
+.streak {
+  display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between;
+  gap: var(--sp-5); padding: var(--sp-4) var(--sp-4);
+  border-block: 1px solid var(--c-border);
+}
+.streak-line { margin: 0 0 2px; font-family: var(--f-dsp); font-size: var(--fs-xl); }
+.streak-days { display: flex; gap: var(--sp-3); }
+.streak-day { display: flex; flex-direction: column; align-items: center; gap: 6px; width: 30px; }
+.streak-day > span:first-child {
+  font-size: 10px; letter-spacing: .1em; color: var(--c-text-faint);
+}
+.streak-dot { width: 9px; height: 9px; border-radius: 50%; background: var(--c-border); }
+.streak-dot.is-done { background: var(--c-accent); }
+.streak-dot.is-today {
+  background: var(--c-brass);
+  box-shadow: 0 0 0 4px var(--c-brass-soft);
+}
+
+/* ── Quiz ──────────────────────────────────────────────────────────────────── */
+
+.quiz-head { display: flex; align-items: center; gap: var(--sp-4); margin-bottom: var(--sp-5); }
+.quiz-pos { white-space: nowrap; }
+.quiz-right {
+  color: var(--c-accent); font-weight: 600; font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.quiz-prompt {
+  font-family: var(--f-dsp); font-size: var(--fs-2xl);
+  line-height: 1.24; margin-bottom: var(--sp-5);
+}
+.quiz-glyph {
+  display: grid; place-items: center;
+  height: calc(9rem * var(--text-scale));
+  margin-bottom: var(--sp-5);
+  background: var(--c-surface); border: 1px solid var(--c-border);
+  font-family: var(--f-letter); font-size: calc(6rem * var(--text-scale)); line-height: 1;
+}
+
+.quiz-choices {
+  display: grid; gap: var(--sp-2);
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 150px), 1fr));
+  margin-bottom: var(--sp-4);
+}
+.choice {
+  position: relative; min-height: 64px; padding: var(--sp-3) var(--sp-4);
+  border: 1px solid var(--c-border); border-radius: var(--radius);
+  background: var(--c-surface); color: inherit; font: inherit; cursor: pointer;
+}
+.choice:hover:not(:disabled) { border-color: var(--c-accent); background: var(--c-accent-soft); }
+.choice-right { border-width: 2px; border-color: var(--c-accent); background: var(--c-accent-soft); }
+.choice-wrong { border-width: 2px; border-color: var(--c-danger); background: var(--c-surface-2); opacity: 1; }
+
+.quiz-feedback {
+  padding: var(--sp-4) var(--sp-5);
+  background: var(--c-surface);
+  border: 1px solid var(--c-border); border-inline-start-width: 2px;
+  margin-bottom: var(--sp-4);
+}
+.quiz-feedback.ok { border-inline-start-color: var(--c-accent); }
+.quiz-feedback.ko { border-inline-start-color: var(--c-danger); }
+.quiz-verdict { margin: 0 0 var(--sp-1); font-family: var(--f-dsp); font-size: var(--fs-xl); }
+.quiz-feedback.ok .quiz-verdict { color: var(--c-accent); }
+.quiz-feedback.ko .quiz-verdict { color: var(--c-danger); }
+.quiz-answer { font-weight: 600; color: var(--c-text); }
+
+/* Sceau de résultat : un anneau qui se dessine, dans un halo qui respire. */
+.quiz-result { text-align: center; padding: var(--sp-7) var(--sp-5); }
+.quiz-result .hero-actions { justify-content: center; }
+.quiz-score { margin-bottom: var(--sp-1); font-family: var(--f-dsp); font-size: var(--fs-xl); }
+.quiz-note { max-width: 38ch; margin-inline: auto; margin-bottom: var(--sp-6); }
+
+.seal {
+  position: relative; display: grid; place-items: center;
+  width: 132px; height: 132px; margin: 0 auto var(--sp-5);
+}
+.seal-halo { position: absolute; inset: 0; border-radius: 50%; background: var(--c-accent-soft); }
+.seal.ko .seal-halo { background: var(--c-brass-soft); }
+.seal-arc {
+  position: relative; display: grid; place-items: center;
+  width: 112px; height: 112px; border-radius: 50%;
+  background: conic-gradient(var(--c-accent) var(--deg), var(--c-surface-2) 0);
+}
+.seal.ko .seal-arc { background: conic-gradient(var(--c-brass) var(--deg), var(--c-surface-2) 0); }
+.seal-arc::before { content: ''; position: absolute; inset: 8px; border-radius: 50%; background: var(--c-surface); }
+.seal-pct {
+  position: relative; font-family: var(--f-dsp);
+  font-size: var(--fs-2xl); font-variant-numeric: tabular-nums;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .seal-arc { animation: seal-in .45s cubic-bezier(.2,.9,.3,1) both; }
+  .seal-halo { animation: seal-pulse 2.6s ease-in-out infinite; }
+}
+@keyframes seal-in { from { opacity: 0; transform: scale(.86); } to { opacity: 1; transform: none; } }
+@keyframes seal-pulse {
+  0%, 100% { opacity: .3; transform: scale(1); }
+  50%      { opacity: .6; transform: scale(1.12); }
+}
+
+/* ── Lecture guidée : la page de mushaf ────────────────────────────────────── */
+
+/* Texte centré dans un feuillet à double filet, traduction en italique serif
+   sous le verset. Ce n'est plus une liste d'éléments, c'est une page. */
+.verses {
+  position: relative; max-width: 820px; margin: 0 auto;
+  background: var(--c-surface); border: 1px solid var(--c-border);
+  padding: clamp(20px, 4vw, 52px) clamp(16px, 3.5vw, 44px);
+}
+.verses::before {
+  content: ''; position: absolute; inset: 8px;
+  border: 1px solid var(--c-hair); opacity: .45; pointer-events: none;
+}
+.verses .verse {
+  position: relative;
+  padding: var(--sp-4) var(--sp-3);
+  border-radius: 0; border-inline-start: 0;
+  border-bottom: 1px solid var(--c-border);
+}
+.verses .verse:last-child { border-bottom: 0; }
+.verses .verse:hover { background: var(--c-surface-2); }
+.verses .verse.is-current { background: var(--c-surface-2); border-inline-start-color: transparent; }
+.verses .ar { text-align: center; line-height: var(--lh-ar); }
+
+.trad {
+  margin: var(--sp-2) 0 0; padding-inline-start: 0;
+  border-inline-start: 0; text-align: center;
+  font-family: var(--f-dsp); font-size: var(--fs-lg); font-style: italic;
+  line-height: 1.6; color: var(--c-text-soft);
+}
+
+/* Le mot en cours de récitation : jade sur lavis, sans encadrement. */
+.verses .w-playing, .verses .w-active,
+.exo-verse .w-playing {
+  background: var(--c-accent-soft);
+  box-shadow: 0 0 0 4px var(--c-accent-soft);
+  color: var(--c-accent);
+  border-radius: 3px;
+}
+
+/* Bouton de lecture circulaire : c'est une commande, comme celles de l'en-tête. */
+.pb-main {
+  width: 46px; height: 46px; min-width: 46px;
+  border-radius: 50%; border: 1px solid var(--c-accent);
+  font-size: var(--fs-md);
+}
+.pb-rate span:first-child {
+  font-size: var(--fs-eyebrow); letter-spacing: .14em;
+  text-transform: uppercase; color: var(--c-text-faint);
+}
+.pb-rate #rate-val { font-family: var(--f-dsp); font-size: var(--fs-lg); }
+
+/* ── Mémorisation ──────────────────────────────────────────────────────────── */
+
+.hifz-stats { gap: var(--sp-4); }
+.hifz-stats > div { background: none; border-radius: 0; padding: 0; }
+.hifz-stats strong {
+  font-family: var(--f-dsp); font-size: var(--fs-2xl); font-weight: 400;
+  color: var(--c-accent); font-variant-numeric: tabular-nums;
+}
+.hifz-stats > div:nth-child(2) strong { color: var(--c-brass); }
+.hifz-stats > div:last-child strong { color: var(--c-text); }
+.hifz-stats span { font-size: var(--fs-eyebrow); letter-spacing: .1em; text-transform: uppercase; }
+
+.hifz-level {
+  font-size: var(--fs-eyebrow); letter-spacing: .14em; text-transform: uppercase;
+  font-weight: 600; padding: var(--sp-2) var(--sp-3);
+}
+.hifz-verse .ar { text-align: center; }
+.hifz-verse .w-hidden { box-shadow: inset 0 0 0 1px var(--c-border); border-radius: 3px; }
+
+.grade { border-radius: var(--radius); background: var(--c-surface); }
+.grade strong, .grade > span:first-child { font-size: var(--fs-md); font-weight: 600; }
+.grade > span:last-child { font-size: var(--fs-eyebrow); color: var(--c-text-faint); }
+
+/* ── Cibles tactiles ───────────────────────────────────────────────────────── */
+
+@media (pointer: coarse) {
+  .letter-tile, .choice, .grade { min-height: 48px; }
+}
+
+/* ── Compléments du portage ────────────────────────────────────────────────────
+   Ce qui suit n'était pas dans le lot fourni : les structures que la maquette
+   dessine en styles en ligne et qu'aucune classe du dépôt ne portait encore. */
+
+/* Accueil : deux colonnes à filets dès 560 px, empilées en dessous. */
+.hero { margin-bottom: clamp(18px, 3vw, 30px); }
+.streak { margin-bottom: clamp(22px, 4vw, 38px); }
+.home-cols {
+  display: grid; gap: clamp(22px, 4vw, 44px);
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 330px), 1fr));
+}
+.home-cols h3 { margin-bottom: 3px; font-size: calc(1.625rem * var(--text-scale)); }
+.home-cols h3 + p { margin-bottom: var(--sp-4); color: var(--c-text-faint); }
+.mod-val { min-width: 3.9em; }
+.home-foot {
+  margin-top: var(--sp-7); padding-top: var(--sp-5);
+  border-top: 1px solid var(--c-border); color: var(--c-text-faint);
+}
+
+/* Médaillon d'en-tête : le qâf de la marque, dans un cercle à filet. */
+.app-mark {
+  flex: none; display: grid; place-items: center;
+  width: 30px; height: 30px;
+  border: 1px solid var(--c-hair); border-radius: 50%;
+  background: var(--c-surface); color: var(--c-accent);
+  font-family: var(--f-letter); font-size: 19px; line-height: 1;
+  text-decoration: none;
+}
+
+/* Fiche de lettre : la glyphe géante tient la gauche, le reste la droite. */
+.letter-hero { align-items: center; }
+.letter-hero-body { flex: 1 1 260px; min-width: 0; }
+.letter-hero h2 {
+  display: flex; flex-wrap: wrap; align-items: baseline; gap: var(--sp-4);
+  margin-bottom: var(--sp-2);
+}
+.letter-hero h2 .ar-inline { font-size: .62em; color: var(--c-text-faint); }
+.letter-translit-row { display: flex; align-items: baseline; gap: var(--sp-3); flex-wrap: wrap; }
+.letter-hero .hero-actions { margin-top: var(--sp-4); }
+.letter-hero .stroke-note { margin: var(--sp-4) 0 0; font-size: var(--fs-md); }
+
+.letter-hero .stroke-stage {
+  position: relative; display: grid; place-items: center;
+  min-width: clamp(160px, 26vw, 240px);
+}
+.letter-hero .stroke-stage .ar {
+  height: clamp(170px, 26vw, 250px);
+  font-size: calc(clamp(120px, 20vw, 196px) * var(--text-scale));
+}
+
+/* Deux rangées de deux colonnes, empilées sous 620 px. */
+.sheet-cols {
+  display: grid; gap: clamp(24px, 4vw, 48px);
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 290px), 1fr));
+  margin-bottom: clamp(26px, 4vw, 44px);
+}
+.sheet-cols h3, .sheet-section h3 { font-size: calc(1.4375rem * var(--text-scale)); }
+.sheet-section { margin-bottom: clamp(26px, 4vw, 44px); }
+.sheet-cols .forms-row + p { margin-top: var(--sp-3); }
+
+/* Rangées de formes : même grille à filets que la liste des lettres. */
+.forms-row {
+  gap: 1px; background: var(--c-border); border: 1px solid var(--c-border);
+}
+.forms-4 { grid-template-columns: repeat(4, 1fr); }
+.form-cell {
+  border: 0; border-radius: 0; background: var(--c-surface);
+  padding: var(--sp-4) var(--sp-1) var(--sp-3);
+}
+.form-cell:hover { border-color: transparent; }
+.form-cell.is-on { background: var(--c-accent-soft); box-shadow: inset 0 -2px 0 var(--c-accent); }
+.form-label {
+  font-size: 10px; letter-spacing: .12em; text-transform: uppercase; color: var(--c-text-faint);
+}
+.form-translit { font-family: ui-monospace, Menlo, monospace; font-size: var(--fs-xs); color: var(--c-text-faint); }
+
+.makhraj-name { display: flex; flex-wrap: wrap; align-items: baseline; gap: var(--sp-3); }
+.makhraj-name strong { font-family: var(--f-dsp); font-size: var(--fs-lg); font-weight: 400; }
+.makhraj-name .ar-inline { color: var(--c-text-faint); }
+
+.sifat-row { margin-bottom: var(--sp-4); }
+.sifat-list { margin: 0 0 var(--sp-3); }
+.sifat-list > div { display: flex; gap: var(--sp-2); flex-wrap: wrap; padding: 3px 0; }
+.sifat-list dt { font-weight: 600; }
+.sifat-list dd { margin: 0; }
+
+/* Lettres à ne pas confondre : des cartons séparés, pas une grille — ce ne
+   sont pas des variantes d'une même chose mais des voisines à distinguer. */
+.confus-row { display: flex; flex-wrap: wrap; gap: var(--sp-3); }
+.confus-row .form-cell {
+  border: 1px solid var(--c-border); padding: var(--sp-3) var(--sp-5);
+}
+.confus-row .form-cell:hover { border-color: var(--c-accent); background: var(--c-accent-soft); }
+
+.pager-mid { min-height: 44px; }
+.letter-tile { text-decoration: none; color: inherit; }
+
+/* Grilles à filets, variante sans trou gris.
+
+   Le « fond de grille = filet » de la maquette laisse voir le fond sous les
+   cases vides d'une dernière rangée incomplète : 28 lettres sur 3 colonnes
+   (mobile) finissent par deux pavés gris. Chaque case porte donc ses filets
+   droit et bas, la grille son filet haut et gauche : une rangée incomplète
+   s'arrête net, sans pavé. */
+.letter-grid, .forms-row, .vocab-row, .stroke-forms {
+  gap: 0; background: none; border: 0;
+  border-top: 1px solid var(--c-border);
+  border-inline-start: 1px solid var(--c-border);
+}
+.letter-grid > *, .forms-row > *, .vocab-row > *, .stroke-forms > * {
+  border: 0;
+  border-inline-end: 1px solid var(--c-border);
+  border-bottom: 1px solid var(--c-border);
+}
+
+/* Listes de cartes (étapes d'un module, règles de tajwîd, sourates).
+   Dans une grille, la marge de `.card + .card` s'ajoute à l'écart : 36 px de gap
+   plus 16 px de marge écartaient chaque carte de plus de 50 px, et une liste de
+   dix sourates ne tenait plus dans deux écrans. L'écart de la grille suffit. */
+.grid { gap: var(--sp-3); }
+.grid > .card + .card { margin-top: 0; }
+
+/* Dans une consigne en serif, le mot demandé ressort par la couleur, pas par
+   le gras : Amiri latin n'est embarquée qu'en 400, et un gras synthétisé par le
+   navigateur épaissit la lettre sans la dessiner — « Fâ' » y paraissait composé
+   dans une autre police que le reste de la phrase. */
+.quiz-prompt strong, .quiz-q strong { font-weight: 400; color: var(--c-accent); }
+.quiz-prompt .quiz-q { margin-bottom: var(--sp-3); }
+.quiz-score { font-weight: 400; }
+
+/* La bonne réponse doit se voir d'un coup d'œil, même sur un écran pâle : le
+   lavis jade seul se distingue mal du vélin. Filet doublé et texte jade. */
+.choice-right { color: var(--c-accent); box-shadow: inset 0 0 0 1px var(--c-accent); }
+
+/* Sur téléphone, le pourcentage passe sous les boutons : en colonne centrée, il
+   flottait seul contre la marge gauche. En ligne, il se lit comme une légende. */
+@media (max-width: 520px) {
+  .ring { flex-direction: row; align-items: center; gap: var(--sp-3); min-width: 0; }
+  .ring-arc { font-size: var(--fs-2xl); }
+}
+@media (max-width: 520px) {
+  /* Seule sur sa rangée, la grande lettre se centre au lieu de coller à gauche. */
+  .letter-hero > #stroke { flex: 1 1 100%; }
+}

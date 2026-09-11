@@ -15,99 +15,51 @@
  * calligraphe, pas de développeur. Le texte de l'écran le dit plutôt que de laisser
  * croire à un modèle de calligraphie.
  *
- * Technique : plutôt que des chemins SVG redessinés, on dévoile la glyphe de la
- * police elle-même par un `clip-path`. Le dessin est donc exactement celui que
- * l'apprenant verra partout ailleurs dans l'application — une reproduction
- * approximative apprendrait une forme légèrement fausse.
+ * ── Un voile qui se retire, jamais la lettre qu'on découpe ───────────────────────
+ *
+ * La version précédente animait un `clip-path` sur la glyphe elle-même. Défaut
+ * rédhibitoire : une animation interrompue — changement d'écran, relance à
+ * contretemps — laissait la lettre masquée, et l'écran perdait son sujet.
+ *
+ * On anime donc un voile couleur fond posé PAR-DESSUS la lettre. Au repos, il est
+ * réduit à `scaleX(0)` par la feuille de style : quoi qu'il arrive au script, la
+ * lettre reste visible. Toute l'animation est en CSS (components-v2.css) ; le
+ * script ne fait que retirer et remettre une classe.
+ *
+ * La glyphe est celle de la police elle-même, pas un chemin redessiné : le dessin
+ * est exactement celui que l'apprenant verra partout ailleurs dans l'application.
  */
-
-const FORMS = [
-  ['isolated', 'Isolée'],
-  ['initial', 'Initiale'],
-  ['medial', 'Médiane'],
-  ['final', 'Finale']
-];
-
-const DURATION = 1700;
 
 /**
- * @param {HTMLElement} host
- * @param {object} letter  entrée de data/lessons/alphabet.json
+ * @param {HTMLElement} host   reçoit la scène (glyphe + voile)
+ * @param {object} letter      entrée de data/lessons/alphabet.json
  */
 export function strokeView(host, letter) {
-  let form = 'isolated';
-  let raf = 0;
-
   host.innerHTML = `
-    <div class="stroke">
-      <div class="stroke-stage">
-        <span class="ar ar-letter stroke-ghost" aria-hidden="true"></span>
-        <span class="ar ar-letter stroke-ink"></span>
-        <i class="stroke-pen" aria-hidden="true"></i>
-      </div>
-
-      <p class="stroke-dir" aria-hidden="true">
-        <span>on écrit dans ce sens</span> <span class="stroke-arrow">←</span></p>
-
-      <div class="stroke-forms">
-        ${FORMS.map(([k, label]) => `
-          <button class="hifz-level${k === 'isolated' ? ' is-on' : ''}" type="button"
-                  data-form="${k}">${label}</button>`).join('')}
-      </div>
-
-      <button class="btn btn-ghost" type="button" data-replay>Rejouer le tracé</button>
-      <p class="small muted stroke-note">L’animation montre le sens d’écriture, non
-        l’ordre exact des traits : les points se posent en dernier, une fois le corps
-        de la lettre tracé.</p>
+    <div class="stroke-stage">
+      <span class="ar ar-letter stroke-ink" lang="ar"></span>
+      <span class="stroke-veil" aria-hidden="true"></span>
     </div>`;
 
-  const ghost = host.querySelector('.stroke-ghost');
+  const stage = host.querySelector('.stroke-stage');
   const ink = host.querySelector('.stroke-ink');
-  const pen = host.querySelector('.stroke-pen');
+
+  function play() {
+    // Relancer une animation CSS déjà jouée : retirer la classe, forcer un
+    // recalcul de mise en page, la remettre. Sans le recalcul, le navigateur
+    // fusionne les deux changements et rien ne se rejoue.
+    stage.classList.remove('is-drawing');
+    void stage.offsetWidth;
+    stage.classList.add('is-drawing');
+  }
 
   function setForm(k) {
-    form = k;
-    ghost.textContent = letter.forms[k];
-    ink.textContent = letter.forms[k];
-    for (const b of host.querySelectorAll('[data-form]')) {
-      b.classList.toggle('is-on', b.dataset.form === k);
-    }
+    ink.textContent = letter.forms[k] ?? letter.forms.isolated;
     play();
   }
 
-  function play() {
-    cancelAnimationFrame(raf);
+  setForm('isolated');
 
-    // Respecte le réglage système : une animation qu'on ne peut pas arrêter est
-    // pénible, et pour certaines personnes elle est franchement inconfortable.
-    if (matchMedia('(prefers-reduced-motion: reduce)').matches) {
-      ink.style.clipPath = 'none';
-      pen.style.opacity = '0';
-      return;
-    }
-
-    const t0 = performance.now();
-    pen.style.opacity = '1';
-
-    const tick = (t) => {
-      const p = Math.min(1, (t - t0) / DURATION);
-      // `inset(… gauche)` à 100 % ne laisse rien voir ; en descendant vers 0, la
-      // zone visible grandit depuis le bord droit — soit exactement le sens de
-      // l'écriture arabe.
-      ink.style.clipPath = `inset(-20% 0 -20% ${(1 - p) * 100}%)`;
-      pen.style.insetInlineStart = `${(1 - p) * 100}%`;
-      if (p < 1) raf = requestAnimationFrame(tick);
-      else pen.style.opacity = '0';
-    };
-    raf = requestAnimationFrame(tick);
-  }
-
-  for (const b of host.querySelectorAll('[data-form]')) {
-    b.addEventListener('click', () => setForm(b.dataset.form));
-  }
-  host.querySelector('[data-replay]').addEventListener('click', play);
-
-  setForm(form);
-
-  return { play, stop: () => cancelAnimationFrame(raf) };
+  // Rien à arrêter : une animation CSS s'éteint avec son élément.
+  return { play, setForm, stop() {} };
 }

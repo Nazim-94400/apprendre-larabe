@@ -8,17 +8,65 @@ body {
   margin: 0;
   font-family: var(--f-ui);
   font-size: var(--fs-md);
-  line-height: 1.6;
+  line-height: 1.65;
   color: var(--c-text);
-  background: var(--c-bg);
+  /* Une seule lueur, très large, en haut de page : elle suffit à faire respirer
+     l'ivoire sans devenir un dégradé décoratif. */
+  background:
+    radial-gradient(120% 90% at 50% -10%,
+      color-mix(in srgb, var(--c-surface) 70%, transparent) 0%, transparent 55%),
+    var(--c-bg);
   padding-block: var(--header-h) calc(var(--nav-h) + env(safe-area-inset-bottom));
   -webkit-text-size-adjust: none;
+  text-wrap: pretty;
 }
 
-h1, h2, h3 { line-height: 1.3; margin: 0 0 var(--sp-3); font-weight: 600; }
-h2 { font-size: var(--fs-lg); }
-h3 { font-size: var(--fs-md); }
+/* Titres en serif, graisse normale, grands. Le contraste vient de l'opposition
+   serif/sans et du corps — pas du gras. */
+h1, h2, h3 {
+  font-family: var(--f-dsp);
+  font-weight: 400;
+  /* Amiri porte des accents hauts : sous ~1.2 d'interligne, le circonflexe de la
+     ligne suivante percute la précédente. */
+  line-height: 1.22;
+  margin: 0 0 var(--sp-3);
+  letter-spacing: 0;
+}
+h1 { font-size: var(--fs-3xl); }
+h2 { font-size: var(--fs-2xl); }
+h3 { font-size: var(--fs-xl); }
 p  { margin: 0 0 var(--sp-3); }
+
+/* Sur-titre : c'est lui qui donne le ton. Laiton, petites capitales espacées. */
+.eyebrow {
+  margin: 0 0 var(--sp-2);
+  font-family: var(--f-ui);
+  font-size: var(--fs-eyebrow); font-weight: 600;
+  letter-spacing: var(--ls-eyebrow); text-transform: uppercase;
+  color: var(--c-brass);
+}
+
+/* Chapeau centré des têtes d'écran. */
+.page-head { text-align: center; margin-bottom: var(--sp-6); }
+.page-lede {
+  margin: 0 auto; font-family: var(--f-dsp);
+  font-size: var(--fs-3xl); line-height: 1.16; max-width: 24ch;
+}
+.page-sub { margin: var(--sp-3) auto 0; max-width: 54ch; color: var(--c-text-soft); }
+
+/* Fleuron : deux filets et un signe. Trois éléments, aucune image. */
+.fleuron {
+  display: flex; align-items: center; justify-content: center;
+  gap: var(--sp-3); margin-top: var(--sp-4);
+}
+.fleuron::before, .fleuron::after {
+  content: ''; width: clamp(40px, 10vw, 110px); height: 1px;
+}
+.fleuron::before { background: linear-gradient(90deg, transparent, var(--c-hair)); }
+.fleuron::after  { background: linear-gradient(90deg, var(--c-hair), transparent); }
+.fleuron > span {
+  font-family: var(--f-letter); font-size: 15px; line-height: 1; color: var(--c-brass);
+}
 
 .skip-link {
   position: absolute; inset-inline-start: -9999px; top: 0; z-index: 100;
@@ -33,143 +81,182 @@ p  { margin: 0 0 var(--sp-3); }
 
 .app-header {
   position: fixed; inset: 0 0 auto 0; height: var(--header-h); z-index: 10;
-  display: flex; align-items: center; gap: var(--sp-2);
-  padding-inline: var(--sp-3);
-  background: color-mix(in srgb, var(--c-bg) 88%, transparent);
-  backdrop-filter: blur(12px);
+  display: flex; align-items: center; gap: var(--sp-3);
+  padding-inline: var(--sp-4);
+  background: color-mix(in srgb, var(--c-bg) 92%, transparent);
+  backdrop-filter: blur(16px);
   border-bottom: 1px solid var(--c-border);
 }
 .app-title {
   flex: 1; min-width: 0; margin: 0;
-  font-size: var(--fs-md); font-weight: 600;
+  font-family: var(--f-dsp); font-size: var(--fs-lg); font-weight: 400;
   overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
 }
 .header-actions { display: flex; gap: var(--sp-1); }
 
+/* Boutons d'en-tête circulaires : ils tranchent avec les angles nets du reste,
+   ce qui les désigne comme des commandes et non du contenu. */
 .icon-btn {
   display: grid; place-items: center;
-  min-width: 40px; height: 40px; padding: 0 var(--sp-2);
-  border: 0; border-radius: var(--radius-sm);
-  background: transparent; color: var(--c-text);
-  font: inherit; font-size: var(--fs-md); cursor: pointer;
+  min-width: 38px; height: 38px; padding: 0 var(--sp-2);
+  border: 1px solid var(--c-border); border-radius: 50%;
+  background: transparent; color: var(--c-text-soft);
+  font: inherit; font-size: var(--fs-sm); cursor: pointer;
+  transition: border-color .15s, color .15s;
 }
-.icon-btn:hover { background: var(--c-surface-2); }
+.icon-btn:hover { border-color: var(--c-accent); color: var(--c-accent); }
 
 .vue {
   max-width: var(--content-max); margin: 0 auto;
-  padding: var(--sp-4) var(--sp-4) var(--sp-6);
+  padding: var(--sp-6) var(--sp-4) var(--sp-7);
 }
 .vue:focus { outline: none; }
+@media (prefers-reduced-motion: no-preference) {
+  .vue { animation: vue-rise .45s cubic-bezier(.2,.8,.2,1) both; }
+}
+@keyframes vue-rise { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
 
+/* Navigation en petites capitales soulignées d'un filet : pas de pastille, pas
+   d'icône colorée — la barre sous l'onglet actif suffit. */
 .app-nav {
   position: fixed; inset: auto 0 0 0; z-index: 10;
   display: grid; grid-auto-flow: column; grid-auto-columns: 1fr;
   height: calc(var(--nav-h) + env(safe-area-inset-bottom));
-  padding-bottom: env(safe-area-inset-bottom);
-  background: color-mix(in srgb, var(--c-bg) 92%, transparent);
-  backdrop-filter: blur(12px);
+  padding: var(--sp-1) var(--sp-2) env(safe-area-inset-bottom);
+  background: color-mix(in srgb, var(--c-bg) 95%, transparent);
+  backdrop-filter: blur(16px);
   border-top: 1px solid var(--c-border);
 }
 .app-nav a {
+  position: relative;
   display: flex; flex-direction: column; align-items: center; justify-content: center;
-  gap: 2px; text-decoration: none;
-  color: var(--c-text-faint); font-size: var(--fs-xs);
+  gap: 4px; text-decoration: none;
+  color: var(--c-text-faint);
+  font-size: var(--fs-eyebrow); font-weight: 600;
+  letter-spacing: .12em; text-transform: uppercase;
 }
-.app-nav a span:first-child { font-size: var(--fs-lg); line-height: 1; }
+.app-nav a span:first-child { font-size: var(--fs-md); line-height: 1; }
 .app-nav a[aria-current="page"] { color: var(--c-accent); }
+/* Le filet double la couleur : lisible sans distinguer le jade. */
+.app-nav a[aria-current="page"]::after {
+  content: ''; position: absolute; inset-inline: 22%; top: 4px;
+  height: 1px; background: var(--c-accent);
+}
 
-/* ---- Elements communs ---- */
+/* ---- Feuillets ---- */
 
+/* Un encart est un feuillet : fond vélin, filet extérieur, filet intérieur en
+   retrait. Le double filet remplace l'ombre portée. */
 .card {
+  position: relative;
   background: var(--c-surface);
   border: 1px solid var(--c-border);
   border-radius: var(--radius);
-  padding: var(--sp-4);
-  box-shadow: var(--shadow);
+  padding: var(--sp-5);
+  box-shadow: var(--shadow-pop);
 }
-.card + .card { margin-top: var(--sp-3); }
+.card + .card { margin-top: var(--sp-4); }
+
+.card-framed::before {
+  content: ''; position: absolute; inset: 7px;
+  border: 1px solid var(--c-hair); opacity: .5; pointer-events: none;
+}
+.card-framed > * { position: relative; }
 
 .card-link {
   display: block; text-decoration: none; color: inherit;
-  transition: border-color .15s, transform .15s;
+  transition: border-color .15s;
 }
-.card-link:hover { border-color: var(--c-accent); transform: translateY(-1px); }
+.card-link:hover { border-color: var(--c-accent); }
 
-.grid { display: grid; gap: var(--sp-3); }
+.grid { display: grid; gap: var(--sp-6); }
 @media (min-width: 560px) { .grid-2 { grid-template-columns: 1fr 1fr; } }
 
+/* Boutons : rectangles nets, libellé en petites capitales espacées.
+   padding vertical réel + line-height, pour qu'un libellé sur deux lignes ne
+   soit pas écrasé par min-height. */
 .btn {
   display: inline-flex; align-items: center; justify-content: center; gap: var(--sp-2);
-  min-height: 44px; padding: 0 var(--sp-5);
-  border: 1px solid transparent; border-radius: var(--radius-sm);
+  min-height: 48px; padding: 13px var(--sp-5); line-height: 1.35;
+  border: 1px solid var(--c-accent); border-radius: var(--radius);
   background: var(--c-accent); color: var(--c-accent-text);
-  font: inherit; font-weight: 600; cursor: pointer;
+  font-family: var(--f-ui); font-size: var(--fs-eyebrow); font-weight: 600;
+  letter-spacing: .16em; text-transform: uppercase;
+  cursor: pointer; text-align: center;
+  transition: background .15s, border-color .15s, color .15s;
 }
+.btn:hover:not(:disabled) { background: var(--c-accent-hi); border-color: var(--c-accent-hi); }
 .btn:disabled { opacity: .5; cursor: not-allowed; }
-.btn-ghost { background: transparent; color: var(--c-text); border-color: var(--c-border); }
+.btn-ghost {
+  background: transparent; color: var(--c-text-soft); border-color: var(--c-border);
+}
+.btn-ghost:hover:not(:disabled) {
+  background: transparent; border-color: var(--c-accent); color: var(--c-accent);
+}
+a.btn { text-decoration: none; }
 
 .muted { color: var(--c-text-soft); }
 .small { font-size: var(--fs-sm); }
-.loading { padding: var(--sp-6) 0; text-align: center; color: var(--c-text-faint); }
-.stack > * + * { margin-top: var(--sp-4); }
+.loading { padding: var(--sp-7) 0; text-align: center; color: var(--c-text-faint); }
+.stack > * + * { margin-top: var(--sp-5); }
 
+/* Pastilles : le seul endroit où l'arrondi total est conservé. */
 .badge {
-  display: inline-block; padding: 2px var(--sp-2);
-  border-radius: 999px; font-size: var(--fs-xs); font-weight: 600;
-  background: var(--c-surface-2); color: var(--c-text-soft);
+  display: inline-block; padding: 5px var(--sp-3);
+  border: 1px solid var(--c-border); border-radius: 999px;
+  font-size: var(--fs-eyebrow); font-weight: 600;
+  letter-spacing: .1em; text-transform: uppercase;
+  background: transparent; color: var(--c-text-soft);
 }
-.badge-locked { background: var(--c-surface-2); color: var(--c-text-faint); }
-.badge-active { background: var(--c-accent-soft); color: var(--c-accent); }
-.badge-done   { background: var(--c-accent-soft); color: var(--c-success); }
+.badge-locked { color: var(--c-text-faint); }
+.badge-active,
+.badge-done { background: var(--c-accent-soft); border-color: var(--c-accent); color: var(--c-accent); }
 
-.progress { height: 6px; border-radius: 999px; background: var(--c-surface-2); overflow: hidden; }
-.progress > i { display: block; height: 100%; background: var(--c-accent); border-radius: inherit; }
+/* Barre de progression : un filet de 2 px, pas une gélule. */
+.progress { height: 2px; background: var(--c-border); position: relative; overflow: hidden; }
+.progress > i {
+  position: absolute; inset: 0 auto 0 0;
+  background: var(--c-accent); transition: width .3s ease;
+}
+.progress.is-brass > i { background: var(--c-brass); }
 
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; }
 }
 
-/* .icon-btn est en display:grid, ce qui l'emporte sur la regle [hidden] du
-   navigateur. Sans !important, le bouton retour reste visible sur l'accueil. */
 [hidden] { display: none !important; }
 
-/* .btn s'applique aussi bien a <button> qu'a <a> */
-a.btn { text-decoration: none; }
-
-/* Lignes de formulaire des reglages */
-/* min-width:0 sur la ligne ET sur le select : un element de grille a un
-   min-width implicite egal a son contenu minimal, et un select adopte la largeur
-   de sa plus longue option. Sans les deux, la page deborde horizontalement. */
+/* Lignes de formulaire */
 .row {
   display: flex; align-items: center; justify-content: space-between;
-  gap: var(--sp-3); padding: var(--sp-2) 0; min-width: 0;
+  gap: var(--sp-3); padding: var(--sp-4) 0; min-width: 0;
   border-bottom: 1px solid var(--c-border);
 }
 .row > span { flex: 0 0 auto; }
 .row:last-of-type { border-bottom: 0; }
 .row input[type="checkbox"] { width: 20px; height: 20px; accent-color: var(--c-accent); }
-.row input[type="range"] { flex: 0 1 180px; accent-color: var(--c-accent); }
+.row input[type="range"] { flex: 0 1 190px; accent-color: var(--c-accent); }
 /* min-width:0 est indispensable : sans lui, un select au libellé long force la
    largeur de son conteneur flex et fait déborder la page horizontalement. */
 .row select {
   min-width: 0; max-width: 100%;
-  min-height: 36px; padding: 0 var(--sp-2);
-  border: 1px solid var(--c-border); border-radius: var(--radius-sm);
+  min-height: 38px; padding: 0 var(--sp-3);
+  border: 1px solid var(--c-border); border-radius: var(--radius);
   background: var(--c-surface); color: var(--c-text); font: inherit;
 }
 
 .plan { margin: 0; padding-inline-start: var(--sp-5); }
 .plan li { margin-bottom: var(--sp-1); }
 
-a { color: var(--c-accent); text-underline-offset: 2px; }
+a { color: var(--c-accent); text-underline-offset: 3px; text-decoration-thickness: 1px; }
 a:hover { text-decoration-thickness: 2px; }
 
-/* Numéro de verset, discret et non sélectionnable avec le texte */
+/* Numéro de verset en médaillon laiton — le repère du mushaf. */
 .ayah-n {
-  display: inline-block; margin-inline-start: var(--sp-2);
-  min-width: 1.9em; padding: 0 .35em;
-  border: 1px solid var(--c-border); border-radius: 999px;
-  font-family: var(--f-ui); font-size: var(--fs-xs); font-weight: 600;
-  color: var(--c-text-faint); vertical-align: middle;
+  display: inline-block; margin-inline-start: var(--sp-3);
+  min-width: 1.9em; padding: 0 .3em;
+  border: 1px solid var(--c-hair); border-radius: 50%;
+  font-family: var(--f-dsp); font-size: var(--fs-sm); font-weight: 400;
+  color: var(--c-brass); vertical-align: middle;
   user-select: none;
 }

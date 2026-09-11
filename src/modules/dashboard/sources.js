@@ -37,7 +37,11 @@ const SOURCES = [
     license: 'CC BY-NC-SA 3.0 FR — attribution et partage à l’identique.' },
 
   { name: 'Amiri, Amiri Quran et Scheherazade New', url: 'https://software.sil.org/scheherazade/',
-    what: 'Polices arabes',
+    what: 'Polices arabes, et titres latins (Amiri)',
+    license: 'SIL Open Font License 1.1' },
+
+  { name: 'Instrument Sans', url: 'https://github.com/Instrument/instrument-sans',
+    what: 'Police de l’interface',
     license: 'SIL Open Font License 1.1' }
 ];
 

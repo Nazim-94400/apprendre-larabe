@@ -102,9 +102,14 @@ dont la licence est explicite, soit limiter le Module 7 à la traduction mot à 
 
 | Police | Licence | Usage prévu |
 |---|---|---|
-| Amiri | SIL OFL 1.1 — libre, redistribuable | interface + texte non coranique |
+| Amiri | SIL OFL 1.1 — libre, redistribuable | arabe non coranique ; titres latins (sous-ensembles latin, latin-ext, italique) |
 | Scheherazade New | SIL OFL 1.1 — libre, redistribuable | lettres isolées, Modules 1–2 (très lisible en grand corps) |
+| Instrument Sans | SIL OFL 1.1 — libre, redistribuable | interface (sous-ensembles latin et latin-ext, 400 et 600) |
 | KFGQPC / QCF (Uthmanic Hafs) | **restrictive** — explicitement exclue des autorisations de QUL | à éviter, ou usage à valider au cas par cas |
+
+Toutes viennent des paquets fontsource (npm), copiées dans `assets/fonts/` avec
+leur fichier de licence. Aucune n'est chargée depuis un CDN : un `<link>` Google
+Fonts casserait le fonctionnement hors ligne au premier lancement.
 
 Décision : n'embarquer que des polices OFL. Le rendu « mushaf » page par page,
 qui exige les polices QCF, est écarté au profit d'un rendu Unicode.

@@ -25,6 +25,7 @@
  */
 
 import { db } from './db.js';
+import { touch } from './activity.js';
 
 let cache = null;
 
@@ -39,6 +40,7 @@ async function all() {
 /** Enregistre le passage sur un item. */
 export async function record(id, ok) {
   const map = await all();
+  touch();
   const prev = map.get(id) ?? { seen: 0, wrong: 0, last: null };
   const next = {
     seen: prev.seen + 1,
